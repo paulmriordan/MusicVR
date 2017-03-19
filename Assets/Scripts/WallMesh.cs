@@ -131,7 +131,7 @@ public class WallMesh : MonoBehaviour
 	{
 		for (int i = m_wallButtons.Length - 1; i > 0; i--)
 		{
-			Destroy(transform.GetChild(i).gameObject);
+			Destroy(m_wallButtons[i].transform.parent.gameObject);
 		}
 	}
 
@@ -158,9 +158,10 @@ public class WallMesh : MonoBehaviour
 				float y = iRow * (buttonPadding + buttonWidth) + buttonWidth * 0.5f + buttonPadding;
 				var pos = new Vector3(x, y, z);
 				var posRot = new Vector3(x, 0, z);
-				var inst = GameObject.Instantiate(ButtonPrefab, pos, Quaternion.LookRotation(-posRot), transform); 
+				var inst = GameObject.Instantiate(ButtonPrefab, pos, Quaternion.LookRotation(-posRot));
+				inst.transform.SetParent(transform, false);
 				inst.transform.localScale = new Vector3(buttonWidth, buttonWidth, buttonWidth);
-				m_wallButtons[iRow + iCol*NumRows] = inst.GetComponent<WallButton>();
+				m_wallButtons[iRow + iCol*NumRows] = inst.GetComponentInChildren<WallButton>();
 			}
 		}
 	}
@@ -194,7 +195,7 @@ public class WallMesh : MonoBehaviour
 	{
 		float buttonWidth = GetButtonWidth();
 		float buttonPadding = ButtonPaddingFrac * buttonWidth;
-		return buttonPadding + NumRows*(buttonWidth + buttonPadding);
+		return buttonWidth + buttonPadding + NumRows*(buttonWidth + buttonPadding);
 	}
 
 	//______________________________________________________________________________________
@@ -209,6 +210,9 @@ public class WallMesh : MonoBehaviour
 			m_mesh.RecalculateNormals();
 			m_mesh.RecalculateBounds();
 		}
+
+		for (int i = 0; i < m_wallButtons.Length; i++)
+			m_wallButtons[i].CustomUpdate();
 
 		m_NeedMeshUpdate = false;
 	}
