@@ -5,30 +5,29 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter))]
 public class WallMesh : MonoBehaviour
 {
-	//______________________________________________________________________________________
-
-	//______________________________________________________________________________________
-	[Range(0, 100)]
-	public int 						NumCols = 4;
-	[Range(0, 1000)]
-	public float 					NumRows = 1000;
+	public int 						NumCols = 8;
+	public int 						NumRows = 50;
 	[Range(0, 1000)]
 	public float 					VertRadius = 25.0f;
 	public float 					ButtonPaddingFrac = 5.0f;
 	[Range(0, 1)]
 	public float 					ButtonWidthFrac = 0.5f;
+	public float 					ProbInitSelected = 0.2f;
 	public GameObject 				ButtonPrefab;
 
 	protected Mesh 					m_mesh;
 	protected Vector3[] 			m_vertices;
 	protected Vector2[] 			m_uvs;
 	protected Color[] 				m_colours;
+	private WallButton[]			m_wallButtons = new WallButton[0];
 
 	public bool		 				m_NeedMeshUpdate {get; set;}
 
 	const int vertsPerCol = 4;
 	const int trisPerCol = 2;
 	const int indicesPerTri = 3;
+
+	bool[] m_buttonData;
 
 	//______________________________________________________________________________________
 	void Start()
@@ -55,9 +54,24 @@ public class WallMesh : MonoBehaviour
 
 		//Create & assign new mesh
 		m_mesh = GetComponent<MeshFilter>().sharedMesh = CreateWallMesh();
+
+		//Create new buttons
 		DestroyButtons();
 		CreateButtons();
 
+		CreateDummyButtonData();
+		LoadButtonData(m_buttonData);
+
+		//Centre the wall around the camera
+		transform.position = new Vector3(0, -GetTotalHeight()*0.5f, 0);
+	}
+
+	void CreateDummyButtonData()
+	{
+		m_buttonData = new bool[NumRows*NumCols];
+		UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
+		for (int i = 0; i < m_buttonData.Length; i++)
+			m_buttonData[i] = UnityEngine.Random.value < ProbInitSelected;
 	}
 
 	//______________________________________________________________________________________
@@ -67,9 +81,7 @@ public class WallMesh : MonoBehaviour
 
 		int[] triangles = new int[indicesPerTri*trisPerCol*NumCols];
 		float colAngle = (2*Mathf.PI)/(float)NumCols;
-		float buttonWidth = GetButtonWidth();
-		float buttonPadding = ButtonPaddingFrac * buttonWidth;
-		float height = buttonPadding + NumRows*(buttonWidth + buttonPadding);
+		float height = GetTotalHeight();
 		int v = 0;
 		int t = 0;
 		for (int iCol = 0; iCol < NumCols; iCol++) 
@@ -114,9 +126,10 @@ public class WallMesh : MonoBehaviour
 		return mesh;
 	}
 
+	//______________________________________________________________________________________
 	private void DestroyButtons()
 	{
-		for (int i = transform.childCount - 1; i > 0; i--)
+		for (int i = m_wallButtons.Length - 1; i > 0; i--)
 		{
 			Destroy(transform.GetChild(i).gameObject);
 		}
@@ -125,6 +138,8 @@ public class WallMesh : MonoBehaviour
 	//______________________________________________________________________________________
 	private void CreateButtons()
 	{
+		m_wallButtons = new WallButton[NumCols*NumRows];
+
 		float colAngle = (2*Mathf.PI)/(float)NumCols;
 		float buttonWidth = GetButtonWidth();
 		float buttonPadding = ButtonPaddingFrac * buttonWidth;
@@ -145,14 +160,41 @@ public class WallMesh : MonoBehaviour
 				var posRot = new Vector3(x, 0, z);
 				var inst = GameObject.Instantiate(ButtonPrefab, pos, Quaternion.LookRotation(-posRot), transform); 
 				inst.transform.localScale = new Vector3(buttonWidth, buttonWidth, buttonWidth);
+				m_wallButtons[iRow + iCol*NumRows] = inst.GetComponent<WallButton>();
 			}
 		}
 	}
 
+	//______________________________________________________________________________________
+	private void LoadButtonData(bool[] buttonData)
+	{
+		if (m_wallButtons.Length != buttonData.Length)
+		{
+			Debug.LogError("lengths don't match??  wallbuttons: " + m_wallButtons.Length + " buttonData: " +  buttonData.Length);
+			return;
+		}
+		for (int iCol = 0; iCol < NumCols; iCol++) 
+		{
+			for (int iRow = 0; iRow < NumRows; iRow++) 
+			{
+				m_wallButtons[iRow + iCol*NumRows].SetSelected(buttonData[iRow + iCol*NumRows]);
+			}
+		}
+	}
+
+	//______________________________________________________________________________________
 	float GetButtonWidth()
 	{
 		float colAngle = (2*Mathf.PI)/(float)NumCols;
 		return VertRadius * Mathf.Sin(colAngle) / (Mathf.Sin((Mathf.PI - colAngle)*0.5f)) * ButtonWidthFrac;	
+	}
+
+	//______________________________________________________________________________________
+	float GetTotalHeight()
+	{
+		float buttonWidth = GetButtonWidth();
+		float buttonPadding = ButtonPaddingFrac * buttonWidth;
+		return buttonPadding + NumRows*(buttonWidth + buttonPadding);
 	}
 
 	//______________________________________________________________________________________
