@@ -8,6 +8,7 @@ public class WallButton : MonoBehaviour
 	public Material UnselectedMaterial;
 
 	private MeshRenderer m_meshRenderer;
+	private bool m_selected;
 
 	void Awake()
 	{
@@ -16,6 +17,17 @@ public class WallButton : MonoBehaviour
 
 	public void SetSelected(bool selected)
 	{
-		m_meshRenderer.material = selected ? SelectedMaterial: UnselectedMaterial;
+		m_selected = selected;
+		m_meshRenderer.material = m_selected ? SelectedMaterial: UnselectedMaterial;
 	}	
+
+	public void OnMouseDown()
+	{
+//		SetSelected(!m_selected);
+	}
+
+	public void OnMouseUp()
+	{
+		SetSelected(!m_selected);
+	}
 }
