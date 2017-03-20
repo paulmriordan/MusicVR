@@ -28,6 +28,12 @@ public class SmoothMouseLook : MonoBehaviour {
 	public float frameCounter = 20;
 
 	Quaternion originalRotation;
+	private bool m_enabled = true;
+
+	public void EnableLook(bool enabled)
+	{
+		m_enabled = enabled;	
+	}
 
 	void Update ()
 	{
@@ -36,8 +42,11 @@ public class SmoothMouseLook : MonoBehaviour {
 			rotAverageY = 0f;
 			rotAverageX = 0f;
 
-			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
-			rotationX += Input.GetAxis("Mouse X") * sensitivityX;
+			if (m_enabled)
+			{
+				rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+				rotationX += Input.GetAxis("Mouse X") * sensitivityX;
+			}
 
 			rotArrayY.Add(rotationY);
 			rotArrayX.Add(rotationX);
@@ -71,7 +80,10 @@ public class SmoothMouseLook : MonoBehaviour {
 		{			
 			rotAverageX = 0f;
 
-			rotationX += Input.GetAxis("Mouse X") * sensitivityX;
+			if (m_enabled)
+			{
+				rotationX += Input.GetAxis("Mouse X") * sensitivityX;
+			}
 
 			rotArrayX.Add(rotationX);
 
@@ -92,7 +104,10 @@ public class SmoothMouseLook : MonoBehaviour {
 		{			
 			rotAverageY = 0f;
 
-			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+			if (m_enabled)
+			{
+				rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+			}
 
 			rotArrayY.Add(rotationY);
 

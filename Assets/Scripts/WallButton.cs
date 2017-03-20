@@ -11,37 +11,43 @@ public class WallButton : MonoBehaviour
 	public Vector3 ScaleMouseDown = new Vector3(1.2f,1.2f,0.6f);
 	public Vector3 ScaleUnselected = new Vector3(1.0f,1.0f,1.0f);
 
-	private MeshRenderer m_meshRenderer;
+	public MeshRenderer MeshRenderer;
 	private bool m_selected;
 	public bool MouseDown {get; private set;}
 
 	enum E_InputSelectType {none, selecting, unselecting}
 	private static E_InputSelectType s_inputSelectType = E_InputSelectType.none;
 	private static WallButton s_lastHitButton = null;
+	private static bool s_selectionEnabled = true;
 
 	private Vector3 m_scaleVelocity;
 
-	void Awake()
+	public static void SelectionEnabled(bool enabled)
 	{
-		m_meshRenderer = GetComponent<MeshRenderer>();
+		s_selectionEnabled = enabled;	
 	}
 
 	public void SetSelected(bool selected)
 	{
 		m_selected = selected;
-		m_meshRenderer.material = m_selected ? SelectedMaterial : UnselectedMaterial;
+		MeshRenderer.material = m_selected ? SelectedMaterial : UnselectedMaterial;
 	}	
 
 	public void OnMouseDown()
 	{
-		MouseDown = true;
-		s_inputSelectType = m_selected ? E_InputSelectType.unselecting : E_InputSelectType.selecting;
-		SetSelected(s_inputSelectType == E_InputSelectType.selecting);
+		
+		if (s_selectionEnabled)
+		{
+			MouseDown = true;
+			s_inputSelectType = m_selected ? E_InputSelectType.unselecting : E_InputSelectType.selecting;
+			SetSelected(s_inputSelectType == E_InputSelectType.selecting);
+		}
 	}
 
 	public void OnMouseEnter()
 	{
-		if (Input.GetMouseButton(0))
+		Debug.Log("enter");
+		if (Input.GetMouseButton(0) && s_selectionEnabled)
 		{
 			if (s_inputSelectType == E_InputSelectType.none)
 				s_inputSelectType = m_selected ? E_InputSelectType.unselecting : E_InputSelectType.selecting;
@@ -53,6 +59,7 @@ public class WallButton : MonoBehaviour
 
 	public void OnMouseExit()
 	{
+		Debug.Log("exit");
 		MouseDown = false;
 	}
 
@@ -71,6 +78,12 @@ public class WallButton : MonoBehaviour
 			targetScale = ScaleMouseDown;
 		else if (m_selected)
 			targetScale = ScaleSelected;
-		transform.localScale = Vector3.SmoothDamp(transform.localScale, targetScale, ref m_scaleVelocity, ScaleTime);
+		if ((targetScale - MeshRenderer.transform.localScale).sqrMagnitude < 0.001f)
+			MeshRenderer.transform.localScale = targetScale;
+		else
+			MeshRenderer.transform.localScale = Vector3.SmoothDamp(MeshRenderer.transform.localScale, 
+				targetScale, 
+				ref m_scaleVelocity,
+				ScaleTime);
 	}
 }
