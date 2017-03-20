@@ -10,7 +10,9 @@ public class WallButton : MonoBehaviour
 	public Vector3 ScaleSelected = new Vector3(1.0f,1.0f,0.8f);
 	public Vector3 ScaleMouseDown = new Vector3(1.2f,1.2f,0.6f);
 	public Vector3 ScaleUnselected = new Vector3(1.0f,1.0f,1.0f);
+	[ColorUsageAttribute(true, true, 0, 8, 0.125f, 3)]
 	public Color PlayingColor;
+	[ColorUsageAttribute(true, true, 0, 8, 0.125f, 3)]
 	public Color SelectedColor;
 	public float PlayingFadeTime = 0.1f;
 
