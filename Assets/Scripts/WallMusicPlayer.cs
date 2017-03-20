@@ -86,7 +86,7 @@ public class WallMusicPlayer : MonoBehaviour
 			var button = m_wallButtons.GetButton(iRow, currCol);
 			if (button.IsSelected)
 			{
-				int note = iRow;
+				int note = MusicScaleConverter.Get(m_wallProperties.Scale).Convert(iRow);
 				m_synth.NoteOn(1, note);
 				m_currPlaying.Add(note);
 			}
