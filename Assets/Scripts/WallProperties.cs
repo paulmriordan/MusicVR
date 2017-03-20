@@ -12,6 +12,7 @@ public class WallProperties
 	public float Radius = 0.1f;
 	public float ButtonPaddingFrac = 0.5f;
 	public float ButtonWidthFac = 0.75f;
+	public float Tempo = 120.0f;
 
 	public float GetButtonWidth()
 	{

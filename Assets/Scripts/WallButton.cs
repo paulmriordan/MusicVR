@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class WallButton : MonoBehaviour 
 {
+	enum E_InputSelectType {none, selecting, unselecting}
+
+	private static E_InputSelectType s_inputSelectType = E_InputSelectType.none;
+	private static WallButton s_lastHitButton = null;
+	private static bool s_selectionEnabled = true;
+
 	public Material SelectedMaterial;
 	public Material UnselectedMaterial;
 	public float ScaleTime = 0.2f;
@@ -15,22 +21,17 @@ public class WallButton : MonoBehaviour
 	[ColorUsageAttribute(true, true, 0, 8, 0.125f, 3)]
 	public Color SelectedColor;
 	public float PlayingFadeTime = 0.1f;
-
 	public MeshRenderer MeshRenderer;
+
 	private bool m_selected;
 	private float m_playingFadeTarget = 0;
 	private float m_playingFadeProg = 0;
 	private float m_playingFadeVel = 0;
 	private Material m_playingMaterial;
+	private Vector3 m_scaleVelocity;
 
 	public bool MouseDown {get; private set;}
-
-	enum E_InputSelectType {none, selecting, unselecting}
-	private static E_InputSelectType s_inputSelectType = E_InputSelectType.none;
-	private static WallButton s_lastHitButton = null;
-	private static bool s_selectionEnabled = true;
-
-	private Vector3 m_scaleVelocity;
+	public bool IsSelected {get { return m_selected;}}
 
 	void Awake()
 	{
@@ -46,7 +47,7 @@ public class WallButton : MonoBehaviour
 	public void SetSelected(bool selected)
 	{
 		m_selected = selected;
-	}	
+	}
 
 	public void SetPlaying(bool playing)
 	{
