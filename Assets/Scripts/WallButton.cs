@@ -10,9 +10,17 @@ public class WallButton : MonoBehaviour
 	public Vector3 ScaleSelected = new Vector3(1.0f,1.0f,0.8f);
 	public Vector3 ScaleMouseDown = new Vector3(1.2f,1.2f,0.6f);
 	public Vector3 ScaleUnselected = new Vector3(1.0f,1.0f,1.0f);
+	public Color PlayingColor;
+	public Color SelectedColor;
+	public float PlayingFadeTime = 0.1f;
 
 	public MeshRenderer MeshRenderer;
 	private bool m_selected;
+	private float m_playingFadeTarget = 0;
+	private float m_playingFadeProg = 0;
+	private float m_playingFadeVel = 0;
+	private Material m_playingMaterial;
+
 	public bool MouseDown {get; private set;}
 
 	enum E_InputSelectType {none, selecting, unselecting}
@@ -22,6 +30,12 @@ public class WallButton : MonoBehaviour
 
 	private Vector3 m_scaleVelocity;
 
+	void Awake()
+	{
+		m_playingMaterial = new Material(SelectedMaterial);
+		m_playingMaterial.name = "playing material";
+	}
+
 	public static void SelectionEnabled(bool enabled)
 	{
 		s_selectionEnabled = enabled;	
@@ -30,12 +44,15 @@ public class WallButton : MonoBehaviour
 	public void SetSelected(bool selected)
 	{
 		m_selected = selected;
-		MeshRenderer.material = m_selected ? SelectedMaterial : UnselectedMaterial;
 	}	
+
+	public void SetPlaying(bool playing)
+	{
+		m_playingFadeTarget = playing ? 1.0f : 0;
+	}
 
 	public void OnMouseDown()
 	{
-		
 		if (s_selectionEnabled)
 		{
 			MouseDown = true;
@@ -46,7 +63,6 @@ public class WallButton : MonoBehaviour
 
 	public void OnMouseEnter()
 	{
-		Debug.Log("enter");
 		if (Input.GetMouseButton(0) && s_selectionEnabled)
 		{
 			if (s_inputSelectType == E_InputSelectType.none)
@@ -59,7 +75,6 @@ public class WallButton : MonoBehaviour
 
 	public void OnMouseExit()
 	{
-		Debug.Log("exit");
 		MouseDown = false;
 	}
 
@@ -72,6 +87,40 @@ public class WallButton : MonoBehaviour
 	}
 
 	public void CustomUpdate()
+	{
+		UpdateColor();
+		UpdateSetMaterial();
+		UpdateScale();
+	}
+
+	private void UpdateColor()
+	{
+		if (m_selected && MeshRenderer.sharedMaterial == m_playingMaterial)
+		{
+			m_playingFadeProg = Mathf.SmoothDamp(m_playingFadeProg, m_playingFadeTarget, ref m_playingFadeVel, PlayingFadeTime);
+			if (m_playingFadeProg < 0.001f)
+				m_playingFadeProg = 0;
+			Color targetColor = PlayingColor * (m_playingFadeProg) + SelectedColor * (1.0f - m_playingFadeProg);
+			MeshRenderer.sharedMaterial.SetColor("_EmissionColor", targetColor);
+		}
+	}
+
+	private void UpdateSetMaterial()
+	{
+		if (!m_selected)
+		{
+			MeshRenderer.sharedMaterial = UnselectedMaterial;
+		}
+		else 
+		{
+			if (m_playingFadeProg != 0 || m_playingFadeTarget == 1.0f)
+				MeshRenderer.sharedMaterial = m_playingMaterial;
+			else 
+				MeshRenderer.sharedMaterial = SelectedMaterial;
+		}
+	}
+
+	private void UpdateScale()
 	{
 		Vector3 targetScale = ScaleUnselected;
 		if (MouseDown)

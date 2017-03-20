@@ -10,6 +10,7 @@ public class MusicWall : MonoBehaviour
 	private WallButtons 			m_wallButtons = new WallButtons();
 	private WallMesh 				m_wallMesh;
 	private WallMusicData			m_wallMusicData = new WallMusicData();
+	private WallScroller			m_wallScroller;
 
 	public bool		 				m_NeedUpdate {get; set;}
 
@@ -17,6 +18,7 @@ public class MusicWall : MonoBehaviour
 	void Awake()
 	{
 		m_wallMesh = gameObject.AddComponent<WallMesh>();
+		m_wallScroller = gameObject.AddComponent<WallScroller>();
 		m_NeedUpdate = true;
 	}
 
@@ -35,6 +37,8 @@ public class MusicWall : MonoBehaviour
 			m_wallButtons.Create(WallProperties);
 			m_wallButtons.LoadMusicData(m_wallMusicData);
 			m_wallMesh.Create(WallProperties);
+			m_wallScroller.Play(WallProperties, m_wallButtons);
+
 		}
 		m_wallButtons.Update();
 		m_NeedUpdate = false;
