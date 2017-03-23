@@ -443,6 +443,7 @@ namespace CSharpSynth.Synthesis
                         delnode = node;
                         node = node.Next;
                         freeVoices.Push(delnode.Value);
+						Debug.Log("activeVoices count " + activeVoices.Count);
                         activeVoices.Remove(delnode);
                     }
                     else

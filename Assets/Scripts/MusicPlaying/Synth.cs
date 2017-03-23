@@ -33,7 +33,7 @@ public class Synth : MonoBehaviour {
 
 	public void NoteOff(int channel, int note)
 	{
-//		midiStreamSynthesizer.NoteOff(channel, note + NoteOffset);
+		midiStreamSynthesizer.NoteOff(channel, note + NoteOffset);
 	}
 
 	// See http://unity3d.com/support/documentation/ScriptReference/MonoBehaviour.OnAudioFilterRead.html for reference code

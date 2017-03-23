@@ -10,10 +10,7 @@
 loop_mode=no_loop
 lovel=0
 hivel=127
-
-ampeg_attack=0.0
-ampeg_decay=0.005
-ampeg_hold=0
+ampeg_decay=0.5
 ampeg_release=2.78221 
 ampeg_sustain=1001
 

@@ -5,19 +5,11 @@
 // www.patcharena.com
 //-----------------------------------------------------------------------------------
 
-<global>
-trigger=attack
-
-ampeg_attack=0 
-ampeg_decay=0
-ampeg_hold=0
-ampeg_sustain=100
-ampeg_release=0.480
-
 <group>
 lovel=0
 hivel=127
-
+ampeg_sustain=100
+ampeg_release=0.48
 seq_length=5
 seq_position=1
 
@@ -176,7 +168,8 @@ sample=Fluke_Uke_084_c5.wav
 <group>
 lovel=0
 hivel=127
-
+ampeg_sustain=100
+ampeg_release=0.48
 seq_length=5
 seq_position=2
 
@@ -336,7 +329,8 @@ sample=Fluke_Uke_082_a#4.wav
 <group>
 lovel=0
 hivel=127
-
+ampeg_sustain=100
+ampeg_release=0.48
 seq_length=5
 seq_position=3
 
@@ -496,7 +490,8 @@ sample=Fluke_Uke_083_b4.wav
 <group>
 lovel=0
 hivel=127
-
+ampeg_sustain=100
+ampeg_release=0.48
 seq_length=5
 seq_position=4
 
@@ -655,7 +650,8 @@ sample=Fluke_Uke_084_c5.wav
 <group>
 lovel=0
 hivel=127
-
+ampeg_sustain=100
+ampeg_release=0.48
 seq_length=5
 seq_position=5
 
