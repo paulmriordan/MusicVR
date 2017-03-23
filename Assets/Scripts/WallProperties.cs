@@ -27,5 +27,10 @@ public class WallProperties
 		float buttonPadding = ButtonPaddingFrac * buttonWidth;
 		return buttonWidth + buttonPadding + NumRows*(buttonWidth + buttonPadding);
 	}
+
+	public Vector3 GetPositionAtAngle(float radAngle)
+	{
+		return new Vector3(Mathf.Sin(radAngle) * Radius, 0, Mathf.Cos(radAngle) * Radius);
+	}
 }
 
