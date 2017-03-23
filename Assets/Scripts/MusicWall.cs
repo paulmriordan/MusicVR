@@ -5,6 +5,7 @@ using UnityEngine;
 public class MusicWall : MonoBehaviour 
 {
 	public WallProperties 			WallProperties;
+	public bool 					HasWall = true;
 	public float					ProbInitSelected = 0.2f;
 	public Synth					Synth;
 
@@ -18,7 +19,8 @@ public class MusicWall : MonoBehaviour
 	//______________________________________________________________________________________
 	void Awake()
 	{
-		m_wallMesh = gameObject.AddComponent<WallMesh>();
+		if (HasWall)
+			m_wallMesh = gameObject.AddComponent<WallMesh>();
 		m_wallScroller = gameObject.AddComponent<WallMusicPlayer>();
 		m_NeedUpdate = true;
 	}
@@ -37,7 +39,8 @@ public class MusicWall : MonoBehaviour
 			m_wallMusicData.CreateDummyButtonData(WallProperties, ProbInitSelected);
 			m_wallButtons.Create(WallProperties);
 			m_wallButtons.LoadMusicData(m_wallMusicData);
-			m_wallMesh.Create(WallProperties);
+			if (HasWall)
+				m_wallMesh.Create(WallProperties);
 			m_wallScroller.Play(WallProperties, m_wallButtons, Synth);
 
 		}
