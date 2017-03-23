@@ -225,10 +225,16 @@ namespace CSharpSynth.Synthesis
                         workingBuffer[0, i] += (sample * fadeMultiplier * leftpan * gainControl);
                         workingBuffer[1, i] += (sample * fadeMultiplier * rightpan * gainControl);
                     }
-                    //both support stereo
+                    //	
                     else
                     {
+						float sample = inst.getSampleAtTime(note, 0, synth.SampleRate, ref time);
+						sample = sample * (velocity / 127.0f) * synth.VolPositions[channel];
+						workingBuffer[0, i] += (sample * fadeMultiplier * leftpan * gainControl);
 
+						sample = inst.getSampleAtTime(note, 1, synth.SampleRate, ref time);
+						sample = sample * (velocity / 127.0f) * synth.VolPositions[channel];
+						workingBuffer[1, i] += (sample * fadeMultiplier * rightpan * gainControl);
                     }
                     time += 1.0 / variableSampleRate;
                     //bailout of the loop if there is no reason to continue.

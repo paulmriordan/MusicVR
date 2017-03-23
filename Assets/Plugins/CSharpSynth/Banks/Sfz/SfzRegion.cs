@@ -43,7 +43,7 @@
             LoChannel = 0;
             LoopStart = 0;
             LoopEnd = 0;
-            Volume = 0.0f;
+            Volume = 20.0f;
             LoopMode = 0;
             Pan = 0.0f;
             Offset = 0;
