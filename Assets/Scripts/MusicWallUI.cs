@@ -42,11 +42,13 @@ class tinyfd
 public class MusicWallUI : MonoBehaviour 
 {
 	public MusicWall MusicWall;
+	public SaveFileDialog SaveFileDialog;
 
 	public void Save()
 	{
-		Debug.Log(tinyfd.StraightFromDllTestDivide(4.0f,2.0f));
-		tinyfd.tinyfd_openFileDialog("", "", 0, new string[] {}, "", 0);
+//		Debug.Log(tinyfd.StraightFromDllTestDivide(4.0f,2.0f));
+//		tinyfd.tinyfd_openFileDialog("", "", 0, new string[] {}, "", 0);
+		SaveFileDialog.Show();
 	}
 
 	public void Load()
