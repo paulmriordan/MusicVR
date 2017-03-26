@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MusicWall : MonoBehaviour 
+public class MusicWall : MonoSingleton<MusicWall> 
 {
 	public MusicWallData 			WallProperties;
 	public bool 					HasWall = true;
@@ -11,16 +11,16 @@ public class MusicWall : MonoBehaviour
 
 	private WallButtons 			m_wallButtons = new WallButtons();
 	private WallMesh 				m_wallMesh;
-	private WallMusicPlayer			m_wallScroller;
+	private WallMusicPlayer			m_wallMusicPlayer;
 
 	public bool		 				m_NeedUpdate {get; set;}
 
 	//______________________________________________________________________________________
-	void Awake()
+	protected override void _Awake()
 	{
 		if (HasWall)
 			m_wallMesh = gameObject.AddComponent<WallMesh>();
-		m_wallScroller = gameObject.AddComponent<WallMusicPlayer>();
+		m_wallMusicPlayer = gameObject.AddComponent<WallMusicPlayer>();
 		m_NeedUpdate = true;
 	}
 
@@ -35,11 +35,11 @@ public class MusicWall : MonoBehaviour
 	{
 		if (m_NeedUpdate)
 		{
-			WallProperties.CompositionData.CreateDummyButtonData(ProbInitSelected);
 			m_wallButtons.Create(WallProperties);
 			if (HasWall)
 				m_wallMesh.Create(WallProperties);
-			m_wallScroller.Play(WallProperties, m_wallButtons, Synth);
+			m_wallMusicPlayer.Reset();
+			m_wallMusicPlayer.Play(WallProperties, m_wallButtons, Synth);
 
 		}
 		m_wallButtons.Update();

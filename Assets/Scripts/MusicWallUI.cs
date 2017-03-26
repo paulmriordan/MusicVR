@@ -48,11 +48,12 @@ public class MusicWallUI : MonoBehaviour
 	{
 //		Debug.Log(tinyfd.StraightFromDllTestDivide(4.0f,2.0f));
 //		tinyfd.tinyfd_openFileDialog("", "", 0, new string[] {}, "", 0);
-		SaveFileDialog.Show();
+		SaveFileDialog.Show(SaveFileDialog.E_DialogState.save);
 	}
 
 	public void Load()
 	{
+		SaveFileDialog.Show(SaveFileDialog.E_DialogState.load);
 	}
 
 	public void Clear()

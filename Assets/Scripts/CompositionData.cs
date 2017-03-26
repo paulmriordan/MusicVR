@@ -11,7 +11,11 @@ public class CompositionData
 	public MusicScaleConverter.E_ConverterType Scale = MusicScaleConverter.E_ConverterType.Pentatonic;
 	private bool[] m_buttonData;
 
-	public int Size { get { return m_buttonData.Length;}}
+	public int Size { get {
+			if (m_buttonData == null)
+				m_buttonData = new bool[NumCols * NumRows];
+			return m_buttonData.Length;
+		}}
 
 	public void CreateDummyButtonData(float ProbInitSelected)
 	{

@@ -20,6 +20,12 @@ public class WallMusicPlayer : MonoBehaviour
 		m_lineInstance.transform.SetParent(transform);
 	}
 
+	public void Reset()
+	{
+		EndPreviousNotes();
+		m_prevColEffect = -1;
+	}
+
 	public void Play(MusicWallData properties, WallButtons buttons, Synth synth)
 	{
 		m_data = properties;
@@ -85,16 +91,7 @@ public class WallMusicPlayer : MonoBehaviour
 	void UpdateNewColAudio()
 	{
 		int currCol = (int)m_colAccum;
-		if (m_prevColEffect != -1)
-		{
-			for (int iNote = 0; iNote < m_currPlaying.Count; iNote++)
-			{
-				int note = m_currPlaying[iNote];
-				m_synth.NoteOff(1, note);
-			}
-		}
-
-		m_currPlaying.Clear();
+		EndPreviousNotes();
 
 		for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 		{
@@ -106,5 +103,18 @@ public class WallMusicPlayer : MonoBehaviour
 				m_currPlaying.Add(note);
 			}
 		}
+	}
+
+	void EndPreviousNotes()
+	{
+		if (m_prevColEffect != -1)
+		{
+			for (int iNote = 0; iNote < m_currPlaying.Count; iNote++)
+			{
+				int note = m_currPlaying[iNote];
+				m_synth.NoteOff(1, note);
+			}
+		}
+		m_currPlaying.Clear();
 	}
 }

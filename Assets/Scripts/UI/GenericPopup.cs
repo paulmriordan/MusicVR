@@ -16,7 +16,7 @@ public class GenericPopup : MonoSingleton<GenericPopup> {
 	Action confirmAction = () => {};
 	Action cancelAction = () => {};
 
-	void Awake()
+	protected override void _Awake()
 	{
 		Hide();
 	}
