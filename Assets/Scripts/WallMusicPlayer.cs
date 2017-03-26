@@ -6,7 +6,7 @@ public class WallMusicPlayer : MonoBehaviour
 {
 	private float m_colAccum = 0;
 	private int m_prevColEffect = -1;
-	private WallProperties m_wallProperties;
+	private MusicWallData m_data;
 	private WallButtons m_wallButtons;
 	private bool m_playing;
 	private List<int> m_currPlaying = new List<int>();
@@ -20,9 +20,9 @@ public class WallMusicPlayer : MonoBehaviour
 		m_lineInstance.transform.SetParent(transform);
 	}
 
-	public void Play(WallProperties properties, WallButtons buttons, Synth synth)
+	public void Play(MusicWallData properties, WallButtons buttons, Synth synth)
 	{
-		m_wallProperties = properties;
+		m_data = properties;
 		m_wallButtons = buttons;
 		m_playing = true;
 		m_synth = synth;
@@ -49,16 +49,16 @@ public class WallMusicPlayer : MonoBehaviour
 	{
 		if (m_playing)
 		{
-			float notesPerSec = (m_wallProperties.Tempo/60.0f);
+			float notesPerSec = (m_data.CompositionData.Tempo/60.0f);
 			m_colAccum += Time.deltaTime*notesPerSec;
-			m_colAccum = Mathf.Repeat(m_colAccum, (float)m_wallProperties.NumCols);
-			float frac = m_colAccum/(float)m_wallProperties.NumCols;
-			var pos = m_wallProperties.GetPositionAtAngle(frac * 2.0f * Mathf.PI);
+			m_colAccum = Mathf.Repeat(m_colAccum, (float)m_data.CompositionData.NumCols);
+			float frac = m_colAccum/(float)m_data.CompositionData.NumCols;
+			var pos = m_data.GetPositionAtAngle(frac * 2.0f * Mathf.PI);
 			m_lineInstance.transform.forward = pos;
-			var h = m_wallProperties.GetTotalHeight();
-			pos.y = h * 0.5f - m_wallProperties.GetButtonWidth()*0.5f;
+			var h = m_data.GetTotalHeight();
+			pos.y = h * 0.5f - m_data.GetButtonWidth()*0.5f;
 			m_lineInstance.transform.localPosition = pos;
-			m_lineInstance.transform.localScale = new Vector3(m_lineInstance.transform.localScale.x, h - 2.0f * m_wallProperties.GetButtonWidth(), 0.01f);
+			m_lineInstance.transform.localScale = new Vector3(m_lineInstance.transform.localScale.x, h - 2.0f * m_data.GetButtonWidth(), 0.01f);
 		}
 	}
 
@@ -68,13 +68,13 @@ public class WallMusicPlayer : MonoBehaviour
 
 		if (m_prevColEffect != -1)
 		{
-			for (int iRow = 0; iRow < m_wallProperties.NumRows; iRow++)
+			for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 			{
 				var button = m_wallButtons.GetButton(iRow, m_prevColEffect);
 				button.SetPlaying(false);
 			}
 		}
-		for (int iRow = 0; iRow < m_wallProperties.NumRows; iRow++)
+		for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 		{
 			var button = m_wallButtons.GetButton(iRow, currCol);
 			button.SetPlaying(true);
@@ -96,12 +96,12 @@ public class WallMusicPlayer : MonoBehaviour
 
 		m_currPlaying.Clear();
 
-		for (int iRow = 0; iRow < m_wallProperties.NumRows; iRow++)
+		for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 		{
 			var button = m_wallButtons.GetButton(iRow, currCol);
 			if (button.IsSelected)
 			{
-				int note = MusicScaleConverter.Get(m_wallProperties.Scale).Convert(iRow);
+				int note = MusicScaleConverter.Get(m_data.CompositionData.Scale).Convert(iRow);
 				m_synth.NoteOn(1, note);
 				m_currPlaying.Add(note);
 			}

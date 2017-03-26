@@ -10,7 +10,7 @@ public class WallMesh : MonoBehaviour
 	protected Vector2[] 			m_uvs;
 	protected Color[] 				m_colours;
 	private WallButtons				m_wallButtons;
-	private WallProperties			m_properties;
+	private MusicWallData			m_data;
 
 	public bool		 				m_NeedMeshUpdate {get; set;}
 
@@ -19,13 +19,13 @@ public class WallMesh : MonoBehaviour
 	const int indicesPerTri = 3;
 
 	//______________________________________________________________________________________
-	public void Create(WallProperties properties)
+	public void Create(MusicWallData data)
 	{
-		m_properties = properties;
+		m_data = data;
 
 		//Setup array sizes
 		{
-			int size = vertsPerCol*m_properties.NumCols;
+			int size = vertsPerCol*m_data.CompositionData.NumCols;
 			m_vertices = new Vector3[size];
 			m_uvs = new Vector2[size];
 			m_colours = new Color[size];
@@ -42,17 +42,17 @@ public class WallMesh : MonoBehaviour
 	{
 		Mesh mesh = new Mesh ();
 
-		int[] triangles = new int[indicesPerTri*trisPerCol*m_properties.NumCols];
-		float colAngle = (2*Mathf.PI)/(float)m_properties.NumCols;
-		float height = m_properties.GetTotalHeight();
+		int[] triangles = new int[indicesPerTri*trisPerCol*m_data.CompositionData.NumCols];
+		float colAngle = (2*Mathf.PI)/(float)m_data.CompositionData.NumCols;
+		float height = m_data.GetTotalHeight();
 		int v = 0;
 		int t = 0;
-		for (int iCol = 0; iCol < m_properties.NumCols; iCol++) 
+		for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++) 
 		{
-			float x0 = Mathf.Sin(iCol * colAngle) * m_properties.Radius;
-			float z0 = Mathf.Cos(iCol * colAngle) * m_properties.Radius;
-			float x1 = Mathf.Sin((iCol + 1) * colAngle) * m_properties.Radius;
-			float z1 = Mathf.Cos((iCol + 1) * colAngle) * m_properties.Radius;
+			float x0 = Mathf.Sin(iCol * colAngle) * m_data.Radius;
+			float z0 = Mathf.Cos(iCol * colAngle) * m_data.Radius;
+			float x1 = Mathf.Sin((iCol + 1) * colAngle) * m_data.Radius;
+			float z1 = Mathf.Cos((iCol + 1) * colAngle) * m_data.Radius;
 
 			{
 				triangles [t++] = v + 0;

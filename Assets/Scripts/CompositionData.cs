@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WallMusicData 
+[System.Serializable]
+public class CompositionData
 {
+	public int NumRows = 100;
+	public int NumCols = 20;
+	public float Tempo = 120.0f;
+	public MusicScaleConverter.E_ConverterType Scale = MusicScaleConverter.E_ConverterType.Pentatonic;
 	private bool[] m_buttonData;
-	private WallProperties m_properties;
 
 	public int Size { get { return m_buttonData.Length;}}
 
-	public void CreateDummyButtonData(WallProperties properties, float ProbInitSelected)
+	public void CreateDummyButtonData(float ProbInitSelected)
 	{
-		m_properties = properties;
-
-		m_buttonData = new bool[m_properties.NumRows*m_properties.NumCols];
+		m_buttonData = new bool[NumRows*NumCols];
 		UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
 		for (int i = 0; i < m_buttonData.Length; i++)
 			m_buttonData[i] = UnityEngine.Random.value < ProbInitSelected;
@@ -21,6 +23,6 @@ public class WallMusicData
 
 	public bool IsNoteActive(int row, int col)
 	{
-		return m_buttonData[row + col*m_properties.NumRows];
+		return m_buttonData[row + col*NumRows];
 	}
 }
