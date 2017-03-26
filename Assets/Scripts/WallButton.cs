@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class WallButton : MonoBehaviour 
 {
@@ -56,7 +57,8 @@ public class WallButton : MonoBehaviour
 
 	public void OnMouseDown()
 	{
-		if (s_selectionEnabled)
+		if (s_selectionEnabled 
+			&& !EventSystem.current.IsPointerOverGameObject())
 		{
 			MouseDown = true;
 			s_inputSelectType = m_selected ? E_InputSelectType.unselecting : E_InputSelectType.selecting;
@@ -66,7 +68,10 @@ public class WallButton : MonoBehaviour
 
 	public void OnMouseEnter()
 	{
-		if (Input.GetMouseButton(0) && s_selectionEnabled)
+		// Do not start input on buttons if not already started, and input is over a UI element
+		if (Input.GetMouseButton(0) 
+			&& s_selectionEnabled 
+			&& (s_inputSelectType != E_InputSelectType.none || !EventSystem.current.IsPointerOverGameObject()))
 		{
 			if (s_inputSelectType == E_InputSelectType.none)
 				s_inputSelectType = m_selected ? E_InputSelectType.unselecting : E_InputSelectType.selecting;

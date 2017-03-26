@@ -7,23 +7,28 @@ public class WallDragger : MonoBehaviour
 {
 	public KeyCode WallDraggerKey = KeyCode.LeftShift;
 	public BoundedDrag BoundedDrag;
-	public event Action OnDragModeEnabled = () => {};
+	public event Action OnDraggingActive = () => {};
 	public event Action OnDragModeDisabled = () => {};
 
 	private Vector3 m_dragStart;
-	private bool m_dragModeEnabled;
+	private bool m_draggingActive;
+
+	public bool IsDraggingActive()
+	{
+		return m_draggingActive;
+	}
 
 	void Update()
 	{
 		if (Input.GetKeyDown(WallDraggerKey))
 		{
-			OnDragModeEnabled();
-			m_dragModeEnabled = true;
+			OnDraggingActive();
+			m_draggingActive = true;
 		}
 		if (Input.GetKeyUp(WallDraggerKey))
 		{
 			OnDragModeDisabled();
-			m_dragModeEnabled = false;
+			m_draggingActive = false;
 		}
 
 		if (Input.GetMouseButtonDown(0) && Input.GetKey(WallDraggerKey))
@@ -31,11 +36,11 @@ public class WallDragger : MonoBehaviour
 //			Camera.main.ScreenPointToRay
 		}
 
-		if (Input.GetMouseButtonUp(0) && m_dragModeEnabled)
+		if (Input.GetMouseButtonUp(0) && m_draggingActive)
 		{
 		}
 
-		BoundedDrag.SetDragAllowedFuncPtr(() => {return m_dragModeEnabled;});
+		BoundedDrag.SetDragAllowedFuncPtr(() => {return m_draggingActive;});
 		transform.position = new Vector3(0, BoundedDrag.GetCurrentPos(), 0);
 	}
 }

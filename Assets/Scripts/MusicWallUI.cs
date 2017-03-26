@@ -39,10 +39,14 @@ class tinyfd
 
 }
 
-public class MusicWallUI : MonoBehaviour 
+public class MusicWallUI : MonoSingleton<MusicWallUI> 
 {
-	public MusicWall MusicWall;
 	public SaveFileDialog SaveFileDialog;
+
+	public bool IsBlockingGameInput()
+	{
+		return SaveFileDialog.gameObject.activeSelf;
+	}
 
 	public void Save()
 	{

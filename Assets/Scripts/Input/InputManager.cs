@@ -9,15 +9,24 @@ public class InputManager : MonoBehaviour {
 
 	void Start () 
 	{
-		m_wallDragger.OnDragModeEnabled += () => m_mouseLook.EnableLook(false);
+		m_wallDragger.OnDraggingActive += () => m_mouseLook.EnableLook(false);
 		m_wallDragger.OnDragModeDisabled += () => m_mouseLook.EnableLook(true);
-		m_wallDragger.OnDragModeEnabled += () => WallButton.SelectionEnabled(false);
+		m_wallDragger.OnDraggingActive += () => WallButton.SelectionEnabled(false);
 		m_wallDragger.OnDragModeDisabled += () => WallButton.SelectionEnabled(true);
 	}
 
 	void Update()
 	{
 		UpdatingObject.Check();
+
+		// Disable input if required
+		{
+			bool inputBlocked = MusicWallUI.Instance.IsBlockingGameInput();
+			inputBlocked |= m_wallDragger.IsDraggingActive();
+
+			m_mouseLook.EnableLook(!inputBlocked);
+			WallButton.SelectionEnabled(!inputBlocked);
+		}
 	}
 
 }
