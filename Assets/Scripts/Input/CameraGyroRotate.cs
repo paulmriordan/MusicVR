@@ -8,7 +8,7 @@ public class CameraGyroRotate : MonoBehaviour
 	private float appliedGyroYAngle = 0f;
 	private float calibrationYAngle = 0f;
 
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR && false
 	void Start()
 	{
 		Input.gyro.enabled = true;

@@ -13,17 +13,18 @@ public class Synth : MonoBehaviour {
 	public int midiInstrument = 1;
 	public string bankFilePath = "GM Bank/gm";
 	public int NoteOffset = 80;
-
+	public const int SAMPLE_RATE = 44100;
 	private StreamSynthesizer midiStreamSynthesizer;
 	private float[] sampleBuffer;
 	private float gain = 1f;
 
 	void Awake()
 	{
-		if(AudioSettings.driverCapabilities.ToString() == "Stereo")
-			midiStreamSynthesizer = new StreamSynthesizer(44100, 2, bufferSize, 40);
-		else
-			midiStreamSynthesizer = new StreamSynthesizer(44100, 1, bufferSize, 40);
+		#if UNITY_ANDROID && !UNITY_EDITOR
+		midiStreamSynthesizer = new StreamSynthesizer(SAMPLE_RATE, 1, bufferSize, 40);
+		#else
+		midiStreamSynthesizer = new StreamSynthesizer(SAMPLE_RATE, 2, bufferSize, 40);
+		#endif
 		sampleBuffer = new float[midiStreamSynthesizer.BufferSize];		
 
 		midiStreamSynthesizer.LoadBank (bankFilePath);
