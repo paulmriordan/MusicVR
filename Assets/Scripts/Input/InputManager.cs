@@ -10,6 +10,7 @@ public class InputManager : MonoSingleton<InputManager> {
 	void Start () 
 	{
 		MusicWall.Instance.OnWallDataUpdated += UpdateProperties;
+		WallButton.s_wallButtonInputState.OnPanRequested += m_wallDragger.PerformPan;
 	}
 
 	public void UpdateProperties(MusicWallData wallData)
@@ -21,61 +22,45 @@ public class InputManager : MonoSingleton<InputManager> {
 	{
 		UpdateGestures();
 		UpdatingObject.Check();
+		WallButton.s_wallButtonInputState.Update(m_inputState);
 
 		// Disable input if required
 		{
 			bool inputBlocked = MusicWallUI.Instance.IsBlockingGameInput();
-			inputBlocked |= IsCameraDragOccuring();
+			inputBlocked |= m_wallDragger.InputConsumer.IsActive();
 
 			m_mouseLook.EnableLook(!inputBlocked);
 			WallButton.s_wallButtonInputState.SelectionEnabled(!inputBlocked);
 		}
-
-		m_wallDragger.DraggingEnabled = IsCameraDragOccuring();
 	}
 
-	public float HoldTime = 0.5f;
-	public float HoldMoveLimit = 10.0f;
-
-	bool cameraDragging = false;
-	public float inputDownTime;
-	Vector3 inputDownPos;
-
-	public bool IsCameraDragOccuring()
+	[System.Serializable]
+	public class InputState
 	{
-		return cameraDragging;
-	}
+		public float HoldTime = 0.5f;
+		public float HoldMoveLimit = 10.0f;
+		public Vector2 EdgeDistPan = new Vector2(0.15f, 0.15f);
+		public float ThresholdStartEdgePan = 10.0f;
 
-	enum E_InputConsumeType { none, buttons, panning}
-	E_InputConsumeType m_inputType;
+		public float inputDownTime {get;set;}
+		public  Vector3 inputDownPos {get;set;}
+	}
+	public InputState m_inputState = new InputState();
 
 	void UpdateGestures()
 	{
 		if (Input.GetMouseButtonDown(0))
 		{	
-			m_inputType = E_InputConsumeType.none;
 			WallButton.s_wallButtonInputState.Clear();
-			inputDownTime = Time.time;
-			Debug.Log("input down time " + inputDownTime);
-			inputDownPos = Input.mousePosition;
-		}
-
-		if (Input.GetMouseButton(0))
-		{
-			var d2 = (Input.mousePosition - inputDownPos).sqrMagnitude;
-			if (!cameraDragging)
-				Debug.Log("drag d " + Mathf.Sqrt(d2));
-			if (!cameraDragging &&  d2 > HoldMoveLimit * HoldMoveLimit && !WallButton.s_wallButtonInputState.WallInputActive())
-			{
-				Debug.Log("starting camera drag");
-				cameraDragging = true;
-			}
+			m_inputState.inputDownTime = Time.time;
+			m_inputState.inputDownPos = Input.mousePosition;
 		}
 
 		if (Input.GetMouseButtonUp(0))
 		{
-			cameraDragging = false;
-			inputDownTime = float.MaxValue;
+			m_inputState.inputDownTime = float.MaxValue;
 		}
+
+		InputConsumerBase.UpdateConsumers(m_inputState);
 	}
 }

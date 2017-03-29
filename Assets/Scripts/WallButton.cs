@@ -7,21 +7,33 @@ public class WallButton : MonoBehaviour
 {
 	public class WallButtonInputConsumer : InputConsumerBase
 	{
-		public override bool TryConsumeInput() 
+		public override bool TryConsumeInput(InputManager.InputState state) 
 		{
-			return false;
+			if (Input.GetMouseButtonUp(0))
+				return true; //always consume button up events
+			if (!Input.GetMouseButton(0))
+				return false;
+			return Time.time - state.inputDownTime > state.HoldTime;
+		}
+
+		public override bool IsFinished()
+		{
+			return !Input.GetMouseButton(0);
 		}
 	}
 
 	public class WallButtonInputState
 	{
+		public event System.Action<Vector2> OnPanRequested = (p) => {};
+
 		public enum E_SelectState {none, selecting, unselecting}
 
 		private bool m_selectionEnabled = true;
+		private WallButtonInputConsumer m_buttonInputConsumer = new WallButtonInputConsumer();
 
 		public E_SelectState InputSelectType {get;set;}
 		public WallButton LastHitButton {get;set;}
-		public bool IsSelectionEnabled { get { return m_selectionEnabled;}}
+		public bool IsSelectionEnabled { get { return m_selectionEnabled && m_buttonInputConsumer.IsActive();}}
 
 		public bool WallInputActive()
 		{
@@ -33,6 +45,21 @@ public class WallButton : MonoBehaviour
 			m_selectionEnabled = enabled;	
 		}
 
+		public void Update(InputManager.InputState state)
+		{
+			
+			if (IsSelectionEnabled 
+				&& EdgePanningUtil.DragTreshReached((Input.mousePosition - state.inputDownPos).magnitude,
+					state.ThresholdStartEdgePan))
+			{
+				var pan = EdgePanningUtil.EdgeDragPanAmount(Input.mousePosition, 
+															state.EdgeDistPan.x,
+															state.EdgeDistPan.y);	
+				if (pan.sqrMagnitude > 0)
+					OnPanRequested(pan);
+			}
+		}
+
 		public void Clear()
 		{
 			LastHitButton = null;
@@ -40,7 +67,6 @@ public class WallButton : MonoBehaviour
 		}
 	}
 
-	static WallButtonInputConsumer m_wallButtonInput = new WallButtonInputConsumer();
 	public static WallButtonInputState s_wallButtonInputState = new WallButtonInputState();
 
 	public Material SelectedMaterial;
@@ -87,49 +113,52 @@ public class WallButton : MonoBehaviour
 	{
 		if (!Input.GetMouseButton(0))
 			return;
-		Debug.Log("OnMouseOver");
-		bool allowStart = false;
+
+		TryStartSelection();
+		TrySubsequentSelection();
+	}
+
+	void TryStartSelection()
+	{
+		if (s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.none)
 		{
-			allowStart = s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.none;
-			allowStart &= !InputManager.Instance.IsCameraDragOccuring();
-			allowStart &= Time.time - InputManager.Instance.inputDownTime > InputManager.Instance.HoldTime;
-			allowStart &= s_wallButtonInputState.IsSelectionEnabled && !EventSystem.current.IsPointerOverGameObject();
+			bool allowStart = s_wallButtonInputState.IsSelectionEnabled;
+			allowStart &= !EventSystem.current.IsPointerOverGameObject();
+			if (allowStart)
+			{
+				MouseDown = true;
+				s_wallButtonInputState.InputSelectType = m_selected 
+					? WallButtonInputState.E_SelectState.unselecting 
+					: WallButtonInputState.E_SelectState.selecting;
+				SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
+			}
 		}
-		bool allowSubsequent = false;
+	}
+
+	void TrySubsequentSelection()
+	{
+		if (s_wallButtonInputState.InputSelectType != WallButtonInputState.E_SelectState.none)
 		{
-			allowSubsequent = s_wallButtonInputState.InputSelectType != WallButtonInputState.E_SelectState.none;
-			allowSubsequent &= this != s_wallButtonInputState.LastHitButton;
+			bool allowSubsequent = this != s_wallButtonInputState.LastHitButton;
 			allowSubsequent &= s_wallButtonInputState.IsSelectionEnabled && !EventSystem.current.IsPointerOverGameObject();
-		}
-		if (allowStart)
-		{
-			Debug.Log("allow start");
-			MouseDown = true;
-			s_wallButtonInputState.InputSelectType = m_selected 
-				? WallButtonInputState.E_SelectState.unselecting 
-				: WallButtonInputState.E_SelectState.selecting;
-			SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
-		}
-		else if (allowSubsequent)
-		{
-			Debug.Log("allow subsequent");
-			MouseDown = true;
-			SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
-			s_wallButtonInputState.LastHitButton = this;
+			if (allowSubsequent)
+			{
+				MouseDown = true;
+				SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
+				s_wallButtonInputState.LastHitButton = this;
+			}
 		}
 	}
 
 	public void OnTouchExit()
 	{
-		Debug.Log("OnMouseExit");
 		MouseDown = false;
 	}
 
 	public void OnTouchUp()
 	{
-		Debug.Log("OnMouseUp");
 		// Click button if no camera drag occurred & no button selecting occurred
-		if (s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.none)
+		if (s_wallButtonInputState.IsSelectionEnabled && !s_wallButtonInputState.WallInputActive())
 		{
 			s_wallButtonInputState.InputSelectType = m_selected 
 				? WallButtonInputState.E_SelectState.unselecting 
