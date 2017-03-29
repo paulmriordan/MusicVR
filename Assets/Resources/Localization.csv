@@ -7,3 +7,7 @@ L_NO,No,FRENCH LOC,SPANISH LOC,GERMAN LOC,ITALIAN LOC,汉字简化方案,日本�
 L_OVERWRITE_POPUP,Are you sure you want to overwrite this save file?,FRENCH LOC,SPANISH LOC,GERMAN LOC,ITALIAN LOC,汉字简化方案,日本語,한국어/조선말,
 L_LOAD_POPUP,Unsaved changes will be lost. Do you want to open ,,,,,,,,
 L_SAVE_EMPTY,Empty,,,,,,,,
+L_CLEAR_POPUP,Are you sure you want to clear? All unsaved changes will be lost.,,,,,,,,
+L_GENERATE_RANDOM,All unsaved changes will be lost. Continue?,,,,,,,,
+L_PLAY_BUTTON_PLAY,Play,,,,,,,,
+L_PLAY_BUTTON_STOP,Stop,,,,,,,,

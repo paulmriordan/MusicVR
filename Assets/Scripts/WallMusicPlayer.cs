@@ -13,6 +13,8 @@ public class WallMusicPlayer : MonoBehaviour
 	private Synth m_synth;
 	private GameObject m_lineInstance;
 
+	public bool IsPlaying {get { return m_playing;}}
+
 	void Awake()
 	{
 		var linePrefab = Resources.Load("WallAssets/PlayLine");
@@ -59,12 +61,16 @@ public class WallMusicPlayer : MonoBehaviour
 			m_colAccum += Time.deltaTime*notesPerSec;
 			m_colAccum = Mathf.Repeat(m_colAccum, (float)m_data.CompositionData.NumCols);
 			float frac = m_colAccum/(float)m_data.CompositionData.NumCols;
-			var pos = m_data.GetPositionAtAngle(frac * 2.0f * Mathf.PI);
-			m_lineInstance.transform.forward = pos;
+			Vector3 pos;
+			pos = m_data.GetPositionAtAngle(frac * 2.0f * Mathf.PI);
 			var h = m_data.GetTotalHeight();
 			pos.y = h * 0.5f - m_data.GetButtonWidth()*0.5f;
 			m_lineInstance.transform.localPosition = pos;
 			m_lineInstance.transform.localScale = new Vector3(m_lineInstance.transform.localScale.x, h - 2.0f * m_data.GetButtonWidth(), 0.01f);
+
+			Vector3 forward;
+			forward = m_data.GetPositionAtAngle(frac * 2.0f * Mathf.PI + transform.localRotation.eulerAngles.y * Mathf.Deg2Rad);
+			m_lineInstance.transform.forward = forward;
 		}
 	}
 

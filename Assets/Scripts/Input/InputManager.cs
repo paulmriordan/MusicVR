@@ -2,31 +2,80 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InputManager : MonoBehaviour {
+public class InputManager : MonoSingleton<InputManager> {
 
 	public SmoothMouseLook m_mouseLook;
 	public WallDragger m_wallDragger;
 
 	void Start () 
 	{
-		m_wallDragger.OnDraggingActive += () => m_mouseLook.EnableLook(false);
-		m_wallDragger.OnDragModeDisabled += () => m_mouseLook.EnableLook(true);
-		m_wallDragger.OnDraggingActive += () => WallButton.SelectionEnabled(false);
-		m_wallDragger.OnDragModeDisabled += () => WallButton.SelectionEnabled(true);
+		MusicWall.Instance.OnWallDataUpdated += UpdateProperties;
+	}
+
+	public void UpdateProperties(MusicWallData wallData)
+	{
+		m_wallDragger.Reset(0, -wallData.GetTotalHeight());
 	}
 
 	void Update()
 	{
+		UpdateGestures();
 		UpdatingObject.Check();
 
 		// Disable input if required
 		{
 			bool inputBlocked = MusicWallUI.Instance.IsBlockingGameInput();
-			inputBlocked |= m_wallDragger.IsDraggingActive();
+			inputBlocked |= IsCameraDragOccuring();
 
 			m_mouseLook.EnableLook(!inputBlocked);
-			WallButton.SelectionEnabled(!inputBlocked);
+			WallButton.s_wallButtonInputState.SelectionEnabled(!inputBlocked);
 		}
+
+		m_wallDragger.DraggingEnabled = IsCameraDragOccuring();
 	}
 
+	public float HoldTime = 0.5f;
+	public float HoldMoveLimit = 10.0f;
+
+	bool cameraDragging = false;
+	public float inputDownTime;
+	Vector3 inputDownPos;
+
+	public bool IsCameraDragOccuring()
+	{
+		return cameraDragging;
+	}
+
+	enum E_InputConsumeType { none, buttons, panning}
+	E_InputConsumeType m_inputType;
+
+	void UpdateGestures()
+	{
+		if (Input.GetMouseButtonDown(0))
+		{	
+			m_inputType = E_InputConsumeType.none;
+			WallButton.s_wallButtonInputState.Clear();
+			inputDownTime = Time.time;
+			Debug.Log("input down time " + inputDownTime);
+			inputDownPos = Input.mousePosition;
+		}
+
+		if (Input.GetMouseButton(0))
+		{
+			var d2 = (Input.mousePosition - inputDownPos).sqrMagnitude;
+			if (!cameraDragging)
+				Debug.Log("drag d " + Mathf.Sqrt(d2));
+			if (!cameraDragging &&  d2 > HoldMoveLimit * HoldMoveLimit && !WallButton.s_wallButtonInputState.WallInputActive())
+			{
+				Debug.Log("starting camera drag");
+				cameraDragging = true;
+			}
+		}
+
+		if (Input.GetMouseButtonUp(0))
+		{
+			cameraDragging = false;
+			inputDownTime = float.MaxValue;
+		}
+	}
 }

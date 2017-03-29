@@ -397,7 +397,7 @@ public class NewScriptWindow : EditorWindow
 		if (m_Styles == null)
 			m_Styles = new Styles ();
 		
-		EditorGUIUtility.LookLikeControls (85);
+//		EditorGUIUtility.LookLikeControls (85);
 		
 		if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return && CanCreate ())
 			Create ();

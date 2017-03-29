@@ -17,6 +17,11 @@ public class CompositionData
 			return m_buttonData.Length;
 		}}
 
+	public void Clear()
+	{
+		System.Array.Clear(m_buttonData, 0, m_buttonData.Length);
+	}
+
 	public void CreateDummyButtonData(float ProbInitSelected)
 	{
 		m_buttonData = new bool[NumRows*NumCols];

@@ -142,7 +142,7 @@ public class SaveFileDialog : MonoBehaviour {
 			BinaryFormatter bf = new BinaryFormatter();
 			FileStream file = File.Open(Application.persistentDataPath + "/save_" + number + "_.mwd", FileMode.Open);
 			MusicWall.Instance.WallProperties.CompositionData = (CompositionData)bf.Deserialize(file);
-			MusicWall.Instance.m_NeedUpdate = true;
+			MusicWall.Instance.NeedsUpdate = true;
 			file.Close();
 			Hide();
 		}

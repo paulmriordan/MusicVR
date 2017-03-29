@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class MusicWall : MonoSingleton<MusicWall> 
 {
+	public event Action<MusicWallData> OnWallDataUpdated = (p) => {};
+
 	public MusicWallData 			WallProperties;
 	public bool 					HasWall = true;
 	public float					ProbInitSelected = 0.2f;
@@ -11,38 +14,60 @@ public class MusicWall : MonoSingleton<MusicWall>
 
 	private WallButtons 			m_wallButtons = new WallButtons();
 	private WallMesh 				m_wallMesh;
-	private WallMusicPlayer			m_wallMusicPlayer;
+	private WallMusicPlayer			m_musicPlayer;
 
-	public bool		 				m_NeedUpdate {get; set;}
+	public bool		 				NeedsUpdate {get; set;}
+	public bool 					IsPlaying {get { return m_musicPlayer.IsPlaying;}}
+
+	public void ClearWall()
+	{
+		WallProperties.CompositionData.Clear();
+		NeedsUpdate = true;
+	}
+
+	public void GenerateRandom()
+	{
+		WallProperties.CompositionData.CreateDummyButtonData(ProbInitSelected);
+		NeedsUpdate = true;
+	}
+
+	public void TogglePlayPause()
+	{
+		if (m_musicPlayer.IsPlaying)
+			m_musicPlayer.Stop();
+		else
+			m_musicPlayer.Play(WallProperties, m_wallButtons, Synth);
+	}
 
 	//______________________________________________________________________________________
 	protected override void _Awake()
 	{
 		if (HasWall)
 			m_wallMesh = gameObject.AddComponent<WallMesh>();
-		m_wallMusicPlayer = gameObject.AddComponent<WallMusicPlayer>();
-		m_NeedUpdate = true;
+		m_musicPlayer = gameObject.AddComponent<WallMusicPlayer>();
+		NeedsUpdate = true;
 	}
 
 	//______________________________________________________________________________________
 	void OnValidate()
 	{
-		m_NeedUpdate = true;
+		NeedsUpdate = true;
 	}
 	
 	//______________________________________________________________________________________
 	void Update()
 	{
-		if (m_NeedUpdate)
+		if (NeedsUpdate)
 		{
 			m_wallButtons.Create(WallProperties);
 			if (HasWall)
 				m_wallMesh.Create(WallProperties);
-			m_wallMusicPlayer.Reset();
-			m_wallMusicPlayer.Play(WallProperties, m_wallButtons, Synth);
+			m_musicPlayer.Reset();
+			m_musicPlayer.Play(WallProperties, m_wallButtons, Synth);
+			OnWallDataUpdated(WallProperties);
 
 		}
 		m_wallButtons.Update();
-		m_NeedUpdate = false;
+		NeedsUpdate = false;
 	}
 }

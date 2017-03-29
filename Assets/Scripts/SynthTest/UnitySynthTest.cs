@@ -24,7 +24,7 @@ public class UnitySynthTest : MonoBehaviour
 	private MidiSequencer midiSequencer;
 	private StreamSynthesizer midiStreamSynthesizer;
 	
-	private float sliderValue = 1.0f;
+//	private float sliderValue = 1.0f;
 	private float maxSliderValue = 127.0f;
 	
 	// Awake is called when the script instance

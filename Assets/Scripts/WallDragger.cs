@@ -7,40 +7,33 @@ public class WallDragger : MonoBehaviour
 {
 	public KeyCode WallDraggerKey = KeyCode.LeftShift;
 	public BoundedDrag BoundedDrag;
+	public BoundedDrag HorizontalDrag;
+
 	public event Action OnDraggingActive = () => {};
 	public event Action OnDragModeDisabled = () => {};
 
 	private Vector3 m_dragStart;
-	private bool m_draggingActive;
 
-	public bool IsDraggingActive()
+	public bool DraggingEnabled {get; set;}
+
+	void Start()
 	{
-		return m_draggingActive;
+		BoundedDrag.SetDragAllowedFuncPtr(() => {return DraggingEnabled;});
+		HorizontalDrag.SetDragAllowedFuncPtr(() => {return DraggingEnabled;});
+	}
+
+	public void Reset(float maxLimit, float minLimit)
+	{
+		BoundedDrag.SetDragLimit(maxLimit, minLimit);
+		BoundedDrag.ForceToPositionImmediately((maxLimit + minLimit) * 0.5f);
 	}
 
 	void Update()
 	{
-		if (Input.GetKeyDown(WallDraggerKey))
-		{
-			OnDraggingActive();
-			m_draggingActive = true;
-		}
-		if (Input.GetKeyUp(WallDraggerKey))
-		{
-			OnDragModeDisabled();
-			m_draggingActive = false;
-		}
-
-		if (Input.GetMouseButtonDown(0) && Input.GetKey(WallDraggerKey))
-		{
-//			Camera.main.ScreenPointToRay
-		}
-
-		if (Input.GetMouseButtonUp(0) && m_draggingActive)
-		{
-		}
-
-		BoundedDrag.SetDragAllowedFuncPtr(() => {return m_draggingActive;});
 		transform.position = new Vector3(0, BoundedDrag.GetCurrentPos(), 0);
+
+		var euler = transform.localRotation.eulerAngles;
+		transform.localRotation = Quaternion.Euler(euler.x, HorizontalDrag.GetCurrentPos(), euler.z);
+		 
 	}
 }

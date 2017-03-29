@@ -1,4 +1,3 @@
 [BankFile]
 SFZ_FLukelele/sfz/0/0/i/
 PatchArena_marimba/sfz/1/1/i
-NylonGtr/sfz/2/2/i/
