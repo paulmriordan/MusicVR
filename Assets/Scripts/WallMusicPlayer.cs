@@ -99,15 +99,22 @@ public class WallMusicPlayer : MonoBehaviour
 		int currCol = (int)m_colAccum;
 		EndPreviousNotes();
 
-		for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
+		int numInstruments = m_data.CompositionData.InstrumentDataList.Count;
+		int rowCum = 0;
+		for (int iInst = 0; iInst < numInstruments; iInst++)
 		{
-			var button = m_wallButtons.GetButton(iRow, currCol);
-			if (button.IsSelected)
+			var instrument = m_data.CompositionData.InstrumentDataList[iInst];
+			for (int iRow = 0; iRow < instrument.NumRows; iRow++)
 			{
-				int note = MusicScaleConverter.Get(m_data.CompositionData.Scale).Convert(iRow);
-				m_synth.NoteOn(1, note);
-				m_currPlaying.Add(note);
+				var button = m_wallButtons.GetButton(iRow + rowCum, currCol);
+				if (button.IsSelected)
+				{
+					int note = MusicScaleConverter.Get(instrument.Scale).Convert(iRow);
+					m_synth.NoteOn(1, note + instrument.InstrumentNoteOffset, instrument.Instrument);
+					m_currPlaying.Add(note);
+				}
 			}
+			rowCum += instrument.NumRows;
 		}
 	}
 

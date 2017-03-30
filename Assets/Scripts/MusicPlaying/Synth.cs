@@ -10,9 +10,9 @@ public class Synth : MonoBehaviour {
 
 	public int bufferSize = 1024;
 	public int midiNoteVolume = 100;
-	public int midiInstrument = 1;
+//	public int midiInstrument = 1;
 	public string bankFilePath = "GM Bank/gm";
-	public int NoteOffset = 80;
+//	public int NoteOffset = 80;
 	public const int SAMPLE_RATE = 44100;
 	private StreamSynthesizer midiStreamSynthesizer;
 	private float[] sampleBuffer;
@@ -30,14 +30,14 @@ public class Synth : MonoBehaviour {
 		midiStreamSynthesizer.LoadBank (bankFilePath);
 	}
 
-	public void NoteOn(int channel, int note)
+	public void NoteOn(int channel, int note, int instrument)
 	{
-		midiStreamSynthesizer.NoteOn(channel, note + NoteOffset, midiNoteVolume, midiInstrument);
+		midiStreamSynthesizer.NoteOn(channel, note, midiNoteVolume, instrument);
 	}
 
 	public void NoteOff(int channel, int note)
 	{
-		midiStreamSynthesizer.NoteOff(channel, note + NoteOffset);
+		midiStreamSynthesizer.NoteOff(channel, note);
 	}
 
 	// See http://unity3d.com/support/documentation/ScriptReference/MonoBehaviour.OnAudioFilterRead.html for reference code

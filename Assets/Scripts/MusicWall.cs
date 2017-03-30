@@ -45,6 +45,7 @@ public class MusicWall : MonoSingleton<MusicWall>
 		if (HasWall)
 			m_wallMesh = gameObject.AddComponent<WallMesh>();
 		m_musicPlayer = gameObject.AddComponent<WallMusicPlayer>();
+		WallProperties.CompositionData.Init();
 		NeedsUpdate = true;
 	}
 
