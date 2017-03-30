@@ -124,9 +124,11 @@ public class SaveFileDialog : MonoBehaviour {
 	void SaveToFile(int number)
 	{
 		BinaryFormatter bf = new BinaryFormatter();
-		FileStream file = File.Create (Application.persistentDataPath + "/save_" + number + "_.mwd");
-		bf.Serialize(file, MusicWall.Instance.WallProperties.CompositionData);
-		file.Close();
+		using (FileStream file = File.Create (Application.persistentDataPath + "/save_" + number + "_.mwd"))
+		{
+			bf.Serialize(file, MusicWall.Instance.WallProperties.CompositionData);
+		}
+		// file.Close();
 		Hide();
 	}
 
@@ -140,10 +142,11 @@ public class SaveFileDialog : MonoBehaviour {
 		if(SaveFileExists(number))
 		{
 			BinaryFormatter bf = new BinaryFormatter();
-			FileStream file = File.Open(Application.persistentDataPath + "/save_" + number + "_.mwd", FileMode.Open);
-			MusicWall.Instance.WallProperties.CompositionData = (CompositionData)bf.Deserialize(file);
-			MusicWall.Instance.NeedsUpdate = true;
-			file.Close();
+			using (FileStream file = File.Open(Application.persistentDataPath + "/save_" + number + "_.mwd", FileMode.Open))
+			{
+				MusicWall.Instance.WallProperties.CompositionData = (CompositionData)bf.Deserialize(file);
+				MusicWall.Instance.NeedsUpdate = true;
+			}
 			Hide();
 		}
 	}

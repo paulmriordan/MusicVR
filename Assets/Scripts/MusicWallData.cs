@@ -13,6 +13,11 @@ public class MusicWallData
 	public float ButtonWidthFac = 0.75f;
 	public CompositionData CompositionData;
 
+	public void Init()
+	{
+		CompositionData.Init();
+	}
+
 	public float GetButtonWidth()
 	{
 		float colAngle = (2*Mathf.PI)/(float)CompositionData.NumCols;

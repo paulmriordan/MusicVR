@@ -69,16 +69,12 @@ public class WallButton : MonoBehaviour
 
 	public static WallButtonInputState s_wallButtonInputState = new WallButtonInputState();
 
-	public Material SelectedMaterial;
-	public Material UnselectedMaterial;
 	public float ScaleTime = 0.2f;
 	public Vector3 ScaleSelected = new Vector3(1.0f,1.0f,0.8f);
 	public Vector3 ScaleMouseDown = new Vector3(1.2f,1.2f,0.6f);
 	public Vector3 ScaleUnselected = new Vector3(1.0f,1.0f,1.0f);
 	[ColorUsageAttribute(true, true, 0, 8, 0.125f, 3)]
 	public Color PlayingColor;
-	[ColorUsageAttribute(true, true, 0, 8, 0.125f, 3)]
-	public Color SelectedColor;
 	public float PlayingFadeTime = 0.1f;
 	public MeshRenderer MeshRenderer;
 
@@ -88,16 +84,27 @@ public class WallButton : MonoBehaviour
 	private float m_playingFadeVel = 0;
 	private Material m_playingMaterial;
 	private Vector3 m_scaleVelocity;
+	Color m_selectedColor;
 
+	public Material SelectedMaterial {get;set;}
+	public Material UnselectedMaterial {get;set;}
 	public bool MouseDown {get; private set;}
 	public bool IsSelected {get { return m_selected;}}
 
 	void Awake()
 	{
-		m_playingMaterial = new Material(SelectedMaterial);
-		m_playingMaterial.name = "playing material";
 	}
 
+	public void RegeneratePlayingMaterial()
+	{
+		if (SelectedMaterial == null)
+			return;
+		if (m_playingMaterial != null)
+			Destroy(m_playingMaterial);
+		m_playingMaterial = new Material(SelectedMaterial);
+		m_playingMaterial.name = "playing material";
+		m_selectedColor = SelectedMaterial.GetColor("_EmissionColor");
+	}
 
 	public void SetSelected(bool selected)
 	{
@@ -187,7 +194,7 @@ public class WallButton : MonoBehaviour
 			m_playingFadeProg = Mathf.SmoothDamp(m_playingFadeProg, m_playingFadeTarget, ref m_playingFadeVel, PlayingFadeTime);
 			if (m_playingFadeProg < 0.001f)
 				m_playingFadeProg = 0;
-			Color targetColor = PlayingColor * (m_playingFadeProg) + SelectedColor * (1.0f - m_playingFadeProg);
+			Color targetColor = PlayingColor * (m_playingFadeProg) + m_selectedColor * (1.0f - m_playingFadeProg);
 			MeshRenderer.sharedMaterial.SetColor("_EmissionColor", targetColor);
 		}
 	}

@@ -110,7 +110,9 @@ public class WallMusicPlayer : MonoBehaviour
 				if (button.IsSelected)
 				{
 					int note = MusicScaleConverter.Get(instrument.Scale).Convert(iRow);
-					m_synth.NoteOn(1, note + instrument.InstrumentNoteOffset, instrument.Instrument);
+					m_synth.NoteOn(1, 
+						note + instrument.InstrumentDefintion.InstrumentNoteOffset, 
+						instrument.InstrumentDefintion.InstrumentInt);
 					m_currPlaying.Add(note);
 				}
 			}

@@ -27,7 +27,13 @@ public class WallButtons
 		{
 			for (int iRow = 0; iRow < musicData.NumRows; iRow++) 
 			{
-				m_wallButtons[iRow + iCol*musicData.NumRows].SetSelected(musicData.IsNoteActive(iRow, iCol));
+				var btn = m_wallButtons[iRow + iCol*musicData.NumRows];
+				btn.SetSelected(musicData.IsNoteActive(iRow, iCol));
+
+				var instrumentData = musicData.GetInstrumentAtLocation(iRow, iCol);
+				btn.SelectedMaterial = instrumentData.InstrumentDefintion.SelectedButtonMaterial;
+				btn.UnselectedMaterial = instrumentData.InstrumentDefintion.UnselectedButtonMaterial;
+				btn.RegeneratePlayingMaterial();
 			}
 		}
 	}
