@@ -15,7 +15,7 @@ public class InputManager : MonoSingleton<InputManager> {
 
 	public void UpdateProperties(MusicWallData wallData)
 	{
-		m_wallDragger.Reset(0, -wallData.GetTotalHeight());
+		m_wallDragger.Reset(0, -wallData.GetTotalHeight(), wallData.CompositionData.NumCols);
 	}
 
 	void Update()

@@ -31,6 +31,7 @@ public class BoundedDrag : UpdatingObject
 	Func<bool> m_IsDragAllowed = () => true;
 
 	public bool IsDragging { get { return m_Dragging;}}
+	public float Velocity {get { return m_Velocity;}}
 
 	public float TimeDragging()
 	{
