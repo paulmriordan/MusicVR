@@ -110,7 +110,7 @@ public class WallMusicPlayer : MonoBehaviour
 				if (button.IsSelected)
 				{
 					int note = MusicScaleConverter.Get(instrument.Scale).Convert(iRow);
-					m_synth.NoteOn(1, 
+					m_synth.NoteOn(instrument.InstrumentDefintion.IsDrum ? 9 : 1, 
 						note + instrument.InstrumentDefintion.InstrumentNoteOffset, 
 						instrument.InstrumentDefintion.InstrumentInt);
 					m_currPlaying.Add(note);

@@ -1,3 +1,12 @@
 [BankFile]
 SFZ_FLukelele/sfz/0/0/i/
 PatchArena_marimba/sfz/1/1/i
+Standard/sfz/0/7/d/
+Room/sfz/8/15/d/
+Power/sfz/16/23/d/
+Electronic/sfz/24/24/d/
+TR-808/sfz/25/31/d/
+Jazz/sfz/32/39/d/
+Brush/sfz/40/47/d/
+Orchestra/sfz/48/55/d/
+SFX/sfz/56/127/d/

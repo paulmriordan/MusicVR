@@ -282,7 +282,9 @@ namespace CSharpSynth.Synthesis
         private Voice getFreeVoice()
         {
             if (freeVoices.Count == 0)
+			{
                 return null;
+			}
             return freeVoices.Pop();
         }
         private Voice getUsedVoice(NoteRegistryKey r)
@@ -296,7 +298,15 @@ namespace CSharpSynth.Synthesis
                     voicelist[0].StopImmediately();
                     voice = voicelist[0];
                     voicelist.RemoveAt(0);
-                    activeVoices.Remove(voice);
+					try{
+						activeVoices.Remove(voice);
+					}
+					catch (Exception e){
+						Debug.LogError("remove voice exception. " 
+							+ "\n activeVoices: " + activeVoices.Count
+							+ "\n voicelist: " + voicelist.Count
+							+ " message: " + e.Message);
+					}
                     return voice;
                 }
             }
@@ -434,16 +444,42 @@ namespace CSharpSynth.Synthesis
             else //Manual mode
             {
                 node = activeVoices.First;
-                while (node != null)
+				while (node != null)
                 {
+					var prev = node.Previous;
+					var next = node.Next;
+
                     //Process buffer with no interrupt for events
                     node.Value.Process(sampleBuffer, 0, samplesperBuffer);
+
+					var prevAfterProcess = node.Previous;
+					var nextAfterProcess = node.Next;
+
                     if (node.Value.isInUse == false)
                     {
                         delnode = node;
                         node = node.Next;
                         freeVoices.Push(delnode.Value);
-                        activeVoices.Remove(delnode);
+
+						var prevBeforeRemove = delnode.Previous;
+						var nextBeforeRemove = delnode.Next;
+
+						try{
+                        	activeVoices.Remove(delnode);
+						}
+						catch (Exception e){
+							Debug.LogError("remove voice exception. activeVoices: "
+								+ activeVoices.Count
+								+ "\n delNode next " + delnode.Next
+								+ "\n delNode previous " + delnode.Previous
+								+ "\n node next " + next
+								+ "\n node previous " + prev
+								+ "\n node ap " + nextAfterProcess
+								+ "\n node ap " + prevAfterProcess
+								+ "\n node br " + nextBeforeRemove
+								+ "\n node br " + prevBeforeRemove
+								+ "\n message: " + e.Message);
+						}
                     }
                     else
                     {

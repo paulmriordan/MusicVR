@@ -48,6 +48,20 @@ public static class DotNetExtensions
 		}
 	}
 
+	public static T GetRandomNoRepeat<T>(this List<T> _this, System.Random rnd)
+	{
+		var len =_this.Count;
+		if (len == 0)
+			throw new Exception("No elements in list");
+		if (len == 1)
+			return _this[0];
+		var chosenIndex = rnd.Next(len-2);
+		var temp = _this[chosenIndex];
+		_this[chosenIndex] = _this[len - 1];
+		_this[len - 1] = temp;
+		return temp;
+	}
+
 	public static void RemoveAtSwap<T>(this List<T> lst, int idx) 
 	{
 		lst[idx] = lst[lst.Count-1];

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class MusicScaleConverter
 {
-	public enum E_ConverterType { Chromatic, Pentatonic, Major}
+	public enum E_ConverterType { Chromatic, Pentatonic, Major, Drum}
 
 	public static ScaleConverter Get(E_ConverterType type)
 	{
@@ -14,6 +14,7 @@ public static class MusicScaleConverter
 		case E_ConverterType.Chromatic: return new ChromaticConverter();
 		case E_ConverterType.Pentatonic: return new PentatonicConverter();
 		case E_ConverterType.Major: return new MajorConverter();
+		case E_ConverterType.Drum: return new DrumConverter();
 		}
 	}
 
@@ -65,6 +66,14 @@ public static class MusicScaleConverter
 			case 5:	return octaves*12 + remainder + 4;
 			case 6:	return octaves*12 + remainder + 5;
 			}
+		}
+	}
+
+	public class DrumConverter : ScaleConverter
+	{
+		public override int Convert(int raw)
+		{
+			return DrumNoteMap.Instance.Map(raw);
 		}
 	}
 }

@@ -14,7 +14,7 @@ public class InstrumentDefinitions : ScriptableObject {
 		public Color UnselectedEmmissiveColor = Color.white;
 
 		public int InstrumentInt = 0;
-
+		public bool IsDrum = false;
 		public int InstrumentNoteOffset = 0;
 
 		private Material m_unselectedMat = null;
