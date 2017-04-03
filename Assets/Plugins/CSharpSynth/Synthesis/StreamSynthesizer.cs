@@ -149,7 +149,10 @@ namespace CSharpSynth.Synthesis
                 tunePositions_[channel] = semitones;
             }
         }
-        public void setSequencer(MidiSequencer sequencer)
+		public void setSequencer(CustomSeq.CustomSequencer sequencer)
+		{
+		}
+		public void setSequencer(MidiSequencer sequencer)
         {
             this.seq = sequencer;
         }
