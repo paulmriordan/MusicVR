@@ -64,7 +64,8 @@ public class DrumNoteMap : ScriptableObject {
 		var noteSet = GetNoteSet(in_note);
 		if (noteSet != null)
 		{
-			return noteSet.Notes.GetRandomNoRepeat(m_rnd);
+			return noteSet.Notes[0];
+//			return noteSet.Notes.GetRandomNoRepeat(m_rnd);
 		}
 		return in_note;
 	}

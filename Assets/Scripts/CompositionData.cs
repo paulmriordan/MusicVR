@@ -10,18 +10,23 @@ public class CompositionData
 	public class InstrumentData
 	{
 		public int NumRows = 100;
-		[SerializeField] int InstrumentDefinitionIndex = 0;
 		public MusicScaleConverter.E_ConverterType Scale = MusicScaleConverter.E_ConverterType.Pentatonic;
+		[SerializeField] int InstrumentDefinitionIndex = 0;
+		private bool[] m_buttonData;
+
+		public int StartRow { get; private set;}
+		public int IndexInComposition { get; private set;}
+
 		public InstrumentDefinitions.Instrument InstrumentDefintion { get {
 				return InstrumentDefinitions.Instance.Get(InstrumentDefinitionIndex);
 			}
 		}
 
-		private bool[] m_buttonData;
-
-		public void Init(int numCols)
+		public void Init(int in_numCols, int in_startRow, int in_index)
 		{
-			m_buttonData = new bool[numCols*NumRows];
+			m_buttonData = new bool[in_numCols*NumRows];
+			StartRow = in_startRow;
+			IndexInComposition = in_index;
 		}
 
 		public void Clear()
@@ -47,12 +52,16 @@ public class CompositionData
 		}
 	}
 
-	public event System.Action OnCompositionChanged = () => {};
+
+	[field: System.NonSerialized]
+	public event System.Action<int,int,bool> OnCompositionChanged = (a,b,c) => {};
+
 	public List<InstrumentData> InstrumentDataList;
 	public int NumCols = 20;
-	public uint Tempo = 120;
+	public int Tempo = 120;
 	public int DeltaTiming = 500;
 	public int DeltaTimeSpacing = 500;
+
 	public int NumRows { get; private set;}
 	public int Size { get {
 			return NumRows * NumCols;
@@ -63,7 +72,7 @@ public class CompositionData
 		NumRows = 0;
 		for (int i = 0; i < InstrumentDataList.Count; i++)
 		{
-			InstrumentDataList[i].Init(NumCols);
+			InstrumentDataList[i].Init(NumCols, NumRows, i);
 			NumRows += InstrumentDataList[i].NumRows;
 		}
 	}
@@ -103,7 +112,7 @@ public class CompositionData
 				if (InstrumentDataList[i].IsNoteActive(row - rowCum, col) != active)
 				{
 					InstrumentDataList[i].SetNoteActive(row - rowCum, col, active);
-					OnCompositionChanged();
+					OnCompositionChanged(row,col,active);
 				}
 				return;
 			}
@@ -130,7 +139,7 @@ public class CompositionData
 	{
 		var seqData = new CustomSequencer.CustomSeqData();
 		seqData.DeltaTiming = DeltaTiming;
-		seqData.BeatsPerMinute = Tempo;
+		seqData.BeatsPerMinute = (uint)Tempo;
 		seqData.TotalTime = (ulong)(DeltaTimeSpacing*(float)NumCols);
 
 		List<CustomEvent> events = new List<CustomEvent>();

@@ -64,6 +64,7 @@ public class MusicWall : MonoSingleton<MusicWall>
 			m_wallButtons.Create(WallProperties);
 			if (HasWall)
 				m_wallMesh.Create(WallProperties);
+			m_musicPlayer.Init(WallProperties, m_wallButtons, Synth);
 			m_musicPlayer.Reset();
 			m_musicPlayer.Play();
 			OnWallDataUpdated(WallProperties);

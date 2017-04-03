@@ -15,9 +15,7 @@ public class WallMusicPlayer : MonoBehaviour
 	private List<int> m_currPlaying = new List<int>();
 	private bool m_refreshNotes = false;
 	private CustomSequencer customSequencer;
-	#if DIRECT_PLAY
 	private Synth m_synth;
-	#endif
 	private GameObject m_lineInstance;
 
 	public bool IsPlaying {get { return m_playing;}}
@@ -41,10 +39,7 @@ public class WallMusicPlayer : MonoBehaviour
 		m_data = properties;
 		m_data.CompositionData.OnCompositionChanged += RefreshNotesEventHandler;
 		m_wallButtons = buttons;
-
-		#if DIRECT_PLAY
 		m_synth = synth;
-		#endif
 	}
 
 	public void Play()
@@ -59,9 +54,22 @@ public class WallMusicPlayer : MonoBehaviour
 
 	}
 
-	public void RefreshNotesEventHandler()
+	public void RefreshNotesEventHandler(int in_row, int in_col, bool active)
 	{
 		m_refreshNotes = true;
+
+		if (active)
+		{
+			var instr = m_data.CompositionData.GetInstrumentAtLocation(in_row, in_col);
+
+			int note = MusicScaleConverter.Get(instr.Scale).Convert(in_row - instr.StartRow);
+
+			m_synth.NoteOn(instr.InstrumentDefintion.IsDrum ? 9 : instr.IndexInComposition, 
+				note + instr.InstrumentDefintion.InstrumentNoteOffset, 
+				instr.InstrumentDefintion.InstrumentInt);
+			
+			m_currPlaying.Add(note);
+		}
 	}
 
 	public void Stop()
