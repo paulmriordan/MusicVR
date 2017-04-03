@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿//#define DIRECT_PLAY
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CSharpSynth.CustomSeq;
+
 
 public class WallMusicPlayer : MonoBehaviour 
 {
@@ -10,7 +13,11 @@ public class WallMusicPlayer : MonoBehaviour
 	private WallButtons m_wallButtons;
 	private bool m_playing;
 	private List<int> m_currPlaying = new List<int>();
+	private bool m_refreshNotes = false;
+	private CustomSequencer customSequencer;
+	#if DIRECT_PLAY
 	private Synth m_synth;
+	#endif
 	private GameObject m_lineInstance;
 
 	public bool IsPlaying {get { return m_playing;}}
@@ -20,6 +27,7 @@ public class WallMusicPlayer : MonoBehaviour
 		var linePrefab = Resources.Load("WallAssets/PlayLine");
 		m_lineInstance = Instantiate(linePrefab) as GameObject;
 		m_lineInstance.transform.SetParent(transform);
+		customSequencer = new CustomSequencer(Synth.Instance.midiStreamSynthesizer);
 	}
 
 	public void Reset()
@@ -28,21 +36,72 @@ public class WallMusicPlayer : MonoBehaviour
 		m_prevColEffect = -1;
 	}
 
-	public void Play(MusicWallData properties, WallButtons buttons, Synth synth)
+	public void Init(MusicWallData properties, WallButtons buttons, Synth synth)
 	{
 		m_data = properties;
+		m_data.CompositionData.OnCompositionChanged += RefreshNotesEventHandler;
 		m_wallButtons = buttons;
-		m_playing = true;
+
+		#if DIRECT_PLAY
 		m_synth = synth;
+		#endif
+	}
+
+	public void Play()
+	{
+		m_playing = true;
+
+		#if !DIRECT_PLAY
+		LoadSequencerData();
+		customSequencer.Play ();
+		SetSequencerTime();
+		#endif
+
+	}
+
+	public void RefreshNotesEventHandler()
+	{
+		m_refreshNotes = true;
 	}
 
 	public void Stop()
 	{
 		m_playing = false;
+		customSequencer.Stop(false);
+	}
+
+	private void LoadSequencerData()
+	{
+		var seqData = m_data.CompositionData.GetSequncerData();
+		//adjust total time into sample time
+		seqData.TotalTime = (ulong)CustomSequencer.TimetoSampleTime(
+			(uint)seqData.TotalTime, 
+			(int)Synth.Instance.midiStreamSynthesizer.SampleRate,
+			seqData.BeatsPerMinute,
+			(uint)seqData.DeltaTiming);
+		
+		var instruments = m_data.CompositionData.InstrumentDataList;
+		for (int i = 0; i < instruments.Count; i++)
+		{
+			var inst = instruments[i];
+			if (inst.InstrumentDefintion.IsDrum)
+				customSequencer.setProgram(9, inst.InstrumentDefintion.InstrumentInt);
+			else
+				customSequencer.setProgram(i, inst.InstrumentDefintion.InstrumentInt);
+		}
+		customSequencer.Load(seqData);
+	}
+
+	private void SetSequencerTime()
+	{
+		float secsPerNote = 1.0f/((m_data.CompositionData.Tempo/60.0f));
+		float secs = m_colAccum*secsPerNote;
+		customSequencer.Time = secs;
 	}
 
 	void Update () 
 	{
+		UpdateRefreshNotes();
 		UpdatePosition();
 
 		int currCol = (int)m_colAccum;
@@ -110,13 +169,25 @@ public class WallMusicPlayer : MonoBehaviour
 				if (button.IsSelected)
 				{
 					int note = MusicScaleConverter.Get(instrument.Scale).Convert(iRow);
+					#if DIRECT_PLAY
 					m_synth.NoteOn(instrument.InstrumentDefintion.IsDrum ? 9 : 1, 
 						note + instrument.InstrumentDefintion.InstrumentNoteOffset, 
 						instrument.InstrumentDefintion.InstrumentInt);
+					#endif
 					m_currPlaying.Add(note);
 				}
 			}
 			rowCum += instrument.NumRows;
+		}
+	}
+
+	void UpdateRefreshNotes()
+	{
+		if (m_refreshNotes)
+		{
+			LoadSequencerData();
+			SetSequencerTime();
+			m_refreshNotes = false;
 		}
 	}
 
@@ -127,7 +198,9 @@ public class WallMusicPlayer : MonoBehaviour
 			for (int iNote = 0; iNote < m_currPlaying.Count; iNote++)
 			{
 				int note = m_currPlaying[iNote];
+				#if DIRECT_PLAY
 				m_synth.NoteOff(1, note);
+				#endif
 			}
 		}
 		m_currPlaying.Clear();

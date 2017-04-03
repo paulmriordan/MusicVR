@@ -5,7 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class MusicWallData
 {
-
 	public Transform Parent;
 	public GameObject Prefab;
 	public float Radius = 0.1f;

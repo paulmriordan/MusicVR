@@ -7,11 +7,11 @@ namespace CSharpSynth.CustomSeq
 	{
 		public struct CustomSeqData
 		{
-			public float TotalTime;
-			public float BeatsPerMinute;
+			public ulong TotalTime;
+			public uint BeatsPerMinute;
 			public int EventCount;
 			public CustomEvent[] Events;
-			public float DeltaTiming;
+			public int DeltaTiming;
 		}
 		private CustomSeqData _MidiFile;
 		private StreamSynthesizer synth;
@@ -38,6 +38,11 @@ namespace CSharpSynth.CustomSeq
 		{
 			get { return sampleTime; }
 		}
+		public float Time
+		{
+			get { return (int)SynthHelper.getTimeFromSample(synth.SampleRate, sampleTime); }
+			set { SetTime(value); }
+		}
 		public CustomSequencer(StreamSynthesizer synth)
 		{
 			currentPrograms = new int[16]; //16 channels
@@ -48,17 +53,15 @@ namespace CSharpSynth.CustomSeq
 		}
 		public bool Load(CustomSeqData seqFile)
 		{
-			if (playing == true)
-				return false;
-
+//			if (playing == true)
+//				return false;
+//
 			_MidiFile = seqFile;
 
-			//				if (_MidiFile.SequencerReady == false)
+//				if (_MidiFile.SequencerReady == false)
 			{
 				try
 				{
-					//Combine all tracks into 1 track that is organized from lowest to highest abs time
-					//						_MidiFile.CombineTracks();
 					//Convert delta time to sample time
 					eventIndex = 0;
 					uint lastSample = 0;
@@ -66,16 +69,7 @@ namespace CSharpSynth.CustomSeq
 					{
 						_MidiFile.Events[x].deltaTime = lastSample + (uint)DeltaTimetoSamples(_MidiFile.Events[x].deltaTime);
 						lastSample = _MidiFile.Events[x].deltaTime;
-						//Update tempo
-						//							if (_MidiFile.Events[x].midiMetaEvent == MidiHelper.MidiMetaEvent.Tempo)
-						//							{
-						//								_MidiFile.BeatsPerMinute = MidiHelper.MicroSecondsPerMinute / System.Convert.ToUInt32(_MidiFile.Tracks[0].MidiEvents[x].Parameters[0]);
-						//							}
 					}
-					//Set total time to proper value
-					_MidiFile.TotalTime = _MidiFile.Events[_MidiFile.Events.Length-1].deltaTime;
-					//reset tempo
-					_MidiFile.BeatsPerMinute = 120;
 					//mark midi as ready for sequencing
 					//						_MidiFile.SequencerReady = true;
 				}
@@ -99,7 +93,7 @@ namespace CSharpSynth.CustomSeq
 			//						//Remove old bank being used by synth
 			//						synth.UnloadBank();
 			//						//Add the bank and switch to it with the synth
-			//						BankManager.addBank(new InstrumentBank(synth.SampleRate, bankStr, _MidiFile.Tracks[0].Programs, _MidiFile.Tracks[0].DrumPrograms));
+			//						BankManager.addBank(new InstrumentBank(synth.SampleRate, bankStr, _MidiFile.Programs, _MidiFile.DrumPrograms));
 			//						synth.SwitchBank(BankManager.Count - 1);
 			//					}
 			//				}
@@ -117,8 +111,6 @@ namespace CSharpSynth.CustomSeq
 			Array.Clear(currentPrograms, 0, currentPrograms.Length);
 			//Clear vol, pan, and tune
 			ResetControllers();
-			//set bpm
-			_MidiFile.BeatsPerMinute = 120;
 			//Let the synth know that the sequencer is ready.
 			eventIndex = 0;
 			playing = true;
@@ -132,9 +124,13 @@ namespace CSharpSynth.CustomSeq
 			else
 				synth.NoteOffAll(false);
 		}
+		public static int TimetoSampleTime(uint DeltaTime, int sampleRate, uint BBM, uint fileDeltaTiming)
+		{
+			return SynthHelper.getSampleFromTime(sampleRate, ((float)DeltaTime * (60.0f / ((float)((int)BBM) * fileDeltaTiming))));
+		}
 		private int DeltaTimetoSamples(uint DeltaTime)
 		{
-			return SynthHelper.getSampleFromTime(synth.SampleRate, (DeltaTime * (60.0f / (((int)_MidiFile.BeatsPerMinute) * _MidiFile.DeltaTiming))));
+			return SynthHelper.getSampleFromTime(synth.SampleRate, ((float)DeltaTime * (60.0f / (float)(((int)_MidiFile.BeatsPerMinute) * _MidiFile.DeltaTiming))));
 		}
 
 		public CustomSequencerEvent Process(int frame)
@@ -150,8 +146,8 @@ namespace CSharpSynth.CustomSeq
 					Array.Clear(currentPrograms, 0, currentPrograms.Length);
 					//Clear vol, pan, and tune
 					ResetControllers();
-					//set bpm
-					_MidiFile.BeatsPerMinute = 120;
+//					//set bpm
+//					_MidiFile.BeatsPerMinute = 120;
 					//Let the synth know that the sequencer is ready.
 					eventIndex = 0;
 				}
@@ -205,6 +201,34 @@ namespace CSharpSynth.CustomSeq
 					break;
 				}
 			}
+		}
+		private void SetTime(float timeSecs)
+		{
+			int _stime = SynthHelper.getSampleFromTime(synth.SampleRate, timeSecs);
+//			if (_stime > sampleTime)
+			{
+				SilentProcess(_stime - sampleTime);
+			}
+//			else if (_stime < sampleTime)
+//			{//we have to restart the midi to make sure we get the right temp, instrument, etc
+//				synth.Stop();
+//				sampleTime = 0;
+//				Array.Clear(currentPrograms, 0, currentPrograms.Length);
+//				ResetControllers();
+//				_MidiFile.BeatsPerMinute = 120;
+//				eventIndex = 0;
+//				SilentProcess(_stime);
+//			}
+		}
+		private void SilentProcess(int amount)
+		{
+			while (eventIndex < _MidiFile.EventCount && _MidiFile.Events[eventIndex].deltaTime < (sampleTime + amount))
+			{
+				if (_MidiFile.Events[eventIndex].midiChannelEvent != CustomEvent.CustomEventType.Note_On)
+					ProcessCustomEvent(_MidiFile.Events[eventIndex]);               
+				eventIndex++;
+			}
+			sampleTime = sampleTime + amount;
 		}
 	}
 }

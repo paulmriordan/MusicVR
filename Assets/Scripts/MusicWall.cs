@@ -36,7 +36,7 @@ public class MusicWall : MonoSingleton<MusicWall>
 		if (m_musicPlayer.IsPlaying)
 			m_musicPlayer.Stop();
 		else
-			m_musicPlayer.Play(WallProperties, m_wallButtons, Synth);
+			m_musicPlayer.Play();
 	}
 
 	//______________________________________________________________________________________
@@ -46,6 +46,7 @@ public class MusicWall : MonoSingleton<MusicWall>
 			m_wallMesh = gameObject.AddComponent<WallMesh>();
 		m_musicPlayer = gameObject.AddComponent<WallMusicPlayer>();
 		WallProperties.Init();
+		m_musicPlayer.Init(WallProperties, m_wallButtons, Synth);
 		NeedsUpdate = true;
 	}
 
@@ -64,7 +65,7 @@ public class MusicWall : MonoSingleton<MusicWall>
 			if (HasWall)
 				m_wallMesh.Create(WallProperties);
 			m_musicPlayer.Reset();
-			m_musicPlayer.Play(WallProperties, m_wallButtons, Synth);
+			m_musicPlayer.Play();
 			OnWallDataUpdated(WallProperties);
 
 		}

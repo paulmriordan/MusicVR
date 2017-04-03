@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 using CSharpSynth.Effects;
 using CSharpSynth.Sequencer;
 using CSharpSynth.Synthesis;
 using CSharpSynth.Midi;
+using CSharpSynth.CustomSeq;
 
-public class Synth : MonoBehaviour {
+public class Synth : MonoSingleton<Synth> {
 
 	public int bufferSize = 1024;
 	public int midiNoteVolume = 100;
@@ -14,11 +16,13 @@ public class Synth : MonoBehaviour {
 	public string bankFilePath = "GM Bank/gm";
 //	public int NoteOffset = 80;
 	public const int SAMPLE_RATE = 44100;
-	private StreamSynthesizer midiStreamSynthesizer;
+	public StreamSynthesizer midiStreamSynthesizer;
 	private float[] sampleBuffer;
 	private float gain = 1f;
 
-	void Awake()
+//	public CustomSequencer customSequencer;
+
+	protected override void _Awake()
 	{
 		#if UNITY_ANDROID && !UNITY_EDITOR
 		midiStreamSynthesizer = new StreamSynthesizer(SAMPLE_RATE, 1, bufferSize, 40);
@@ -28,6 +32,45 @@ public class Synth : MonoBehaviour {
 		sampleBuffer = new float[midiStreamSynthesizer.BufferSize];		
 
 		midiStreamSynthesizer.LoadBank (bankFilePath);
+
+//		var customFile = new CustomSequencer.CustomSeqData();
+//		customFile.DeltaTiming = 480f;
+//		customFile.BeatsPerMinute = 60.0f;
+//		customFile.EventCount = 3;
+//		customFile.TotalTime = 20.0f;
+//		var eve = new CustomEvent()
+//		{
+//			deltaTime = 500,
+//			midiChannelEvent = CustomEvent.CustomEventType.Note_On,
+//			//				public object[] Parameters;
+//			note = 80,
+//			velocity = 100,
+//			channel = 1
+//		};
+//		var eve1 = new CustomEvent()
+//		{
+//			deltaTime = 500,
+//			midiChannelEvent = CustomEvent.CustomEventType.Note_On,
+//			//				public object[] Parameters;
+//			note = 82,
+//			velocity = 100,
+//			channel = 1
+//		};
+//		var eve2 = new CustomEvent()
+//		{
+//			deltaTime = 1,
+//			midiChannelEvent = CustomEvent.CustomEventType.Note_On,
+//			//				public object[] Parameters;
+//			note = 84,
+//			velocity = 100,
+//			channel = 1
+//		};
+//		customFile.Events = new CustomEvent[3]{
+//			eve,eve1,eve2
+//		};
+//		customSequencer = new CustomSequencer(midiStreamSynthesizer);
+//		customSequencer.Load(customFile);
+//		customSequencer.Play ();
 	}
 
 	public void NoteOn(int channel, int note, int instrument)

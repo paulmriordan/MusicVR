@@ -81,6 +81,7 @@ public class WallButtons
 				inst.transform.SetParent(m_data.Parent, false);
 				inst.transform.localScale = new Vector3(buttonWidth, buttonWidth, buttonWidth);
 				m_wallButtons[iRow + iCol*m_data.CompositionData.NumRows] = inst.GetComponentInChildren<WallButton>();
+				m_wallButtons[iRow + iCol*m_data.CompositionData.NumRows].SetCoord(iRow, iCol, m_data.CompositionData);
 			}
 		}
 	}

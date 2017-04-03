@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CSharpSynth.CustomSeq;
 
 [System.Serializable]
 public class CompositionData
@@ -39,11 +40,19 @@ public class CompositionData
 		{
 			return m_buttonData[row + col*NumRows];
 		}
+
+		public void SetNoteActive(int row, int col, bool active)
+		{
+			m_buttonData[row + col*NumRows] = active;
+		}
 	}
 
+	public event System.Action OnCompositionChanged = () => {};
 	public List<InstrumentData> InstrumentDataList;
 	public int NumCols = 20;
-	public float Tempo = 120.0f;
+	public uint Tempo = 120;
+	public int DeltaTiming = 500;
+	public int DeltaTimeSpacing = 500;
 	public int NumRows { get; private set;}
 	public int Size { get {
 			return NumRows * NumCols;
@@ -84,6 +93,26 @@ public class CompositionData
 		return false;
 	}
 
+	public void SetNoteActive(int row, int col, bool active)
+	{
+		int rowCum = 0;
+		for (int i = 0; i < InstrumentDataList.Count; i++)
+		{
+			if (row < rowCum + InstrumentDataList[i].NumRows)
+			{
+				if (InstrumentDataList[i].IsNoteActive(row - rowCum, col) != active)
+				{
+					InstrumentDataList[i].SetNoteActive(row - rowCum, col, active);
+					OnCompositionChanged();
+				}
+				return;
+			}
+			rowCum += InstrumentDataList[i].NumRows;
+		}
+		Debug.LogError("row " + row + " not in music data");
+		return;
+	}
+
 	public InstrumentData GetInstrumentAtLocation(int row, int col)
 	{
 		int rowCum = 0;
@@ -97,4 +126,75 @@ public class CompositionData
 		return null;
 	}
 
+	public CustomSequencer.CustomSeqData GetSequncerData()
+	{
+		var seqData = new CustomSequencer.CustomSeqData();
+		seqData.DeltaTiming = DeltaTiming;
+		seqData.BeatsPerMinute = Tempo;
+		seqData.TotalTime = (ulong)(DeltaTimeSpacing*(float)NumCols);
+
+		List<CustomEvent> events = new List<CustomEvent>();
+		List<CustomEvent> lastColEvents = new List<CustomEvent>();
+		int numInstruments = InstrumentDataList.Count;
+		uint cumDeltaTime = 0;
+		for (int iCol = 0; iCol < NumCols; iCol++)
+		{
+			bool first = true;
+
+			int lastColCount = lastColEvents.Count;
+			for (int iEvent = 0; iEvent < lastColCount; iEvent++)
+			{
+				var lastEvent = lastColEvents[iEvent];
+				var customEvent = new CustomEvent()
+				{
+					deltaTime = first ? cumDeltaTime : 0,
+					midiChannelEvent = CustomEvent.CustomEventType.Note_Off,
+					//				public object[] Parameters;
+					note = lastEvent.note,
+					velocity = 100,
+					channel = lastEvent.channel
+				};
+				events.Add(customEvent);
+				cumDeltaTime = 0; //used, other events this frame are at same time 
+				first = false;
+			}
+			lastColEvents.Clear();
+
+			for (int iInst = 0; iInst < numInstruments; iInst++)
+			{
+				var instrument = InstrumentDataList[iInst];
+				for (int iRow = 0; iRow < instrument.NumRows; iRow++)
+				{
+					if (instrument.IsNoteActive(iRow, iCol))
+					{
+						int eventNote = MusicScaleConverter.Get(instrument.Scale).Convert(iRow);
+						int eventChannel = instrument.InstrumentDefintion.IsDrum ? 9 : iInst;
+						eventNote = eventNote + instrument.InstrumentDefintion.InstrumentNoteOffset;
+						
+						var customEvent = new CustomEvent()
+						{
+							deltaTime = first ? cumDeltaTime : 0,
+							midiChannelEvent = CustomEvent.CustomEventType.Note_On,
+							//				public object[] Parameters;
+							note = (byte)eventNote,
+							velocity = 100,
+							channel = (byte)eventChannel
+						};
+
+						events.Add(customEvent);
+						lastColEvents.Add(customEvent);
+
+						cumDeltaTime = 0; //used, other events this frame are at same time
+						first = false;
+					}
+				}
+			}
+
+
+			cumDeltaTime += (uint)DeltaTimeSpacing;
+		}
+		seqData.Events = events.ToArray();
+		seqData.EventCount = seqData.Events.Length;
+		return seqData;
+	}
 }

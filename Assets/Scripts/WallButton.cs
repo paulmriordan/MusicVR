@@ -84,7 +84,10 @@ public class WallButton : MonoBehaviour
 	private float m_playingFadeVel = 0;
 	private Material m_playingMaterial;
 	private Vector3 m_scaleVelocity;
-	Color m_selectedColor;
+	private Color m_selectedColor;
+	private CompositionData m_compositionData;
+	private int m_row;
+	private int m_col;
 
 	public Material SelectedMaterial {get;set;}
 	public Material UnselectedMaterial {get;set;}
@@ -93,6 +96,13 @@ public class WallButton : MonoBehaviour
 
 	void Awake()
 	{
+	}
+
+	public void SetCoord(int row, int col, CompositionData compositionRef)
+	{
+		m_row = row;
+		m_col = col;
+		m_compositionData = compositionRef;
 	}
 
 	public void RegeneratePlayingMaterial()
@@ -109,6 +119,7 @@ public class WallButton : MonoBehaviour
 	public void SetSelected(bool selected)
 	{
 		m_selected = selected;
+		m_compositionData.SetNoteActive(m_row, m_col, selected);
 	}
 
 	public void SetPlaying(bool playing)
