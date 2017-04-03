@@ -16,6 +16,8 @@ public class InstrumentDefinitions : ScriptableObject {
 		public int InstrumentInt = 0;
 		public bool IsDrum = false;
 		public int InstrumentNoteOffset = 0;
+		[Range(0,255)]
+		public int NoteVelocity = 127;
 
 		private Material m_unselectedMat = null;
 		private Material m_selectedMat = null;

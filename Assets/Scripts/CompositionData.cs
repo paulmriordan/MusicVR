@@ -151,7 +151,7 @@ public class CompositionData
 					midiChannelEvent = CustomEvent.CustomEventType.Note_Off,
 					//				public object[] Parameters;
 					note = lastEvent.note,
-					velocity = 100,
+					velocity = lastEvent.velocity,
 					channel = lastEvent.channel
 				};
 				events.Add(customEvent);
@@ -177,7 +177,7 @@ public class CompositionData
 							midiChannelEvent = CustomEvent.CustomEventType.Note_On,
 							//				public object[] Parameters;
 							note = (byte)eventNote,
-							velocity = 100,
+							velocity = (byte)instrument.InstrumentDefintion.NoteVelocity,
 							channel = (byte)eventChannel
 						};
 
