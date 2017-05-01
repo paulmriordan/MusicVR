@@ -19,7 +19,7 @@ namespace CSharpSynth.Wave
 
             //NOTE: WAVE FILES NEED .bytes appended. See http://unity3d.com/support/documentation/Components/class-TextAsset.html
             TextAsset fileName = Resources.Load(filename) as TextAsset;
-//			Debug.Log(filename);
+			Debug.Log(filename);
 //            Debug.Log(this.ToString() + " AppDataPath " + Application.dataPath + " Filename: " + filename + " asset.bytes.Length " + asset.bytes.Length.ToString());
             Stream waveFileStream = new MemoryStream(fileName.bytes);
             

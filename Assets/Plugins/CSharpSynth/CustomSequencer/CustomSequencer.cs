@@ -142,8 +142,8 @@ namespace CSharpSynth.CustomSeq
 				sampleTime = 0;
 				if (looping == true)
 				{
-					//Clear the current programs for the channels.
-					Array.Clear(currentPrograms, 0, currentPrograms.Length);
+					//DONT Clear the current programs for the channels. (only set once in Wall Music Player)
+//					Array.Clear(currentPrograms, 0, currentPrograms.Length);
 					//Clear vol, pan, and tune
 					ResetControllers();
 //					//set bpm

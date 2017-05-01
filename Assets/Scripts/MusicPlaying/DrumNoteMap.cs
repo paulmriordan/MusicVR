@@ -13,6 +13,7 @@ public class DrumNoteMap : ScriptableObject {
 		public bool Included = true;
 		public List<int> Notes;
 	}
+	public static string Active = "DrumNoteMapDB";//"DrumNoteMapDB_BigMono";
 	public List<NoteOutSet> NoteMap;
 	protected System.Random m_rnd;
 
@@ -21,7 +22,7 @@ public class DrumNoteMap : ScriptableObject {
 		get{
 			if (s_internalInstance == null)
 			{
-				s_internalInstance = Resources.Load<DrumNoteMap>("DrumNoteMapDB");
+				s_internalInstance = Resources.Load<DrumNoteMap>(Active);
 				if(s_internalInstance == null)
 				{
 					Debug.LogError("DrumNoteMapDB could not be loaded");

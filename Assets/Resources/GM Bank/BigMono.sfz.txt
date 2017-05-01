@@ -1,0 +1,25 @@
+//  ***** gm - Room *****
+//  Soundfont converted using sfZed
+//  SoundFont version 2.1
+//  E-mu 10K1
+//  Using Virtual Sampler
+
+
+<group>
+ampeg_release=0.250
+
+<region>
+sample=CLudwigKick-Dyn10.wav
+lokey=27
+hikey=27
+pitch_keycenter=82
+volume=-3.900
+
+<region>
+sample=SabHHXEvo20_Bell09.wav
+lokey=28
+hikey=28
+pitch_keycenter=82
+volume=-3.900
+
+
