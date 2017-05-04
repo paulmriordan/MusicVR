@@ -23,7 +23,6 @@ public class InputManager : MonoSingleton<InputManager>
 	void Start () 
 	{
 		MusicWall.Instance.OnWallDataUpdated += UpdateProperties;
-		SequencerButtonInputHander.s_sequencerButtonDrag.OnPanRequested += m_wallDragger.PerformPan;
 	}
 
 	public void UpdateProperties(MusicWallData wallData)
@@ -31,28 +30,24 @@ public class InputManager : MonoSingleton<InputManager>
 		m_wallDragger.Reset(0, -wallData.GetTotalHeight(), wallData.CompositionData.NumCols);
 	}
 
+	public bool IsUIBlockingGameInput()
+	{
+		return MusicWallUI.Instance.IsBlockingGameInput();;
+	}
+
 	void Update()
 	{
 		UpdateGestures();
 		UpdateKeyCommands();
 		UpdatingObject.Check();
-		SequencerButtonInputHander.s_sequencerButtonDrag.Update(m_inputState);
-
-		// Disable input if required
-		{
-			bool inputBlocked = MusicWallUI.Instance.IsBlockingGameInput();
-			inputBlocked |= m_wallDragger.InputConsumer.IsActive();
-
-			m_mouseLook.EnableLook(!inputBlocked);
-			SequencerButtonInputHander.s_sequencerButtonDrag.SelectionEnabled(!inputBlocked);
-		}
+		UpdateDragPanning();
 	}
 
 	void UpdateGestures()
 	{
 		if (Input.GetMouseButtonDown(0))
 		{	
-			SequencerButtonInputHander.s_sequencerButtonDrag.Clear();
+			SequencerButtonInputHander.s_sequencerButtonDrag = null;
 			m_inputState.InputDownTime = Time.time;
 			m_inputState.InputDownPos = Input.mousePosition;
 		}
@@ -65,11 +60,41 @@ public class InputManager : MonoSingleton<InputManager>
 		InputConsumerBase.UpdateConsumers(m_inputState);
 	}
 
+	void UpdateDragPanning()
+	{
+		bool isButtonDragActive = SequencerButtonInputHander.s_sequencerButtonDrag != null;
+		var inputDelta = Input.mousePosition - m_inputState.InputDownPos;
+
+		if (isButtonDragActive 
+			&& EdgePanningUtil.DragTreshReached((inputDelta).magnitude, m_inputState.ThresholdStartEdgePan))
+		{
+			var pan = EdgePanningUtil.EdgeDragPanAmount(Input.mousePosition, 
+				m_inputState.EdgeDistPan.x,
+				m_inputState.EdgeDistPan.y);	
+			if (pan.sqrMagnitude > 0)
+				m_wallDragger.PerformPan(pan);
+		}
+	}
+
 	void UpdateKeyCommands()
 	{
 		if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Z))
 		{
 			MusicWall.Instance.WallProperties.CompositionData.CommandManager.Undo();
+		}
+	}
+
+	void LateUpdate()
+	{
+		LateUpdateGestures();
+	}
+
+	void LateUpdateGestures()
+	{
+		if (Input.GetMouseButtonUp(0))
+		{
+			// end drag, even if released not over a button
+			SequencerButtonInputHander.s_sequencerButtonDrag = null;
 		}
 	}
 }

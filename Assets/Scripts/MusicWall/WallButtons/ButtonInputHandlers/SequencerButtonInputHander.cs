@@ -5,7 +5,8 @@ using UnityEngine.EventSystems;
 
 public class SequencerButtonInputHander : ButtonInputHandler
 {
-	public static SequencerButtonDrag s_sequencerButtonDrag = new SequencerButtonDrag();
+	public static SequencerButtonDrag s_sequencerButtonDrag = null;
+	private static WallButtonInputConsumer s_inputConsumer = new WallButtonInputConsumer();
 
 	private SequencerWallButton m_parent;
 
@@ -22,8 +23,8 @@ public class SequencerButtonInputHander : ButtonInputHandler
 		if (!Input.GetMouseButton(0))
 			return;
 
-		TryStartSelection();
-		TrySubsequentSelection();
+		TryStartDrag();
+		TrySelectViaDrag();
 	}
 
 	public void OnTouchExit()
@@ -33,60 +34,58 @@ public class SequencerButtonInputHander : ButtonInputHandler
 
 	public void OnTouchUp()
 	{
-		// Click button if no camera drag occurred & no button selecting occurred
-		if (s_sequencerButtonDrag.IsSelectionEnabled && !s_sequencerButtonDrag.WallInputActive())
+		// Click button if no camera drag occurred & no button dragging occurred
+		if (s_inputConsumer.IsActive() && s_sequencerButtonDrag == null)
 		{
-			s_sequencerButtonDrag.InputSelectType = m_parent.IsSelected 
-				? SequencerButtonDrag.E_SelectState.unselecting 
-				: SequencerButtonDrag.E_SelectState.selecting;
-
-			TryClick();
+			m_parent.Clicked();
 		}
 
 		MouseDown = false;
-		if (s_sequencerButtonDrag.LastHitButton)
-			s_sequencerButtonDrag.LastHitButton.InputHandler.MouseDown = false;
-		s_sequencerButtonDrag.Clear();
+		s_sequencerButtonDrag = null;
 	}
 	#endregion
 
 
-	void TryStartSelection()
+	void TryStartDrag()
 	{
-		if (s_sequencerButtonDrag.InputSelectType == SequencerButtonDrag.E_SelectState.none)
+		if (s_sequencerButtonDrag == null)
 		{
-			bool allowStart = s_sequencerButtonDrag.IsSelectionEnabled;
+			bool allowStart = !InputManager.Instance.IsUIBlockingGameInput();
 			allowStart &= !EventSystem.current.IsPointerOverGameObject();
 			if (allowStart)
 			{
 				MouseDown = true;
-				s_sequencerButtonDrag.InputSelectType = m_parent.IsSelected 
+				s_sequencerButtonDrag = new SequencerButtonDrag(m_parent.IsSelected 
 					? SequencerButtonDrag.E_SelectState.unselecting 
-					: SequencerButtonDrag.E_SelectState.selecting;
-				
-				TryClick();
+					: SequencerButtonDrag.E_SelectState.selecting);
 			}
 		}
 	}
 
-	void TrySubsequentSelection()
+	void TrySelectViaDrag()
 	{
-		if (s_sequencerButtonDrag.InputSelectType != SequencerButtonDrag.E_SelectState.none)
+		if (s_sequencerButtonDrag != null)
 		{
-			bool allowSubsequent = this.m_parent != s_sequencerButtonDrag.LastHitButton;
-			allowSubsequent &= s_sequencerButtonDrag.IsSelectionEnabled && !EventSystem.current.IsPointerOverGameObject();
-			if (allowSubsequent)
+			bool trySelect = this.m_parent != s_sequencerButtonDrag.LastHitButton;
+			trySelect &= s_inputConsumer.IsActive();
+			trySelect &= !EventSystem.current.IsPointerOverGameObject();
+
+			if (trySelect)
 			{
 				MouseDown = true;
 
-				TryClick();
+				TrySelectFromDrag();
 				
 				s_sequencerButtonDrag.LastHitButton = this.m_parent;
 			}
 		}
 	}
 
-	private void TryClick()
+	private void StartDrag()
+	{
+	}
+
+	private void TrySelectFromDrag()
 	{
 		//Don't toggle if already at desired state
 		var selected = s_sequencerButtonDrag.InputSelectType == SequencerButtonDrag.E_SelectState.selecting;

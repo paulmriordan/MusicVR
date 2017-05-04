@@ -37,7 +37,7 @@ public abstract class InputConsumerBase
 	}
 
 	/// <summary>
-	/// Is a consumer consuming input
+	/// Am I consuming input
 	/// </summary>
 	public bool IsActive()
 	{
