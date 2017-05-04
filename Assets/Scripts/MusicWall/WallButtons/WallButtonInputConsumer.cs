@@ -9,7 +9,7 @@ public class WallButtonInputConsumer : InputConsumerBase
 		if (!Input.GetMouseButton(0))
 			return false;
 		// Always consume, regardless of position, if held for long enough
-		return Time.time - state.inputDownTime > state.HoldTime;
+		return Time.time - state.InputDownTime > state.HoldTime;
 	}
 
 	public override bool IsFinished()

@@ -21,6 +21,7 @@ public class WallDragger : MonoBehaviour
 		InputConsumer = new WallDraggerInputConsumer();
 		// Stop consuming input once the panning is no longer active
 		InputConsumer.IsFinishedFunc = () => {return !BoundedDrag.IsDragging && !HorizontalDrag.IsDragging;};
+		// Allow dragging if input has been consumed
 		BoundedDrag.SetDragAllowedFuncPtr(() => {return InputConsumer.IsActive();});
 		HorizontalDrag.SetDragAllowedFuncPtr(() => {return InputConsumer.IsActive();});
 	}
