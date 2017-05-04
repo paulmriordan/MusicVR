@@ -4,7 +4,7 @@ Prototyping an idea for a 360 music sequencer, for VR (Vive, Daydream, Cardboard
 
 Inspired by TiltBrush, I wanted to make a VR music experience where you can see and edit music around you.
 
-For music synthesis, I have utilising and extending [Unity CSharpSynth ](https://forum.unity3d.com/threads/unitysynth-full-xplatform-midi-synth.130104/)
+For music synthesis, I have utilised and extended [Unity CSharpSynth ](https://forum.unity3d.com/threads/unitysynth-full-xplatform-midi-synth.130104/)
 
 ## Development Progress
 
