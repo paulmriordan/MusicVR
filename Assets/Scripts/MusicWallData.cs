@@ -6,7 +6,9 @@ using UnityEngine;
 public class MusicWallData
 {
 	public Transform Parent;
-	public GameObject Prefab;
+	[UnityEngine.Serialization.FormerlySerializedAs("Prefab")]
+	public GameObject ButtonPrefab;
+	public GameObject UIButtonPrefab;
 	public float Radius = 0.1f;
 	public float ButtonPaddingFrac = 0.5f;
 	public float ButtonWidthFac = 0.75f;

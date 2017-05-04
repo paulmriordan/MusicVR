@@ -10,12 +10,21 @@ public class CompositionData
 	public class InstrumentData
 	{
 		public int NumRows = 100;
-		public MusicScaleConverter.E_ConverterType Scale = MusicScaleConverter.E_ConverterType.Pentatonic;
+		[SerializeField] MusicScaleConverter.E_ConverterType m_scale = MusicScaleConverter.E_ConverterType.Pentatonic;
 		[SerializeField] int InstrumentDefinitionIndex = 0;
 		private bool[] m_buttonData;
 
 		public int StartRow { get; private set;}
 		public int IndexInComposition { get; private set;}
+
+		public MusicScaleConverter.E_ConverterType Scale { 
+			get {
+				return m_scale;
+			}
+			set {
+				m_scale = value;
+			}
+		}
 
 		public InstrumentDefinitions.Instrument InstrumentDefintion { get {
 				return InstrumentDefinitions.Instance.Get(InstrumentDefinitionIndex);
@@ -54,7 +63,8 @@ public class CompositionData
 
 
 	[field: System.NonSerialized]
-	public event System.Action<int,int,bool> OnCompositionChanged = (a,b,c) => {};
+	public event System.Action OnCompositionChanged = () => {};
+	public event System.Action<int,int> OnNoteSelected = (r,c) => {};
 
 	public List<InstrumentData> InstrumentDataList;
 	public int NumCols = 20;
@@ -80,6 +90,11 @@ public class CompositionData
 	{
 		for (int i = 0; i < InstrumentDataList.Count; i++)
 			InstrumentDataList[i].Clear();
+	}
+
+	public void CompositionChanged()
+	{
+		OnCompositionChanged();
 	}
 
 	public void CreateDummyButtonData(float ProbInitSelected)
@@ -112,7 +127,9 @@ public class CompositionData
 				if (InstrumentDataList[i].IsNoteActive(row - rowCum, col) != active)
 				{
 					InstrumentDataList[i].SetNoteActive(row - rowCum, col, active);
-					OnCompositionChanged(row,col,active);
+					OnCompositionChanged();
+					if (active)
+						OnNoteSelected(row,col);
 				}
 				return;
 			}

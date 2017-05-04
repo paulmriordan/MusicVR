@@ -37,7 +37,8 @@ public class WallMusicPlayer : MonoBehaviour
 	public void Init(MusicWallData properties, WallButtons buttons, Synth synth)
 	{
 		m_data = properties;
-		m_data.CompositionData.OnCompositionChanged += RefreshNotesEventHandler;
+		m_data.CompositionData.OnCompositionChanged += () => { m_refreshNotes = true; };
+		m_data.CompositionData.OnNoteSelected += NoteSelectedEventHandler;
 		m_wallButtons = buttons;
 		m_synth = synth;
 	}
@@ -54,22 +55,17 @@ public class WallMusicPlayer : MonoBehaviour
 
 	}
 
-	public void RefreshNotesEventHandler(int in_row, int in_col, bool active)
+	public void NoteSelectedEventHandler(int in_row, int in_col)
 	{
-		m_refreshNotes = true;
+		var instr = m_data.CompositionData.GetInstrumentAtLocation(in_row, in_col);
 
-		if (active)
-		{
-			var instr = m_data.CompositionData.GetInstrumentAtLocation(in_row, in_col);
+		int note = MusicScaleConverter.Get(instr.Scale).Convert(in_row - instr.StartRow);
 
-			int note = MusicScaleConverter.Get(instr.Scale).Convert(in_row - instr.StartRow);
-
-			m_synth.NoteOn(instr.InstrumentDefintion.IsDrum ? 9 : instr.IndexInComposition, 
-				note + instr.InstrumentDefintion.InstrumentNoteOffset, 
-				instr.InstrumentDefintion.InstrumentInt);
-			
-			m_currPlaying.Add(note);
-		}
+		m_synth.NoteOn(instr.InstrumentDefintion.IsDrum ? 9 : instr.IndexInComposition, 
+			note + instr.InstrumentDefintion.InstrumentNoteOffset, 
+			instr.InstrumentDefintion.InstrumentInt);
+		
+		m_currPlaying.Add(note);
 	}
 
 	public void Stop()

@@ -13,6 +13,7 @@ public class WallButton : MonoBehaviour
 				return true; //always consume button up events
 			if (!Input.GetMouseButton(0))
 				return false;
+			// Always consume, regardless of position, if held for long enough
 			return Time.time - state.inputDownTime > state.HoldTime;
 		}
 
@@ -69,10 +70,6 @@ public class WallButton : MonoBehaviour
 
 	public static WallButtonInputState s_wallButtonInputState = new WallButtonInputState();
 
-	public float ScaleTime = 0.2f;
-	public Vector3 ScaleSelected = new Vector3(1.0f,1.0f,0.8f);
-	public Vector3 ScaleMouseDown = new Vector3(1.2f,1.2f,0.6f);
-	public Vector3 ScaleUnselected = new Vector3(1.0f,1.0f,1.0f);
 	[ColorUsageAttribute(true, true, 0, 8, 0.125f, 3)]
 	public Color PlayingColor;
 	public float PlayingFadeTime = 0.1f;
@@ -83,19 +80,30 @@ public class WallButton : MonoBehaviour
 	private float m_playingFadeProg = 0;
 	private float m_playingFadeVel = 0;
 	private Material m_playingMaterial;
-	private Vector3 m_scaleVelocity;
 	private Color m_selectedColor;
 	private CompositionData m_compositionData;
 	private int m_row;
 	private int m_col;
+	private WallButtonTween m_buttonTweener;
+	private bool m_mouseDown;
 
 	public Material SelectedMaterial {get;set;}
 	public Material UnselectedMaterial {get;set;}
-	public bool MouseDown {get; private set;}
+	public bool MouseDown { 
+		get {
+			return m_mouseDown;
+		}
+		set {
+			m_mouseDown = value;
+			if (m_buttonTweener != null)
+				m_buttonTweener.Held = value;
+		}
+	}
 	public bool IsSelected {get { return m_selected;}}
 
 	void Awake()
 	{
+		m_buttonTweener = GetComponent<WallButtonTween>();
 	}
 
 	public void SetCoord(int row, int col, CompositionData compositionRef)
@@ -119,6 +127,8 @@ public class WallButton : MonoBehaviour
 	public void SetSelected(bool selected)
 	{
 		m_selected = selected;
+		if (m_buttonTweener != null)
+			m_buttonTweener.Selected = selected;
 		m_compositionData.SetNoteActive(m_row, m_col, selected);
 	}
 
@@ -127,6 +137,7 @@ public class WallButton : MonoBehaviour
 		m_playingFadeTarget = playing ? 1.0f : 0;
 	}
 
+#region Input Events
 	public void OnTouchStay()
 	{
 		if (!Input.GetMouseButton(0))
@@ -135,6 +146,30 @@ public class WallButton : MonoBehaviour
 		TryStartSelection();
 		TrySubsequentSelection();
 	}
+
+	public void OnTouchExit()
+	{
+		MouseDown = false;
+	}
+
+	public void OnTouchUp()
+	{
+		// Click button if no camera drag occurred & no button selecting occurred
+		if (s_wallButtonInputState.IsSelectionEnabled && !s_wallButtonInputState.WallInputActive())
+		{
+			s_wallButtonInputState.InputSelectType = m_selected 
+				? WallButtonInputState.E_SelectState.unselecting 
+				: WallButtonInputState.E_SelectState.selecting;
+			
+			SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
+		}
+
+		MouseDown = false;
+		if (s_wallButtonInputState.LastHitButton)
+			s_wallButtonInputState.LastHitButton.MouseDown = false;
+		s_wallButtonInputState.Clear();
+	}
+#endregion
 
 	void TryStartSelection()
 	{
@@ -168,34 +203,12 @@ public class WallButton : MonoBehaviour
 		}
 	}
 
-	public void OnTouchExit()
-	{
-		MouseDown = false;
-	}
-
-	public void OnTouchUp()
-	{
-		// Click button if no camera drag occurred & no button selecting occurred
-		if (s_wallButtonInputState.IsSelectionEnabled && !s_wallButtonInputState.WallInputActive())
-		{
-			s_wallButtonInputState.InputSelectType = m_selected 
-				? WallButtonInputState.E_SelectState.unselecting 
-				: WallButtonInputState.E_SelectState.selecting;
-			
-			SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
-		}
-
-		MouseDown = false;
-		if (s_wallButtonInputState.LastHitButton)
-			s_wallButtonInputState.LastHitButton.MouseDown = false;
-		s_wallButtonInputState.Clear();
-	}
-
 	public void CustomUpdate()
 	{
 		UpdateColor();
 		UpdateSetMaterial();
-		UpdateScale();
+		if (m_buttonTweener != null)
+			m_buttonTweener.CustomUpdate();
 	}
 
 	private void UpdateColor()
@@ -225,19 +238,5 @@ public class WallButton : MonoBehaviour
 		}
 	}
 
-	private void UpdateScale()
-	{
-		Vector3 targetScale = ScaleUnselected;
-		if (MouseDown)
-			targetScale = ScaleMouseDown;
-		else if (m_selected)
-			targetScale = ScaleSelected;
-		if ((targetScale - MeshRenderer.transform.localScale).sqrMagnitude < 0.001f)
-			MeshRenderer.transform.localScale = targetScale;
-		else
-			MeshRenderer.transform.localScale = Vector3.SmoothDamp(MeshRenderer.transform.localScale, 
-				targetScale, 
-				ref m_scaleVelocity,
-				ScaleTime);
-	}
+
 }

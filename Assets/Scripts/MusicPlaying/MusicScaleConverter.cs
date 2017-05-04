@@ -4,7 +4,8 @@ using UnityEngine;
 
 public static class MusicScaleConverter
 {
-	public enum E_ConverterType { Chromatic, Pentatonic, Major, Drum}
+	public enum E_ConverterType { Chromatic, Pentatonic, Major, Drum }
+	public enum E_Scales {Chromatic, Pentatonic, Major}; //NB: keep in sync with E_ConverterType
 
 	public static ScaleConverter Get(E_ConverterType type)
 	{
