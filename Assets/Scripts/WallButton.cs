@@ -70,25 +70,14 @@ public class WallButton : MonoBehaviour
 
 	public static WallButtonInputState s_wallButtonInputState = new WallButtonInputState();
 
-	[ColorUsageAttribute(true, true, 0, 8, 0.125f, 3)]
-	public Color PlayingColor;
-	public float PlayingFadeTime = 0.1f;
-	public MeshRenderer MeshRenderer;
-
 	private bool m_selected;
-	private float m_playingFadeTarget = 0;
-	private float m_playingFadeProg = 0;
-	private float m_playingFadeVel = 0;
-	private Material m_playingMaterial;
-	private Color m_selectedColor;
 	private CompositionData m_compositionData;
 	private int m_row;
 	private int m_col;
 	private WallButtonTween m_buttonTweener;
+	private WallButtonColorController m_buttonColorController;
 	private bool m_mouseDown;
 
-	public Material SelectedMaterial {get;set;}
-	public Material UnselectedMaterial {get;set;}
 	public bool MouseDown { 
 		get {
 			return m_mouseDown;
@@ -100,10 +89,12 @@ public class WallButton : MonoBehaviour
 		}
 	}
 	public bool IsSelected {get { return m_selected;}}
+	public WallButtonColorController ColorController {get {return m_buttonColorController;}}
 
 	void Awake()
 	{
 		m_buttonTweener = GetComponent<WallButtonTween>();
+		m_buttonColorController = GetComponent<WallButtonColorController>();
 	}
 
 	public void SetCoord(int row, int col, CompositionData compositionRef)
@@ -113,28 +104,14 @@ public class WallButton : MonoBehaviour
 		m_compositionData = compositionRef;
 	}
 
-	public void RegeneratePlayingMaterial()
-	{
-		if (SelectedMaterial == null)
-			return;
-		if (m_playingMaterial != null)
-			Destroy(m_playingMaterial);
-		m_playingMaterial = new Material(SelectedMaterial);
-		m_playingMaterial.name = "playing material";
-		m_selectedColor = SelectedMaterial.GetColor("_EmissionColor");
-	}
-
 	public void SetSelected(bool selected)
 	{
 		m_selected = selected;
 		if (m_buttonTweener != null)
 			m_buttonTweener.Selected = selected;
+		if (m_buttonColorController != null)
+			m_buttonColorController.Selected = selected;
 		m_compositionData.SetNoteActive(m_row, m_col, selected);
-	}
-
-	public void SetPlaying(bool playing)
-	{
-		m_playingFadeTarget = playing ? 1.0f : 0;
 	}
 
 #region Input Events
@@ -205,37 +182,10 @@ public class WallButton : MonoBehaviour
 
 	public void CustomUpdate()
 	{
-		UpdateColor();
-		UpdateSetMaterial();
+		if (m_buttonColorController != null)
+			m_buttonColorController.CustomUpdate();
 		if (m_buttonTweener != null)
 			m_buttonTweener.CustomUpdate();
-	}
-
-	private void UpdateColor()
-	{
-		if (m_selected && MeshRenderer.sharedMaterial == m_playingMaterial)
-		{
-			m_playingFadeProg = Mathf.SmoothDamp(m_playingFadeProg, m_playingFadeTarget, ref m_playingFadeVel, PlayingFadeTime);
-			if (m_playingFadeProg < 0.001f)
-				m_playingFadeProg = 0;
-			Color targetColor = PlayingColor * (m_playingFadeProg) + m_selectedColor * (1.0f - m_playingFadeProg);
-			MeshRenderer.sharedMaterial.SetColor("_EmissionColor", targetColor);
-		}
-	}
-
-	private void UpdateSetMaterial()
-	{
-		if (!m_selected)
-		{
-			MeshRenderer.sharedMaterial = UnselectedMaterial;
-		}
-		else 
-		{
-			if (m_playingFadeProg != 0 || m_playingFadeTarget == 1.0f)
-				MeshRenderer.sharedMaterial = m_playingMaterial;
-			else 
-				MeshRenderer.sharedMaterial = SelectedMaterial;
-		}
 	}
 
 

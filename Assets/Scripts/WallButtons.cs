@@ -69,9 +69,9 @@ public class WallButtons
 	private void LoadMusicDataForButton(WallButton btn, bool noteActive, CompositionData.InstrumentData instrumentData)
 	{
 		btn.SetSelected(noteActive);
-		btn.SelectedMaterial = instrumentData.InstrumentDefintion.SelectedButtonMaterial;
-		btn.UnselectedMaterial = instrumentData.InstrumentDefintion.UnselectedButtonMaterial;
-		btn.RegeneratePlayingMaterial();
+		btn.ColorController.SetMaterials(
+			instrumentData.InstrumentDefintion.SelectedButtonMaterial,
+			instrumentData.InstrumentDefintion.UnselectedButtonMaterial);
 	}
 
 	private void CreateUIButtons()

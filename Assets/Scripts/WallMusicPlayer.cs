@@ -146,13 +146,13 @@ public class WallMusicPlayer : MonoBehaviour
 			for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 			{
 				var button = m_wallButtons.GetSequencerButton(iRow, m_prevColEffect);
-				button.SetPlaying(false);
+				button.ColorController.SetPlaying(false);
 			}
 		}
 		for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 		{
 			var button = m_wallButtons.GetSequencerButton(iRow, currCol);
-			button.SetPlaying(true);
+			button.ColorController.SetPlaying(true);
 		}
 		m_prevColEffect = currCol;
 	}
