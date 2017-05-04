@@ -21,6 +21,7 @@ public class InputManager : MonoSingleton<InputManager> {
 	void Update()
 	{
 		UpdateGestures();
+		UpdateKeyCommands();
 		UpdatingObject.Check();
 		WallButton.s_wallButtonInputState.Update(m_inputState);
 
@@ -62,5 +63,13 @@ public class InputManager : MonoSingleton<InputManager> {
 		}
 
 		InputConsumerBase.UpdateConsumers(m_inputState);
+	}
+
+	void UpdateKeyCommands()
+	{
+		if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Z))
+		{
+			MusicWall.Instance.WallProperties.CompositionData.CommandManager.Undo();
+		}
 	}
 }

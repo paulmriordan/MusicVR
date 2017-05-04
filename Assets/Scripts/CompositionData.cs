@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using CSharpSynth.CustomSeq;
+using CompositionCommands;
 
 [System.Serializable]
 public class CompositionData
@@ -19,15 +20,22 @@ public class CompositionData
 
 		public MusicScaleConverter.E_ConverterType Scale { 
 			get {
+				if (InstrumentDefintion.IsDrum)
+					return MusicScaleConverter.E_ConverterType.Drum;
 				return m_scale;
 			}
 			set {
-				m_scale = value;
+				if (!InstrumentDefintion.IsDrum)
+					m_scale = value;
 			}
 		}
 
-		public InstrumentDefinitions.Instrument InstrumentDefintion { get {
+		public InstrumentDefinitions.Instrument InstrumentDefintion { 
+			get {
 				return InstrumentDefinitions.Instance.Get(InstrumentDefinitionIndex);
+			}
+			set {
+				InstrumentDefinitionIndex = InstrumentDefinitions.Instance.Instruments.FindIndex((i) => i == value);
 			}
 		}
 
@@ -72,6 +80,7 @@ public class CompositionData
 	public int DeltaTiming = 500;
 	public int DeltaTimeSpacing = 500;
 
+	public CompositionCommandManager CommandManager {get; private set;}
 	public int NumRows { get; private set;}
 	public int Size { get {
 			return NumRows * NumCols;
@@ -79,6 +88,8 @@ public class CompositionData
 
 	public void Init()
 	{
+		CommandManager = new CompositionCommandManager(this);
+
 		NumRows = 0;
 		for (int i = 0; i < InstrumentDataList.Count; i++)
 		{

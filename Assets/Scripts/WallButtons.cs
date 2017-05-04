@@ -2,22 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using CompositionCommands;
 
 public class WallButtons
 {
 	private WallButton[] m_wallButtons = new WallButton[0];
 	private WallUIButton[] m_wallUIButtons = new WallUIButton[0];
-	private const int UIbuttonsPerRow = 3;
 
 	private MusicWallData m_data;
 
 	public void Create(MusicWallData data)
 	{
 		DestroyAll();
+
 		m_data = data;
 		m_wallButtons = new WallButton[data.CompositionData.NumRows * data.CompositionData.NumCols];
-		m_wallUIButtons = new WallUIButton[data.CompositionData.InstrumentDataList.Count * UIbuttonsPerRow];
-		InstantiateButtons();
+		m_wallUIButtons = new WallUIButton[data.CompositionData.InstrumentDataList.Count * InstrumentUIData.Instance.Buttons.Count];
+
+		CreateUIButtons();
+		CreateSequencerButtons();
+
 		LoadMusicData(data.CompositionData);
 	}
 
@@ -25,25 +29,22 @@ public class WallButtons
 	{
 		if (m_wallButtons.Length != musicData.Size)
 		{
-			Debug.LogError("lengths don't match??  wallbuttons: " + m_wallButtons.Length + " musicData: " +  musicData.Size);
+			Debug.LogError("lengths don't match?  wallbuttons: " + m_wallButtons.Length + " musicData: " +  musicData.Size);
 			return;
 		}
 		for (int iCol = 0; iCol < musicData.NumCols; iCol++) 
 		{
 			for (int iRow = 0; iRow < musicData.NumRows; iRow++) 
 			{
-				var btn = m_wallButtons[iRow + iCol*musicData.NumRows];
-				btn.SetSelected(musicData.IsNoteActive(iRow, iCol));
-
-				var instrumentData = musicData.GetInstrumentAtLocation(iRow, iCol);
-				btn.SelectedMaterial = instrumentData.InstrumentDefintion.SelectedButtonMaterial;
-				btn.UnselectedMaterial = instrumentData.InstrumentDefintion.UnselectedButtonMaterial;
-				btn.RegeneratePlayingMaterial();
+				var button = m_wallButtons[iRow + iCol*musicData.NumRows];
+				var noteActive = musicData.IsNoteActive(iRow, iCol);
+				var instrument = musicData.GetInstrumentAtLocation(iRow, iCol);
+				LoadMusicDataForButton(button, noteActive, instrument);
 			}
 		}
 	}
 
-	public WallButton GetButton(int row, int col)
+	public WallButton GetSequencerButton(int row, int col)
 	{
 		return m_wallButtons[row + col*m_data.CompositionData.NumRows];
 	}
@@ -65,92 +66,121 @@ public class WallButtons
 			m_wallUIButtons[i].CustomUpdate();
 	}
 
-	private void InstantiateButtons()
+	private void LoadMusicDataForButton(WallButton btn, bool noteActive, CompositionData.InstrumentData instrumentData)
 	{
-		float colAngle = (2*Mathf.PI)/(float)m_data.CompositionData.NumCols;
-		float buttonWidth = m_data.GetButtonWidth();
-		float buttonPadding = m_data.ButtonPaddingFrac * buttonWidth;
+		btn.SetSelected(noteActive);
+		btn.SelectedMaterial = instrumentData.InstrumentDefintion.SelectedButtonMaterial;
+		btn.UnselectedMaterial = instrumentData.InstrumentDefintion.UnselectedButtonMaterial;
+		btn.RegeneratePlayingMaterial();
+	}
 
-		InstantiateUIButtons();
-
-		for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++) 
+	private void CreateUIButtons()
+	{
+		int prevRows = 0;
+		for (int iInstrument = 0; iInstrument < m_data.CompositionData.InstrumentDataList.Count; iInstrument++)
 		{
-			float x0 = Mathf.Sin(iCol * colAngle) * m_data.Radius;
-			float z0 = Mathf.Cos(iCol * colAngle) * m_data.Radius;
-			float x1 = Mathf.Sin((iCol + 1) * colAngle) * m_data.Radius;
-			float z1 = Mathf.Cos((iCol + 1) * colAngle) * m_data.Radius;
-			float x = (x0 + x1) * 0.5f;
-			float z = (z0 + z1) * 0.5f;
-
-			int prevRows = 0;
-			for (int iInstrument = 0; iInstrument < m_data.CompositionData.InstrumentDataList.Count; iInstrument++)
-			{
-				for (int iRow = 0; iRow < m_data.CompositionData.InstrumentDataList[iInstrument].NumRows; iRow++) 
-				{
-					int currRow = iRow + prevRows;
-					int rowOffsetForUI = iInstrument; 
-					float y = (currRow + rowOffsetForUI) * (buttonPadding + buttonWidth) + buttonWidth * 0.5f + buttonPadding;
-					var pos = new Vector3(x, y, z);
-					var inst = CreateButton(m_data.ButtonPrefab, pos, buttonWidth);
-					m_wallButtons[currRow + iCol*m_data.CompositionData.NumRows] = inst.GetComponentInChildren<WallButton>();
-					m_wallButtons[currRow + iCol*m_data.CompositionData.NumRows].SetCoord(currRow, iCol, m_data.CompositionData);
-				}
-				prevRows += m_data.CompositionData.InstrumentDataList[iInstrument].NumRows;
-			}
+			prevRows += m_data.CompositionData.InstrumentDataList[iInstrument].NumRows;
+			CreateUIButtonsForInstrument(prevRows, iInstrument);
 		}
 	}
 
-	private void InstantiateUIButtons()
+	private void CreateUIButtonsForInstrument(int rowOffset, int iInstrument)
+	{
+		float buttonWidth = m_data.GetButtonWidth();
+		float buttonPadding = m_data.ButtonPaddingFrac * buttonWidth;
+		float unitColAngle = (2*Mathf.PI)/(float)m_data.CompositionData.NumCols;
+
+		int startCol = 0;
+
+		int numButtons = InstrumentUIData.Instance.Buttons.Count;
+		for (int i_btn = 0; i_btn < numButtons; i_btn++)
+		{
+			var buttonData = InstrumentUIData.Instance.Buttons[i_btn];
+
+			var pos = GetXZPosition(startCol, startCol + buttonData.Width, unitColAngle, m_data.Radius);
+			pos.y = GetButtonYPos(rowOffset, iInstrument, buttonWidth, buttonPadding);
+
+			var inst = CreateButtonInstance(m_data.UIButtonPrefab, pos, buttonWidth);
+			SetupUIButton(inst, i_btn, iInstrument);
+
+			startCol += buttonData.Width; // next UI button is placed on following column
+		}
+	}
+
+	private void SetupUIButton(GameObject buttonInstance, int btnIndex, int instrumentIndex)
+	{
+		var uiBtn = buttonInstance.GetComponentInChildren<WallUIButton>();
+		var buttonData = InstrumentUIData.Instance.Buttons[btnIndex];
+		var instrumentData = m_data.CompositionData.InstrumentDataList[instrumentIndex];
+
+		uiBtn.Init(buttonData, m_data.CompositionData, instrumentData);
+
+		// assign ref to button
+		m_wallUIButtons[instrumentIndex *  InstrumentUIData.Instance.Buttons.Count + btnIndex] = uiBtn;
+	}
+
+	private void CreateSequencerButtons()
 	{
 		float unitColAngle = (2*Mathf.PI)/(float)m_data.CompositionData.NumCols;
+
+		for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++) 
+		{
+			var pos = GetXZPosition(iCol, iCol + 1, unitColAngle, m_data.Radius);
+			CreateSequencerButtonsForCol(iCol, pos);
+		}
+	}
+
+	private Vector3 GetXZPosition(int startCol, int endCol, float unitColAngle, float radius)
+	{
+		float x0 = Mathf.Sin(startCol * unitColAngle) * radius;
+		float z0 = Mathf.Cos(startCol * unitColAngle) * radius;
+		float x1 = Mathf.Sin(endCol * unitColAngle) * radius;
+		float z1 = Mathf.Cos(endCol * unitColAngle) * radius;
+		float x = (x0 + x1) * 0.5f;
+		float z = (z0 + z1) * 0.5f;
+		return new Vector3(x, 0, z);
+	}
+
+	private void CreateSequencerButtonsForCol(int iCol, Vector3 colPos)
+	{
 		float buttonWidth = m_data.GetButtonWidth();
 		float buttonPadding = m_data.ButtonPaddingFrac * buttonWidth;
 
 		int prevRows = 0;
 		for (int iInstrument = 0; iInstrument < m_data.CompositionData.InstrumentDataList.Count; iInstrument++)
 		{
-			var instrument = m_data.CompositionData.InstrumentDataList[iInstrument];
-			prevRows += instrument.NumRows;
-			int startCol = 0;
-			for (int i_btn = 0; i_btn < UIbuttonsPerRow; i_btn++)
+			for (int iRow = 0; iRow < m_data.CompositionData.InstrumentDataList[iInstrument].NumRows; iRow++) 
 			{
-				int buttonCols = 2;
-				float x0 = Mathf.Sin(startCol * unitColAngle) * m_data.Radius;
-				float z0 = Mathf.Cos(startCol * unitColAngle) * m_data.Radius;
-				float x1 = Mathf.Sin((startCol + buttonCols) * unitColAngle) * m_data.Radius;
-				float z1 = Mathf.Cos((startCol + buttonCols) * unitColAngle) * m_data.Radius;
-				float x = (x0 + x1) * 0.5f;
-				float z = (z0 + z1) * 0.5f;
+				int currRow = iRow + prevRows;
 
-				int rowOffsetForUI = (iInstrument); 
-				float y = (prevRows + rowOffsetForUI) * (buttonPadding + buttonWidth) + buttonWidth * 0.5f + buttonPadding;
-				var pos = new Vector3(x, y, z);
-				var inst = CreateButton(m_data.UIButtonPrefab, pos, buttonWidth);
-				var uiBtn = inst.GetComponentInChildren<WallUIButton>();
-				m_wallUIButtons[iInstrument + i_btn*UIbuttonsPerRow] = uiBtn;
-				uiBtn.SetWidth(buttonCols);
-				uiBtn.SetInstrument(instrument);
-				uiBtn.SetButtonAction((i) => 
-					{
-						var scaleNames = System.Enum.GetNames(typeof(MusicScaleConverter.E_Scales));
-						int newScale = ((int)i.Scale + 1) % scaleNames.Length;
-						i.Scale = (MusicScaleConverter.E_ConverterType)newScale;
-						uiBtn.Text.GetComponent<TextMesh>().text = scaleNames[newScale];
-						m_data.CompositionData.CompositionChanged();
-					});
+				colPos.y = GetButtonYPos(currRow, iInstrument, buttonWidth, buttonPadding);
+				var instance = CreateButtonInstance(m_data.ButtonPrefab, colPos, buttonWidth);
 
-				startCol += buttonCols;
+				SetupButton(currRow, iCol, instance);
 			}
+			prevRows += m_data.CompositionData.InstrumentDataList[iInstrument].NumRows;
 		}
 	}
 
-	private GameObject CreateButton(GameObject prefab, Vector3 pos, float buttonWidth)
+	private float GetButtonYPos(int sequencerRowIndex, int instrumentIndex, float buttonWidth, float buttonPadding)
+	{
+		return (sequencerRowIndex + instrumentIndex) * (buttonPadding + buttonWidth) + buttonWidth * 0.5f + buttonPadding;
+	}
+
+	private GameObject CreateButtonInstance(GameObject prefab, Vector3 pos, float sclae)
 	{
 		var posRot = new Vector3(pos.x, 0, pos.z);
 		var inst = GameObject.Instantiate(prefab, pos, Quaternion.LookRotation(-posRot));
 		inst.transform.SetParent(m_data.Parent, false);
-		inst.transform.localScale = new Vector3(buttonWidth, buttonWidth, buttonWidth);
+		inst.transform.localScale = new Vector3(sclae, sclae, sclae);
 		return inst;
+	}
+
+	private void SetupButton(int row, int col, GameObject button)
+	{
+		var wallButton = button.GetComponentInChildren<WallButton>();
+		wallButton.SetCoord(row, col, m_data.CompositionData);
+		m_wallButtons[row + col * m_data.CompositionData.NumRows] = wallButton;
 	}
 
 }

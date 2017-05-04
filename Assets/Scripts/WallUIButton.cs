@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using CompositionCommands;
 
 public class WallUIButton : MonoBehaviour 
 {
@@ -11,8 +12,9 @@ public class WallUIButton : MonoBehaviour
 
 	private bool m_mouseDown;
 	private WallButtonTween m_buttonTweener;
-	private CompositionData.InstrumentData m_instrumentDataRef;
-	private System.Action<CompositionData.InstrumentData> m_onClicked;
+	private InstrumentUIData.InstrumentUIButton m_UIButtonData;
+	private CompositionData.InstrumentData m_instrumentData;
+	private CompositionData m_compositionData;
 
 	public bool MouseDown { 
 		get {
@@ -30,22 +32,23 @@ public class WallUIButton : MonoBehaviour
 		m_buttonTweener = GetComponent<WallButtonTween>();
 	}
 
-	public void SetWidth(int colWidth)
+	public void Init(InstrumentUIData.InstrumentUIButton buttonData,
+					CompositionData compositionData,
+					CompositionData.InstrumentData instrumentData)
 	{
-		var parent = Text.parent;
-		Text.SetParent(transform);
-		ButtonBody.transform.localScale = new Vector3(colWidth, 1.0f, 1.0f);
-		Text.SetParent(parent);
+		m_instrumentData = instrumentData;
+		m_UIButtonData = buttonData;
+		m_compositionData = compositionData;
+		SetWidth(buttonData.Width);
+
+		compositionData.OnCompositionChanged += RefreshText;
+
+		RefreshText();
 	}
 
-	public void SetInstrument(CompositionData.InstrumentData instrument)
+	void OnDestroy()
 	{
-		m_instrumentDataRef = instrument;
-	}
-
-	public void SetButtonAction(System.Action<CompositionData.InstrumentData> onClicked)
-	{
-		m_onClicked = onClicked;
+		m_compositionData.OnCompositionChanged -= RefreshText;
 	}
 
 	public void OnTouchDown()
@@ -73,7 +76,7 @@ public class WallUIButton : MonoBehaviour
 		if (MouseDown)
 		{
 			Debug.Log("UI button clicked");
-			m_onClicked(m_instrumentDataRef);
+			Clicked();
 		}
 
 		MouseDown = false;
@@ -83,6 +86,41 @@ public class WallUIButton : MonoBehaviour
 	{
 		if (m_buttonTweener != null)
 			m_buttonTweener.CustomUpdate();
+	}
+
+	private void Clicked()
+	{
+		switch ( m_UIButtonData.CommandType)
+		{
+		case E_CommandType.toggleScale:
+			MusicWall.Instance.WallProperties.CompositionData.CommandManager.ExecuteCommand(new ToggleScaleCommand(m_instrumentData));
+			break;
+		case E_CommandType.toggleInstrument:
+			MusicWall.Instance.WallProperties.CompositionData.CommandManager.ExecuteCommand(new ToggleInstrumentCommand(m_instrumentData));
+			break;
+		}
+	}
+
+	private void SetWidth(int colWidth)
+	{
+		var parent = Text.parent;
+		Text.SetParent(transform);
+		ButtonBody.transform.localScale = new Vector3(colWidth, 1.0f, 1.0f);
+		Text.SetParent(parent);
+	}
+
+	private void RefreshText()
+	{
+		switch ( m_UIButtonData.CommandType)
+		{
+		case E_CommandType.toggleScale: 
+			Text.GetComponent<TextMesh>().text = m_instrumentData.Scale.ToString();
+			break;
+		case E_CommandType.toggleInstrument:
+			Text.GetComponent<TextMesh>().text = m_instrumentData.InstrumentDefintion.Name.ToString();
+			break;
+		}
+
 	}
 }
 

@@ -145,13 +145,13 @@ public class WallMusicPlayer : MonoBehaviour
 		{
 			for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 			{
-				var button = m_wallButtons.GetButton(iRow, m_prevColEffect);
+				var button = m_wallButtons.GetSequencerButton(iRow, m_prevColEffect);
 				button.SetPlaying(false);
 			}
 		}
 		for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 		{
-			var button = m_wallButtons.GetButton(iRow, currCol);
+			var button = m_wallButtons.GetSequencerButton(iRow, currCol);
 			button.SetPlaying(true);
 		}
 		m_prevColEffect = currCol;
@@ -169,7 +169,7 @@ public class WallMusicPlayer : MonoBehaviour
 			var instrument = m_data.CompositionData.InstrumentDataList[iInst];
 			for (int iRow = 0; iRow < instrument.NumRows; iRow++)
 			{
-				var button = m_wallButtons.GetButton(iRow + rowCum, currCol);
+				var button = m_wallButtons.GetSequencerButton(iRow + rowCum, currCol);
 				if (button.IsSelected)
 				{
 					int note = MusicScaleConverter.Get(instrument.Scale).Convert(iRow);

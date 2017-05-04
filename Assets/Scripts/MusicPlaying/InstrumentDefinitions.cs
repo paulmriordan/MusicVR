@@ -7,6 +7,8 @@ public class InstrumentDefinitions : ScriptableObject {
 	[System.Serializable]
 	public class Instrument
 	{
+		public string Name;
+
 		[ColorUsageAttribute(true, true, 0, 8, 0.125f, 3)]
 		public Color SelectedEmmissiveColor = Color.white;
 

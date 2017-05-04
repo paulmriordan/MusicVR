@@ -35,4 +35,8 @@ public class MathHelper : MonoBehaviour {
 		plane.Raycast(ray, out d);
 		return ray.GetPoint(d);
 	}
+
+	public static int Mod(int x, int m) {
+		return (x%m + m)%m;
+	}
 }
