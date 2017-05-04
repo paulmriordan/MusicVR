@@ -19,6 +19,7 @@ public class WallDragger : MonoBehaviour
 	void Start()
 	{
 		InputConsumer = new WallDraggerInputConsumer();
+		// Stop consuming input once the panning is no longer active
 		InputConsumer.IsFinishedFunc = () => {return !BoundedDrag.IsDragging && !HorizontalDrag.IsDragging;};
 		BoundedDrag.SetDragAllowedFuncPtr(() => {return InputConsumer.IsActive();});
 		HorizontalDrag.SetDragAllowedFuncPtr(() => {return InputConsumer.IsActive();});
@@ -43,12 +44,14 @@ public class WallDragger : MonoBehaviour
 
 		var euler = transform.localRotation.eulerAngles;
 		var newY = HorizontalDrag.GetCurrentPos();
-		//quantize
+
+		//quantize when past a certain speed; it's very disorientating
 		if (Mathf.Abs(HorizontalDrag.Velocity) > QuantizeVelocity)
 		{
 			var oneColRotation = 360.0f / m_numCols;
 			newY = Mathf.Round(newY/oneColRotation)*oneColRotation;
 		}
+
 		transform.localRotation = Quaternion.Euler(euler.x, newY, euler.z);
 	}
 }

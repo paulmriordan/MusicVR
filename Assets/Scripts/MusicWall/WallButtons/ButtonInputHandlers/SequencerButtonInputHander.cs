@@ -15,7 +15,7 @@ public class SequencerButtonInputHander : ButtonInputHandler
 		private WallButtonInputConsumer m_buttonInputConsumer = new WallButtonInputConsumer();
 
 		public E_SelectState InputSelectType {get;set;}
-		public WallButton LastHitButton {get;set;}
+		public SequencerWallButton LastHitButton {get;set;}
 		public bool IsSelectionEnabled { get { return m_selectionEnabled && m_buttonInputConsumer.IsActive();}}
 
 		public bool WallInputActive()
@@ -52,11 +52,11 @@ public class SequencerButtonInputHander : ButtonInputHandler
 
 	public static WallButtonInputState s_wallButtonInputState = new WallButtonInputState();
 
-	private WallButton m_parent;
+	private SequencerWallButton m_parent;
 
 	protected override WallButtonAbstract Parent { get {return m_parent;}}
 
-	public void InitWithSequencerButton(WallButton parent)
+	public void InitWithSequencerButton(SequencerWallButton parent)
 	{
 		m_parent = parent;
 	}

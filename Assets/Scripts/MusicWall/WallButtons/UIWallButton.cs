@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using CompositionCommands;
 
-public class WallUIButton : WallButtonAbstract 
+public class UIWallButton : WallButtonAbstract 
 {
 	public InstrumentUIData.InstrumentUIButton m_UIButtonData;
 	public MeshRenderer MeshRenderer;

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using CompositionCommands;
 
-public class WallButton : WallButtonAbstract 
+public class SequencerWallButton : WallButtonAbstract 
 {
 	private int m_row = -1;
 	private int m_col = -1;

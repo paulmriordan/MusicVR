@@ -9,6 +9,8 @@ public class WallDraggerInputConsumer : InputConsumerBase
 	{
 		if (!Input.GetMouseButton(0))
 			return false;
+		// If dragged over threshold distance (and nothing else has consumed input 
+		// in the mean time), start wall panning
 		var d2 = (Input.mousePosition - state.inputDownPos).sqrMagnitude;
 		return d2 > state.HoldMoveLimit * state.HoldMoveLimit;
 	}

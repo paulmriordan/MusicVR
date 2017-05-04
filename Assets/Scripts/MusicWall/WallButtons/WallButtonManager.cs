@@ -6,8 +6,8 @@ using CompositionCommands;
 
 public class WallButtonManager
 {
-	private WallButton[] 	m_wallButtons = new WallButton[0];
-	private WallUIButton[] 	m_wallUIButtons = new WallUIButton[0];
+	private SequencerWallButton[] 	m_wallButtons = new SequencerWallButton[0];
+	private UIWallButton[] 	m_wallUIButtons = new UIWallButton[0];
 
 	private MusicWallData 	m_data;
 
@@ -16,8 +16,8 @@ public class WallButtonManager
 		DestroyAll();
 
 		m_data = data;
-		m_wallButtons = new WallButton[data.CompositionData.NumRows * data.CompositionData.NumCols];
-		m_wallUIButtons = new WallUIButton[data.CompositionData.InstrumentDataList.Count * InstrumentUIData.Instance.Buttons.Count];
+		m_wallButtons = new SequencerWallButton[data.CompositionData.NumRows * data.CompositionData.NumCols];
+		m_wallUIButtons = new UIWallButton[data.CompositionData.InstrumentDataList.Count * InstrumentUIData.Instance.Buttons.Count];
 
 		CreateUIButtons();
 		CreateSequencerButtons();
@@ -43,7 +43,7 @@ public class WallButtonManager
 		}
 	}
 
-	public WallButton GetSequencerButton(int row, int col)
+	public SequencerWallButton GetSequencerButton(int row, int col)
 	{
 		return m_wallButtons[row + col*m_data.CompositionData.NumRows];
 	}
@@ -65,7 +65,7 @@ public class WallButtonManager
 			m_wallUIButtons[i].CustomUpdate();
 	}
 
-	private void RefreshButtonVisualState(WallButton btn, CompositionData.InstrumentData instrumentData)
+	private void RefreshButtonVisualState(SequencerWallButton btn, CompositionData.InstrumentData instrumentData)
 	{
 		btn.RefreshVisualState();
 		btn.ColorController.SetMaterials(
@@ -108,7 +108,7 @@ public class WallButtonManager
 
 	private void SetupUIButton(GameObject buttonInstance, int btnIndex, int instrumentIndex)
 	{
-		var uiBtn = buttonInstance.GetComponentInChildren<WallUIButton>();
+		var uiBtn = buttonInstance.GetComponentInChildren<UIWallButton>();
 		var buttonData = InstrumentUIData.Instance.Buttons[btnIndex];
 		var instrumentData = m_data.CompositionData.InstrumentDataList[instrumentIndex];
 
@@ -177,7 +177,7 @@ public class WallButtonManager
 
 	private void SetupButton(int row, int col, GameObject button)
 	{
-		var wallButton = button.GetComponentInChildren<WallButton>();
+		var wallButton = button.GetComponentInChildren<SequencerWallButton>();
 		wallButton.SetCoord(row, col, m_data.CompositionData);
 		m_wallButtons[row + col * m_data.CompositionData.NumRows] = wallButton;
 	}
