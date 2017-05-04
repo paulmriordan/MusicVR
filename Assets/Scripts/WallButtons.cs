@@ -37,7 +37,6 @@ public class WallButtons
 			for (int iRow = 0; iRow < musicData.NumRows; iRow++) 
 			{
 				var button = m_wallButtons[iRow + iCol*musicData.NumRows];
-				var noteActive = musicData.IsNoteActive(iRow, iCol);
 				var instrument = musicData.GetInstrumentAtLocation(iRow, iCol);
 				RefreshButtonVisualState(button, instrument);
 			}

@@ -2,22 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using CompositionCommands;
 
 public class WallButton : WallButtonAbstract 
 {
+	private int m_row = -1;
+	private int m_col = -1;
 	private CompositionData m_compositionData;
 
 	public bool IsSelected {get { return m_compositionData.IsNoteActive(m_row, m_col);}}
 
-
-	void Awake()
+	protected override void Awake()
 	{
-		m_buttonTweener = GetComponent<WallButtonTween>();
-		m_buttonColorController = GetComponent<WallButtonColorController>();
+		base.Awake();
 		m_inputHander = GetComponent<SequencerButtonInputHander>();
 		m_inputHander.Init(this);
-		m_UIButtonData.CommandType = CompositionCommands.E_CommandType.toggleSequencerNote;
-		m_UIButtonData.Width = 1;
+	}
+
+	public override void Clicked()
+	{
+		var compositionData = MusicWall.Instance.WallProperties.CompositionData;
+		compositionData.CommandManager.ExecuteCommand(new ToggleSequencerNoteCommand(compositionData, m_row, m_col));
+
+		RefreshVisualState();
+	}
+
+	public void RefreshVisualState()
+	{
+		var compositionData = MusicWall.Instance.WallProperties.CompositionData;
+		var selected = compositionData.IsNoteActive(m_row, m_col);
+		if (m_buttonTweener != null)
+			m_buttonTweener.Selected = selected;
+		if (m_buttonColorController != null)
+			m_buttonColorController.Selected = selected;
 	}
 
 	public void SetCoord(int row, int col, CompositionData compositionRef)

@@ -6,6 +6,7 @@ using CompositionCommands;
 
 public class WallUIButton : WallButtonAbstract 
 {
+	public InstrumentUIData.InstrumentUIButton m_UIButtonData;
 	public MeshRenderer MeshRenderer;
 	public Transform ButtonBody;
 	public Transform Text;
@@ -24,8 +25,9 @@ public class WallUIButton : WallButtonAbstract
 		}
 	}
 
-	void Awake()
+	protected override void Awake()
 	{
+		base.Awake();
 		m_buttonTweener = GetComponent<WallButtonTween>();
 	}
 
@@ -46,6 +48,22 @@ public class WallUIButton : WallButtonAbstract
 	void OnDestroy()
 	{
 		m_compositionData.OnCompositionChanged -= RefreshText;
+	}
+
+	public override void Clicked ()
+	{
+		switch ( m_UIButtonData.CommandType)
+		{
+		case E_CommandType.toggleScale:
+			MusicWall.Instance.WallProperties.CompositionData.CommandManager.ExecuteCommand(new ToggleScaleCommand(m_instrumentData));
+			break;
+		case E_CommandType.toggleInstrument:
+			MusicWall.Instance.WallProperties.CompositionData.CommandManager.ExecuteCommand(new ToggleInstrumentCommand(m_instrumentData));
+			break;
+		default:
+			Debug.LogError("Unhandled command type:" + m_UIButtonData.CommandType.ToString());
+			break;
+		}
 	}
 
 	public void OnTouchDown()
