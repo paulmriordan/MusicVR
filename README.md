@@ -1,6 +1,6 @@
 # MusicVR
 
-Prototyping an idea for a 360 music sequencer, for VR (Vive, Daydream, Cardboard).
+Prototyping an idea for a 360 music sequencer, for VR headsets
 
 Inspired by TiltBrush, I wanted to make a VR music experience where you can see and edit music around you.
 
