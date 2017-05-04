@@ -7,16 +7,16 @@ using CSharpSynth.CustomSeq;
 
 public class WallMusicPlayer : MonoBehaviour 
 {
-	private float m_colAccum = 0;
-	private int m_prevColEffect = -1;
-	private MusicWallData m_data;
-	private WallButtons m_wallButtons;
-	private bool m_playing;
-	private List<int> m_currPlaying = new List<int>();
-	private bool m_refreshNotes = false;
-	private CustomSequencer customSequencer;
-	private Synth m_synth;
-	private GameObject m_lineInstance;
+	private float 				m_colAccum = 0;
+	private int 				m_prevColEffect = -1;
+	private MusicWallData 		m_data;
+	private WallButtonManager 	m_wallButtonManager;
+	private bool 				m_playing;
+	private List<int> 			m_currPlaying = new List<int>();
+	private bool 				m_refreshNotes = false;
+	private CustomSequencer 	m_customSequencer;
+	private Synth 				m_synth;
+	private GameObject 			m_lineInstance;
 
 	public bool IsPlaying {get { return m_playing;}}
 
@@ -25,7 +25,7 @@ public class WallMusicPlayer : MonoBehaviour
 		var linePrefab = Resources.Load("WallAssets/PlayLine");
 		m_lineInstance = Instantiate(linePrefab) as GameObject;
 		m_lineInstance.transform.SetParent(transform);
-		customSequencer = new CustomSequencer(Synth.Instance.midiStreamSynthesizer);
+		m_customSequencer = new CustomSequencer(Synth.Instance.midiStreamSynthesizer);
 	}
 
 	public void Reset()
@@ -34,12 +34,12 @@ public class WallMusicPlayer : MonoBehaviour
 		m_prevColEffect = -1;
 	}
 
-	public void Init(MusicWallData properties, WallButtons buttons, Synth synth)
+	public void Init(MusicWallData properties, WallButtonManager buttons, Synth synth)
 	{
 		m_data = properties;
 		m_data.CompositionData.OnCompositionChanged += () => { m_refreshNotes = true; };
 		m_data.CompositionData.OnNoteSelected += NoteSelectedEventHandler;
-		m_wallButtons = buttons;
+		m_wallButtonManager = buttons;
 		m_synth = synth;
 	}
 
@@ -49,7 +49,7 @@ public class WallMusicPlayer : MonoBehaviour
 
 		#if !DIRECT_PLAY
 		LoadSequencerData();
-		customSequencer.Play ();
+		m_customSequencer.Play ();
 		SetSequencerTime();
 		#endif
 
@@ -71,7 +71,7 @@ public class WallMusicPlayer : MonoBehaviour
 	public void Stop()
 	{
 		m_playing = false;
-		customSequencer.Stop(false);
+		m_customSequencer.Stop(false);
 	}
 
 	private void LoadSequencerData()
@@ -89,18 +89,18 @@ public class WallMusicPlayer : MonoBehaviour
 		{
 			var inst = instruments[i];
 			if (inst.InstrumentDefintion.IsDrum)
-				customSequencer.setProgram(9, inst.InstrumentDefintion.InstrumentInt);
+				m_customSequencer.setProgram(9, inst.InstrumentDefintion.InstrumentInt);
 			else
-				customSequencer.setProgram(i, inst.InstrumentDefintion.InstrumentInt);
+				m_customSequencer.setProgram(i, inst.InstrumentDefintion.InstrumentInt);
 		}
-		customSequencer.Load(seqData);
+		m_customSequencer.Load(seqData);
 	}
 
 	private void SetSequencerTime()
 	{
 		float secsPerNote = 1.0f/((m_data.CompositionData.Tempo/60.0f));
 		float secs = m_colAccum*secsPerNote;
-		customSequencer.Time = secs;
+		m_customSequencer.Time = secs;
 	}
 
 	void Update () 
@@ -145,13 +145,13 @@ public class WallMusicPlayer : MonoBehaviour
 		{
 			for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 			{
-				var button = m_wallButtons.GetSequencerButton(iRow, m_prevColEffect);
+				var button = m_wallButtonManager.GetSequencerButton(iRow, m_prevColEffect);
 				button.ColorController.SetPlaying(false);
 			}
 		}
 		for (int iRow = 0; iRow < m_data.CompositionData.NumRows; iRow++)
 		{
-			var button = m_wallButtons.GetSequencerButton(iRow, currCol);
+			var button = m_wallButtonManager.GetSequencerButton(iRow, currCol);
 			button.ColorController.SetPlaying(true);
 		}
 		m_prevColEffect = currCol;
@@ -169,7 +169,7 @@ public class WallMusicPlayer : MonoBehaviour
 			var instrument = m_data.CompositionData.InstrumentDataList[iInst];
 			for (int iRow = 0; iRow < instrument.NumRows; iRow++)
 			{
-				var button = m_wallButtons.GetSequencerButton(iRow + rowCum, currCol);
+				var button = m_wallButtonManager.GetSequencerButton(iRow + rowCum, currCol);
 				if (button.IsSelected)
 				{
 					int note = MusicScaleConverter.Get(instrument.Scale).Convert(iRow);

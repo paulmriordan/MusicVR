@@ -4,12 +4,12 @@ using UnityEngine;
 using System.Linq;
 using CompositionCommands;
 
-public class WallButtons
+public class WallButtonManager
 {
-	private WallButton[] m_wallButtons = new WallButton[0];
-	private WallUIButton[] m_wallUIButtons = new WallUIButton[0];
+	private WallButton[] 	m_wallButtons = new WallButton[0];
+	private WallUIButton[] 	m_wallUIButtons = new WallUIButton[0];
 
-	private MusicWallData m_data;
+	private MusicWallData 	m_data;
 
 	public void Create(MusicWallData data)
 	{

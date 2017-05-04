@@ -12,7 +12,7 @@ public class MusicWall : MonoSingleton<MusicWall>
 	public float					ProbInitSelected = 0.2f;
 	public Synth					Synth;
 
-	private WallButtons 			m_wallButtons = new WallButtons();
+	private WallButtonManager 		m_wallButtonManager = new WallButtonManager();
 	private WallMesh 				m_wallMesh;
 	private WallMusicPlayer			m_musicPlayer;
 
@@ -46,7 +46,7 @@ public class MusicWall : MonoSingleton<MusicWall>
 			m_wallMesh = gameObject.AddComponent<WallMesh>();
 		m_musicPlayer = gameObject.AddComponent<WallMusicPlayer>();
 		WallProperties.Init();
-		m_musicPlayer.Init(WallProperties, m_wallButtons, Synth);
+		m_musicPlayer.Init(WallProperties, m_wallButtonManager, Synth);
 		NeedsUpdate = true;
 	}
 
@@ -61,16 +61,16 @@ public class MusicWall : MonoSingleton<MusicWall>
 	{
 		if (NeedsUpdate)
 		{
-			m_wallButtons.Create(WallProperties);
+			m_wallButtonManager.Create(WallProperties);
 			if (HasWall)
 				m_wallMesh.Create(WallProperties);
-			m_musicPlayer.Init(WallProperties, m_wallButtons, Synth);
+			m_musicPlayer.Init(WallProperties, m_wallButtonManager, Synth);
 			m_musicPlayer.Reset();
 			m_musicPlayer.Play();
 			OnWallDataUpdated(WallProperties);
 
 		}
-		m_wallButtons.Update();
+		m_wallButtonManager.Update();
 		NeedsUpdate = false;
 	}
 }
