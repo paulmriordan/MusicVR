@@ -39,7 +39,7 @@ public class WallButtons
 				var button = m_wallButtons[iRow + iCol*musicData.NumRows];
 				var noteActive = musicData.IsNoteActive(iRow, iCol);
 				var instrument = musicData.GetInstrumentAtLocation(iRow, iCol);
-				LoadMusicDataForButton(button, noteActive, instrument);
+				RefreshButtonVisualState(button, instrument);
 			}
 		}
 	}
@@ -66,9 +66,9 @@ public class WallButtons
 			m_wallUIButtons[i].CustomUpdate();
 	}
 
-	private void LoadMusicDataForButton(WallButton btn, bool noteActive, CompositionData.InstrumentData instrumentData)
+	private void RefreshButtonVisualState(WallButton btn, CompositionData.InstrumentData instrumentData)
 	{
-		btn.SetSelected(noteActive);
+		btn.RefreshVisualState();
 		btn.ColorController.SetMaterials(
 			instrumentData.InstrumentDefintion.SelectedButtonMaterial,
 			instrumentData.InstrumentDefintion.UnselectedButtonMaterial);

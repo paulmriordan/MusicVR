@@ -10,7 +10,7 @@ public class InputManager : MonoSingleton<InputManager> {
 	void Start () 
 	{
 		MusicWall.Instance.OnWallDataUpdated += UpdateProperties;
-		WallButton.s_wallButtonInputState.OnPanRequested += m_wallDragger.PerformPan;
+		SequencerButtonInputHander.s_wallButtonInputState.OnPanRequested += m_wallDragger.PerformPan;
 	}
 
 	public void UpdateProperties(MusicWallData wallData)
@@ -23,7 +23,7 @@ public class InputManager : MonoSingleton<InputManager> {
 		UpdateGestures();
 		UpdateKeyCommands();
 		UpdatingObject.Check();
-		WallButton.s_wallButtonInputState.Update(m_inputState);
+		SequencerButtonInputHander.s_wallButtonInputState.Update(m_inputState);
 
 		// Disable input if required
 		{
@@ -31,7 +31,7 @@ public class InputManager : MonoSingleton<InputManager> {
 			inputBlocked |= m_wallDragger.InputConsumer.IsActive();
 
 			m_mouseLook.EnableLook(!inputBlocked);
-			WallButton.s_wallButtonInputState.SelectionEnabled(!inputBlocked);
+			SequencerButtonInputHander.s_wallButtonInputState.SelectionEnabled(!inputBlocked);
 		}
 	}
 
@@ -52,7 +52,7 @@ public class InputManager : MonoSingleton<InputManager> {
 	{
 		if (Input.GetMouseButtonDown(0))
 		{	
-			WallButton.s_wallButtonInputState.Clear();
+			SequencerButtonInputHander.s_wallButtonInputState.Clear();
 			m_inputState.inputDownTime = Time.time;
 			m_inputState.inputDownPos = Input.mousePosition;
 		}

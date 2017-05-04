@@ -4,16 +4,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using CompositionCommands;
 
-public class WallUIButton : MonoBehaviour 
+public class WallUIButton : WallButtonAbstract 
 {
 	public MeshRenderer MeshRenderer;
 	public Transform ButtonBody;
 	public Transform Text;
 
 	private bool m_mouseDown;
-	private WallButtonTween m_buttonTweener;
-	private InstrumentUIData.InstrumentUIButton m_UIButtonData;
-	private CompositionData.InstrumentData m_instrumentData;
 	private CompositionData m_compositionData;
 
 	public bool MouseDown { 
@@ -88,18 +85,6 @@ public class WallUIButton : MonoBehaviour
 			m_buttonTweener.CustomUpdate();
 	}
 
-	private void Clicked()
-	{
-		switch ( m_UIButtonData.CommandType)
-		{
-		case E_CommandType.toggleScale:
-			MusicWall.Instance.WallProperties.CompositionData.CommandManager.ExecuteCommand(new ToggleScaleCommand(m_instrumentData));
-			break;
-		case E_CommandType.toggleInstrument:
-			MusicWall.Instance.WallProperties.CompositionData.CommandManager.ExecuteCommand(new ToggleInstrumentCommand(m_instrumentData));
-			break;
-		}
-	}
 
 	private void SetWidth(int colWidth)
 	{
