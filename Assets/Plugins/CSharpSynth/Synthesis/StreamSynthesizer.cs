@@ -412,7 +412,7 @@ namespace CSharpSynth.Synthesis
 						while (node != null)
 						{
 							if (oldtime < 0 || waitTime < 0)
-								throw new Exception("dd");
+								throw new Exception("TODO: investigate cause of this exception");
 							node.Value.Process(sampleBuffer, oldtime, oldtime + waitTime);
 							if (node.Value.isInUse == false)
 							{
