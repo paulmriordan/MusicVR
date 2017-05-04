@@ -9,7 +9,7 @@ For music synthesis, I have utilised and extended [Unity CSharpSynth ](https://f
 ## Development Progress
 
 ### Completed
-- Proof of concept (currently works in desktop and mobile) with multiple instruments sections, and abilty to navigate and edit composition
+- Proof of concept (currently works in desktop and mobile) with multiple instrument sections, and abilty to navigate and edit composition
 - Configurable instrument scales (pentatonic, major, minor, chromatic)
 - Drum instrument types
 - Saving/loading compositions
