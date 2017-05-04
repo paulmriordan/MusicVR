@@ -15,8 +15,9 @@ public class WallButton : WallButtonAbstract
 	protected override void Awake()
 	{
 		base.Awake();
-		m_inputHander = GetComponent<SequencerButtonInputHander>();
-		m_inputHander.Init(this);
+		SequencerButtonInputHander seqInputHandler;
+		m_inputHander = seqInputHandler = GetComponent<SequencerButtonInputHander>();
+		seqInputHandler.InitWithSequencerButton(this);
 	}
 
 	public override void Clicked()

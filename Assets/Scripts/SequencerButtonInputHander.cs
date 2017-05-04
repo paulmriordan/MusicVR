@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SequencerButtonInputHander : MonoBehaviour
+public class SequencerButtonInputHander : ButtonInputHandler
 {
 	public class WallButtonInputConsumer : InputConsumerBase
 	{
@@ -69,21 +69,12 @@ public class SequencerButtonInputHander : MonoBehaviour
 	}
 
 	public static WallButtonInputState s_wallButtonInputState = new WallButtonInputState();
-	private bool m_mouseDown;
+
 	private WallButton m_parent;
 
-	public bool MouseDown { 
-		get {
-			return m_mouseDown;
-		}
-		set {
-			m_mouseDown = value;
-			if (m_parent.Tweener != null)
-				m_parent.Tweener.Held = value;
-		}
-	}
+	protected override WallButtonAbstract Parent { get {return m_parent;}}
 
-	public void Init(WallButton parent)
+	public void InitWithSequencerButton(WallButton parent)
 	{
 		m_parent = parent;
 	}

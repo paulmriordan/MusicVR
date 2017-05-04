@@ -11,24 +11,14 @@ public class WallUIButton : WallButtonAbstract
 	public Transform ButtonBody;
 	public Transform Text;
 
-	private bool m_mouseDown;
 	private CompositionData m_compositionData;
-
-	public bool MouseDown { 
-		get {
-			return m_mouseDown;
-		}
-		set {
-			m_mouseDown = value;
-			if (m_buttonTweener != null)
-				m_buttonTweener.Held = value;
-		}
-	}
 
 	protected override void Awake()
 	{
 		base.Awake();
-		m_buttonTweener = GetComponent<WallButtonTween>();
+		ClickableButtonInputHandler clickable;
+		m_inputHander = clickable = GetComponent<ClickableButtonInputHandler>();
+		clickable.Init(this);
 	}
 
 	public void Init(InstrumentUIData.InstrumentUIButton buttonData,
@@ -64,37 +54,6 @@ public class WallUIButton : WallButtonAbstract
 			Debug.LogError("Unhandled command type:" + m_UIButtonData.CommandType.ToString());
 			break;
 		}
-	}
-
-	public void OnTouchDown()
-	{
-		if (!Input.GetMouseButton(0))
-			return;
-		{
-			bool allowStart = true;
-			allowStart &= !EventSystem.current.IsPointerOverGameObject();
-			if (allowStart)
-			{
-				MouseDown = true;
-			}
-		}
-	}
-
-	public void OnTouchExit()
-	{
-		MouseDown = false;
-	}
-
-	public void OnTouchUp()
-	{
-		// Click button if no camera drag occurred & no button selecting occurred
-		if (MouseDown)
-		{
-			Debug.Log("UI button clicked");
-			Clicked();
-		}
-
-		MouseDown = false;
 	}
 
 	public void CustomUpdate()
