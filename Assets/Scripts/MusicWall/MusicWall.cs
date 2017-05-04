@@ -39,7 +39,6 @@ public class MusicWall : MonoSingleton<MusicWall>
 			m_musicPlayer.Play();
 	}
 
-	//______________________________________________________________________________________
 	protected override void _Awake()
 	{
 		if (HasWall)
@@ -47,16 +46,15 @@ public class MusicWall : MonoSingleton<MusicWall>
 		m_musicPlayer = gameObject.AddComponent<WallMusicPlayer>();
 		WallProperties.Init();
 		m_musicPlayer.Init(WallProperties, m_wallButtonManager, Synth);
+		GenerateRandom();
 		NeedsUpdate = true;
 	}
 
-	//______________________________________________________________________________________
 	void OnValidate()
 	{
 		NeedsUpdate = true;
 	}
-	
-	//______________________________________________________________________________________
+
 	void Update()
 	{
 		if (NeedsUpdate)

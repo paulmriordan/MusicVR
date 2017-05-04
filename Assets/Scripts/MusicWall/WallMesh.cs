@@ -18,7 +18,6 @@ public class WallMesh : MonoBehaviour
 	const int trisPerCol = 2;
 	const int indicesPerTri = 3;
 
-	//______________________________________________________________________________________
 	public void Create(MusicWallData data)
 	{
 		m_data = data;
@@ -37,7 +36,6 @@ public class WallMesh : MonoBehaviour
 		m_NeedMeshUpdate = true;
 	}
 
-	//______________________________________________________________________________________
 	private Mesh CreateWallMesh()
 	{
 		Mesh mesh = new Mesh ();
@@ -89,7 +87,6 @@ public class WallMesh : MonoBehaviour
 		return mesh;
 	}
 
-	//______________________________________________________________________________________
 	void Update()
 	{
 		if (m_NeedMeshUpdate)
