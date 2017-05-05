@@ -35,7 +35,9 @@ public class SequencerButtonInputHander : ButtonInputHandler
 	public void OnTouchUp()
 	{
 		// Click button if no camera drag occurred & no button dragging occurred
-		if (s_inputConsumer.IsActive() && s_sequencerButtonDrag == null)
+		if (s_inputConsumer.IsActive() 
+			&& s_sequencerButtonDrag == null
+			&& !InputManager.Instance.InputBlockedByUI())
 		{
 			m_parent.Clicked();
 		}
@@ -45,14 +47,11 @@ public class SequencerButtonInputHander : ButtonInputHandler
 	}
 	#endregion
 
-
 	void TryStartDrag()
 	{
 		if (s_sequencerButtonDrag == null)
 		{
-			bool allowStart = !InputManager.Instance.IsUIBlockingGameInput();
-			allowStart &= !EventSystem.current.IsPointerOverGameObject();
-			if (allowStart)
+			if (s_inputConsumer.IsActive() && !InputManager.Instance.InputBlockedByUI())
 			{
 				MouseDown = true;
 				s_sequencerButtonDrag = new SequencerButtonDrag(m_parent.IsSelected 
@@ -68,7 +67,7 @@ public class SequencerButtonInputHander : ButtonInputHandler
 		{
 			bool trySelect = this.m_parent != s_sequencerButtonDrag.LastHitButton;
 			trySelect &= s_inputConsumer.IsActive();
-			trySelect &= !EventSystem.current.IsPointerOverGameObject();
+			trySelect &= !InputManager.Instance.InputBlockedByUI();
 
 			if (trySelect)
 			{

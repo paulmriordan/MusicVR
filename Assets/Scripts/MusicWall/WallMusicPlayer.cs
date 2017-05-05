@@ -38,7 +38,7 @@ public class WallMusicPlayer : MonoBehaviour
 	{
 		m_data = properties;
 		m_data.CompositionData.OnCompositionChanged += () => { m_refreshNotes = true; };
-		m_data.CompositionData.OnNoteSelected += NoteSelectedEventHandler;
+		m_data.CompositionData.OnNoteStateChanged += NoteStateChangedHandler;
 		m_wallButtonManager = buttons;
 		m_synth = synth;
 	}
@@ -55,17 +55,21 @@ public class WallMusicPlayer : MonoBehaviour
 
 	}
 
-	public void NoteSelectedEventHandler(int in_row, int in_col)
+	public void NoteStateChangedHandler(int in_row, int in_col, bool active)
 	{
-		var instr = m_data.CompositionData.GetInstrumentAtLocation(in_row, in_col);
+		// Play not if set active
+		if (active)
+		{
+			var instr = m_data.CompositionData.GetInstrumentAtLocation(in_row, in_col);
 
-		int note = MusicScaleConverter.Get(instr.Scale).Convert(in_row - instr.StartRow);
+			int note = MusicScaleConverter.Get(instr.Scale).Convert(in_row - instr.StartRow);
 
-		m_synth.NoteOn(instr.InstrumentDefintion.IsDrum ? 9 : instr.IndexInComposition, 
-			note + instr.InstrumentDefintion.InstrumentNoteOffset, 
-			instr.InstrumentDefintion.InstrumentInt);
-		
-		m_currPlaying.Add(note);
+			m_synth.NoteOn(instr.InstrumentDefintion.IsDrum ? 9 : instr.IndexInComposition, 
+				note + instr.InstrumentDefintion.InstrumentNoteOffset, 
+				instr.InstrumentDefintion.InstrumentInt);
+			
+			m_currPlaying.Add(note);
+		}
 	}
 
 	public void Stop()

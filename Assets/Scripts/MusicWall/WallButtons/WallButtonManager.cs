@@ -23,6 +23,8 @@ public class WallButtonManager
 		CreateSequencerButtons();
 
 		LoadMusicData(data.CompositionData);
+
+		m_data.CompositionData.OnNoteStateChanged += NodeStateChangedHandler;
 	}
 
 	public void LoadMusicData(CompositionData musicData)
@@ -63,6 +65,12 @@ public class WallButtonManager
 			m_wallButtons[i].CustomUpdate();
 		for (int i = 0; i < m_wallUIButtons.Length; i++)
 			m_wallUIButtons[i].CustomUpdate();
+	}
+
+	private void NodeStateChangedHandler(int row, int col, bool active)
+	{
+		var button = GetSequencerButton(row, col);	
+		button.RefreshVisualState();
 	}
 
 	private void RefreshButtonVisualState(SequencerWallButton btn, CompositionData.InstrumentData instrumentData)

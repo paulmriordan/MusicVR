@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class InputManager : MonoSingleton<InputManager> 
 {
@@ -30,9 +31,9 @@ public class InputManager : MonoSingleton<InputManager>
 		m_wallDragger.Reset(0, -wallData.GetTotalHeight(), wallData.CompositionData.NumCols);
 	}
 
-	public bool IsUIBlockingGameInput()
+	public bool InputBlockedByUI()
 	{
-		return MusicWallUI.Instance.IsBlockingGameInput();;
+		return EventSystem.current.IsPointerOverGameObject() || MusicWallUI.Instance.IsBlockingGameInput();
 	}
 
 	void Update()

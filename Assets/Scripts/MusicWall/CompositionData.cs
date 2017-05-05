@@ -72,7 +72,7 @@ public class CompositionData
 
 	[field: System.NonSerialized]
 	public event System.Action OnCompositionChanged = () => {};
-	public event System.Action<int,int> OnNoteSelected = (r,c) => {};
+	public event System.Action<int,int, bool> OnNoteStateChanged = (r,c,s) => {};
 
 	public List<InstrumentData> InstrumentDataList;
 	public int NumCols = 20;
@@ -139,8 +139,7 @@ public class CompositionData
 				{
 					InstrumentDataList[i].SetNoteActive(row - rowCum, col, active);
 					OnCompositionChanged();
-					if (active)
-						OnNoteSelected(row,col);
+					OnNoteStateChanged(row, col, active);
 				}
 				return;
 			}

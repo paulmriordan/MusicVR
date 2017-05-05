@@ -8,8 +8,18 @@ public class WallButtonInputConsumer : InputConsumerBase
 			return true; //always consume button up events
 		if (!Input.GetMouseButton(0))
 			return false;
-		// Always consume, regardless of position, if held for long enough
-		return Time.time - state.InputDownTime > state.HoldTime;
+
+		// if not hitting ui, and input down is over button, consume
+		if (!InputManager.Instance.InputBlockedByUI())
+		{
+			RaycastHit hit;
+			if (Physics.Raycast(Camera.main.ScreenPointToRay(state.InputDownPos), out hit) 
+				&& hit.collider.GetComponent<SequencerWallButton>() != null)
+			{
+				return Time.time - state.InputDownTime > state.HoldTime;
+			}
+		}
+		return false;
 	}
 
 	public override bool IsFinished()
