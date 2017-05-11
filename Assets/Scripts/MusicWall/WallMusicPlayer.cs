@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using CSharpSynth.CustomSeq;
+using CSharpSynth.Sequencer;
 
 
 public class WallMusicPlayer : MonoBehaviour 
@@ -25,7 +25,7 @@ public class WallMusicPlayer : MonoBehaviour
 		var linePrefab = Resources.Load("WallAssets/PlayLine");
 		m_lineInstance = Instantiate(linePrefab) as GameObject;
 		m_lineInstance.transform.SetParent(transform);
-		m_customSequencer = new CustomSequencer(Synth.Instance.midiStreamSynthesizer);
+		m_customSequencer = new ManualSequencer(Synth.Instance.midiStreamSynthesizer);
 	}
 
 	public void Reset()
@@ -80,9 +80,9 @@ public class WallMusicPlayer : MonoBehaviour
 
 	private void LoadSequencerData()
 	{
-		var seqData = m_data.CompositionData.GetSequncerData();
+		var seqData = m_data.CompositionData.GetSequencerData();
 		//adjust total time into sample time
-		seqData.TotalTime = (ulong)CustomSequencer.TimetoSampleTime(
+		seqData.TotalTime = (ulong)ManualSequencer.TimetoSampleTime(
 			(uint)seqData.TotalTime, 
 			(int)Synth.Instance.midiStreamSynthesizer.SampleRate,
 			seqData.BeatsPerMinute,

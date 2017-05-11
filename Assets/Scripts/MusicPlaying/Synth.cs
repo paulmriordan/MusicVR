@@ -6,7 +6,6 @@ using CSharpSynth.Effects;
 using CSharpSynth.Sequencer;
 using CSharpSynth.Synthesis;
 using CSharpSynth.Midi;
-using CSharpSynth.CustomSeq;
 
 public class Synth : MonoSingleton<Synth> {
 

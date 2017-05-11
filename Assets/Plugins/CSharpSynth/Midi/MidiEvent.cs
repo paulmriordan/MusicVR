@@ -1,8 +1,6 @@
-﻿using CSharpSynth.CustomSeq;
-
-namespace CSharpSynth.Midi
+﻿namespace CSharpSynth.Midi
 {
-    public class MidiEvent : ISequencerEvent
+    public class MidiEvent
     {
         //--Variables
 		public uint deltaTime {get;set;}

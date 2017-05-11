@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using CSharpSynth.Banks;
 using CSharpSynth.Sequencer;
 using CSharpSynth.Effects;
-using CSharpSynth.CustomSeq;
 using UnityEngine;
 
 namespace CSharpSynth.Synthesis
@@ -151,7 +150,7 @@ namespace CSharpSynth.Synthesis
                 tunePositions_[channel] = semitones;
             }
         }
-		public void setSequencer(CustomSequencer sequencer)
+		public void setSequencer(ManualSequencer sequencer)
 		{
 			this.customSequencer = sequencer;
 		}
@@ -446,7 +445,7 @@ namespace CSharpSynth.Synthesis
         }
 		private void FillWorkingBufferFromSequencer(IProcessableSequencer seq, LinkedListNode<Voice> node, LinkedListNode<Voice> delnode)
 		{ 
-			ISequencerEventList seqEvent = seq.Process(samplesperBuffer);
+			SequencerEventList seqEvent = seq.Process(samplesperBuffer);
 			if (seqEvent == null)
 				return;
 			int oldtime = 0;

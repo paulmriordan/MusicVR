@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using CSharpSynth.CustomSeq;
 using CSharpSynth.Midi;
+using CSharpSynth.Sequencer;
 using CompositionCommands;
 
 [System.Serializable]
@@ -163,15 +163,16 @@ public class CompositionData
 		return null;
 	}
 
-	public ISequencerData GetSequncerData()
+
+	public ISequencerData GetSequencerData()
 	{
-		ISequencerData seqData = new CustomSequencer.CustomSeqData();
+		ISequencerData seqData = new ManualSequencerData();
 		seqData.DeltaTiming = DeltaTiming;
 		seqData.BeatsPerMinute = (uint)Tempo;
 		seqData.TotalTime = (ulong)(DeltaTimeSpacing*(float)NumCols);
 
-		List<CustomEvent> events = new List<CustomEvent>();
-		List<CustomEvent> lastColEvents = new List<CustomEvent>();
+		List<MidiEvent> events = new List<MidiEvent>();
+		List<MidiEvent> lastColEvents = new List<MidiEvent>();
 		int numInstruments = InstrumentDataList.Count;
 		uint cumDeltaTime = 0;
 		for (int iCol = 0; iCol < NumCols; iCol++)
@@ -182,11 +183,10 @@ public class CompositionData
 			for (int iEvent = 0; iEvent < lastColCount; iEvent++)
 			{
 				var lastEvent = lastColEvents[iEvent];
-				var customEvent = new CustomEvent()
+				var customEvent = new MidiEvent()
 				{
 					deltaTime = first ? cumDeltaTime : 0,
 					midiChannelEvent = MidiHelper.MidiChannelEvent.Note_Off,
-					//				public object[] Parameters;
 					parameter1 = lastEvent.parameter1,
 					parameter2 = lastEvent.parameter2,
 					channel = lastEvent.channel
@@ -208,11 +208,10 @@ public class CompositionData
 						int eventChannel = instrument.InstrumentDefintion.IsDrum ? 9 : iInst;
 						eventNote = eventNote + instrument.InstrumentDefintion.InstrumentNoteOffset;
 						
-						var customEvent = new CustomEvent()
+						var customEvent = new MidiEvent()
 						{
 							deltaTime = first ? cumDeltaTime : 0,
 							midiChannelEvent = MidiHelper.MidiChannelEvent.Note_On,
-							//				public object[] Parameters;
 							parameter1 = (byte)eventNote,
 							parameter2 = (byte)instrument.InstrumentDefintion.NoteVelocity,
 							channel = (byte)eventChannel

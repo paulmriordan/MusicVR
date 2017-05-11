@@ -5,7 +5,6 @@ using CSharpSynth.Effects;
 using CSharpSynth.Sequencer;
 using CSharpSynth.Synthesis;
 using CSharpSynth.Midi;
-using CSharpSynth.CustomSeq;
 
 [RequireComponent (typeof(AudioSource))]
 public class UnitySynthTest : MonoBehaviour
@@ -23,7 +22,6 @@ public class UnitySynthTest : MonoBehaviour
 	private float[] sampleBuffer;
 	private float gain = 1f;
 	private MidiSequencer midiSequencer;
-	private CustomSequencer customSequencer;
 	private StreamSynthesizer midiStreamSynthesizer;
 	
 //	private float sliderValue = 1.0f;
@@ -43,46 +41,6 @@ public class UnitySynthTest : MonoBehaviour
 		//These will be fired by the midiSequencer when a song plays. Check the console for messages
 		midiSequencer.NoteOnEvent += new MidiSequencer.NoteOnEventHandler (MidiNoteOnHandler);
 		midiSequencer.NoteOffEvent += new MidiSequencer.NoteOffEventHandler (MidiNoteOffHandler);	
-
-		CustomSequencer.CustomSeqData customFile = new CustomSequencer.CustomSeqData();
-		customFile.DeltaTiming = 480;
-		customFile.BeatsPerMinute = 60;
-		customFile.EventCount = 3;
-		customFile.TotalTime = 20;
-		var eve = new CustomEvent()
-		{
-			deltaTime = 500,
-			midiChannelEvent = MidiHelper.MidiChannelEvent.Note_On,
-			//				public object[] Parameters;
-			parameter1 = 80,
-			parameter2 = 100,
-			channel = 1
-		};
-		var eve1 = new CustomEvent()
-		{
-			deltaTime = 500,
-			midiChannelEvent = MidiHelper.MidiChannelEvent.Note_On,
-			//				public object[] Parameters;
-			parameter1 = 82,
-			parameter2 = 100,
-			channel = 1
-		};
-		var eve2 = new CustomEvent()
-		{
-			deltaTime = 500,
-			midiChannelEvent = MidiHelper.MidiChannelEvent.Note_On,
-			//				public object[] Parameters;
-			parameter1 = 84,
-			parameter2 = 100,
-			channel = 1
-		};
-		customFile.Events = new CustomEvent[3]{
-			eve,eve1,eve2
-		};
-		customSequencer = new CustomSequencer(midiStreamSynthesizer);
-//		customSequencer.Load(customFile);
-//		customSequencer.Play ();
-		
 	}
 	
 	// Start is called just before any of the

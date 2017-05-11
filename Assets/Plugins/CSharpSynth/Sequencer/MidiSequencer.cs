@@ -4,7 +4,6 @@ using CSharpSynth.Midi;
 using CSharpSynth.Synthesis;
 using CSharpSynth.Banks;
 using UnityEngine;
-using CSharpSynth.CustomSeq;
 
 namespace CSharpSynth.Sequencer
 {
@@ -18,7 +17,7 @@ namespace CSharpSynth.Sequencer
         private double PitchWheelSemitoneRange = 2.0;
         private bool playing = false;
         private bool looping = false;
-        private MidiSequencerEvent seqEvt;
+        private SequencerEventList seqEvt;
         private int sampleTime;
         private int eventIndex;
         //--Events
@@ -60,7 +59,7 @@ namespace CSharpSynth.Sequencer
             this.synth = synth;
             this.synth.setSequencer(this);
             blockList = new List<byte>();
-            seqEvt = new MidiSequencerEvent();
+            seqEvt = new SequencerEventList();
         }
         public string getProgramName(int channel)
         {
@@ -215,7 +214,7 @@ namespace CSharpSynth.Sequencer
             for (int x = 0; x < synth.VolPositions.Length; x++)
                 synth.VolPositions[x] = 1.00f;
         }
-		public ISequencerEventList Process(int frame)
+		public SequencerEventList Process(int frame)
         {
             seqEvt.Events.Clear();
             //stop or loop
@@ -251,7 +250,7 @@ namespace CSharpSynth.Sequencer
         {
             sampleTime = sampleTime + amount;
         }
-        public void ProcessEvent(CustomSeq.ISequencerEvent midiEvent)
+        public void ProcessEvent(MidiEvent midiEvent)
         {
             if (midiEvent.midiChannelEvent != MidiHelper.MidiChannelEvent.None)
             {

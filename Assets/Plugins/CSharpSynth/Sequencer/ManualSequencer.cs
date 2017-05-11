@@ -2,24 +2,19 @@
 using CSharpSynth.Synthesis;
 using CSharpSynth.Midi;
 
-namespace CSharpSynth.CustomSeq
+namespace CSharpSynth.Sequencer
 {
-	public class CustomSequencer : ILoadableSequencer, IProcessableSequencer
+	/// <summary>
+	/// A manually loadable version of MidiSequencer. 
+	/// </summary>
+	public class ManualSequencer : ILoadableSequencer, IProcessableSequencer
 	{
-		public struct CustomSeqData : ISequencerData
-		{
-			public ulong 				TotalTime {get;set;}
-			public uint 				BeatsPerMinute {get;set;}
-			public int 					EventCount {get;set;}
-			public ISequencerEvent[] 	Events {get;set;}
-			public int 					DeltaTiming {get;set;}
-		}
-		private ISequencerData _MidiFile;
+		private ISequencerData m_sequencerData;
 		private StreamSynthesizer synth;
 		private int[] currentPrograms; //current instruments
 		private bool playing = false;
 		private bool looping = true;
-		private CustomSequencerEvents seqEvt;
+		private SequencerEventList seqEvt;
 		private int sampleTime;
 		private int eventIndex;
 
@@ -37,26 +32,26 @@ namespace CSharpSynth.CustomSeq
 			get { return (int)SynthHelper.getTimeFromSample(synth.SampleRate, sampleTime); }
 			set { SetTime(value); }
 		}
-		public CustomSequencer(StreamSynthesizer synth)
+		public ManualSequencer(StreamSynthesizer synth)
 		{
 			currentPrograms = new int[16]; //16 channels
 			this.synth = synth;
 			this.synth.setSequencer(this);
-			seqEvt = new CustomSequencerEvents();
+			seqEvt = new SequencerEventList();
 		}
 		public bool Load(ISequencerData seqFile)
 		{
-			_MidiFile = seqFile;
+			m_sequencerData = seqFile;
 			{
 				try
 				{
 					//Convert delta time to sample time
 					eventIndex = 0;
 					uint lastSample = 0;
-					for (int x = 0; x < _MidiFile.Events.Length; x++)
+					for (int x = 0; x < m_sequencerData.Events.Length; x++)
 					{
-						_MidiFile.Events[x].deltaTime = lastSample + (uint)DeltaTimetoSamples(_MidiFile.Events[x].deltaTime);
-						lastSample = _MidiFile.Events[x].deltaTime;
+						m_sequencerData.Events[x].deltaTime = lastSample + (uint)DeltaTimetoSamples(m_sequencerData.Events[x].deltaTime);
+						lastSample = m_sequencerData.Events[x].deltaTime;
 					}
 				}
 				catch (Exception ex)
@@ -100,14 +95,14 @@ namespace CSharpSynth.CustomSeq
 		}
 		private int DeltaTimetoSamples(uint DeltaTime)
 		{
-			return SynthHelper.getSampleFromTime(synth.SampleRate, ((float)DeltaTime * (60.0f / (float)(((int)_MidiFile.BeatsPerMinute) * _MidiFile.DeltaTiming))));
+			return SynthHelper.getSampleFromTime(synth.SampleRate, ((float)DeltaTime * (60.0f / (float)(((int)m_sequencerData.BeatsPerMinute) * m_sequencerData.DeltaTiming))));
 		}
 
-		public ISequencerEventList Process(int frame)
+		public SequencerEventList Process(int frame)
 		{
 			seqEvt.Events.Clear();
 			//stop or loop
-			if (sampleTime >= (int)_MidiFile.TotalTime)
+			if (sampleTime >= (int)m_sequencerData.TotalTime)
 			{
 				sampleTime = 0;
 				if (looping == true)
@@ -131,9 +126,9 @@ namespace CSharpSynth.CustomSeq
 					return null;
 				}
 			}
-			while (eventIndex < _MidiFile.EventCount && _MidiFile.Events[eventIndex].deltaTime < (sampleTime + frame))
+			while (eventIndex < m_sequencerData.EventCount && m_sequencerData.Events[eventIndex].deltaTime < (sampleTime + frame))
 			{
-				seqEvt.Events.Add(_MidiFile.Events[eventIndex]);
+				seqEvt.Events.Add(m_sequencerData.Events[eventIndex]);
 				eventIndex++;
 			}
 			return seqEvt;
@@ -155,7 +150,7 @@ namespace CSharpSynth.CustomSeq
 			sampleTime = sampleTime + amount;
 		}
 
-		public void ProcessEvent(ISequencerEvent customEvent)
+		public void ProcessEvent(MidiEvent customEvent)
 		{
 			if (customEvent.midiChannelEvent != MidiHelper.MidiChannelEvent.None)
 			{
@@ -185,10 +180,10 @@ namespace CSharpSynth.CustomSeq
 		}
 		private void SilentProcess(int amount)
 		{
-			while (eventIndex < _MidiFile.EventCount && _MidiFile.Events[eventIndex].deltaTime < (sampleTime + amount))
+			while (eventIndex < m_sequencerData.EventCount && m_sequencerData.Events[eventIndex].deltaTime < (sampleTime + amount))
 			{
-				if (_MidiFile.Events[eventIndex].midiChannelEvent != MidiHelper.MidiChannelEvent.Note_On)
-					ProcessEvent(_MidiFile.Events[eventIndex]);               
+				if (m_sequencerData.Events[eventIndex].midiChannelEvent != MidiHelper.MidiChannelEvent.Note_On)
+					ProcessEvent(m_sequencerData.Events[eventIndex]);               
 				eventIndex++;
 			}
 			sampleTime = sampleTime + amount;
