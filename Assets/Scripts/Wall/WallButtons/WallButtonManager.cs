@@ -77,8 +77,8 @@ public class WallButtonManager
 	{
 		btn.RefreshVisualState();
 		btn.ColorController.SetMaterials(
-			instrumentData.InstrumentDefintion.SelectedButtonMaterial,
-			instrumentData.InstrumentDefintion.UnselectedButtonMaterial);
+			instrumentData.InstrumentDefinition.SelectedButtonMaterial,
+			instrumentData.InstrumentDefinition.UnselectedButtonMaterial);
 	}
 
 	private void CreateUIButtons()

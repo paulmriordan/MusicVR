@@ -17,17 +17,17 @@ namespace MusicVR.Composition
 		public override void Execute()
 		{
 			var instruments = InstrumentDefinitions.Instance.Instruments;
-			var currInstrument = instruments.FindIndex((i) => i == m_instrument.InstrumentDefintion);
+			var currInstrument = instruments.FindIndex((i) => i == m_instrument.InstrumentDefinition);
 			int newInstrument = MathHelper.Mod(((int)currInstrument + 1), instruments.Count);
-			m_instrument.InstrumentDefintion = InstrumentDefinitions.Instance.Instruments[newInstrument];
+			m_instrument.InstrumentDefinition = InstrumentDefinitions.Instance.Instruments[newInstrument];
 		}
 
 		public override void Undo()
 		{
 			var instruments = InstrumentDefinitions.Instance.Instruments;
-			var currInstrument = instruments.FindIndex((i) => i == m_instrument.InstrumentDefintion);
+			var currInstrument = instruments.FindIndex((i) => i == m_instrument.InstrumentDefinition);
 			int newInstrument = MathHelper.Mod(((int)currInstrument - 1), instruments.Count);
-			m_instrument.InstrumentDefintion = InstrumentDefinitions.Instance.Instruments[newInstrument];
+			m_instrument.InstrumentDefinition = InstrumentDefinitions.Instance.Instruments[newInstrument];
 		}
 	}
 }

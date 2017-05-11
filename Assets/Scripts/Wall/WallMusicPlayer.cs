@@ -5,6 +5,7 @@ using UnityEngine;
 using CSharpSynth.Sequencer;
 using MusicVR.Scales;
 using MusicVR.Synth;
+using MusicVR.Composition;
 
 public class WallMusicPlayer : MonoBehaviour 
 {
@@ -64,9 +65,9 @@ public class WallMusicPlayer : MonoBehaviour
 
 			int note = ScaleConverter.Convert(instr.Scale, in_row - instr.StartRow);
 
-			m_synth.NoteOn(instr.InstrumentDefintion.IsDrum ? 9 : instr.IndexInComposition, 
-				note + instr.InstrumentDefintion.InstrumentNoteOffset, 
-				instr.InstrumentDefintion.InstrumentInt);
+			m_synth.NoteOn(instr.InstrumentDefinition.IsDrum ? 9 : instr.IndexInComposition, 
+				note + instr.InstrumentDefinition.InstrumentNoteOffset, 
+				instr.InstrumentDefinition.InstrumentInt);
 			
 			m_currPlaying.Add(note);
 		}
@@ -80,7 +81,8 @@ public class WallMusicPlayer : MonoBehaviour
 
 	private void LoadSequencerData()
 	{
-		var seqData = m_data.CompositionData.GetSequencerData();
+		var seqDataExtractor = new SequencerDataExtractor(m_data.CompositionData);
+		var seqData = seqDataExtractor.GetSequencerData();
 		//adjust total time into sample time
 		seqData.TotalTime = (ulong)ManualSequencer.TimetoSampleTime(
 			(uint)seqData.TotalTime, 
@@ -92,10 +94,10 @@ public class WallMusicPlayer : MonoBehaviour
 		for (int i = 0; i < instruments.Count; i++)
 		{
 			var inst = instruments[i];
-			if (inst.InstrumentDefintion.IsDrum)
-				m_customSequencer.SetProgram(9, inst.InstrumentDefintion.InstrumentInt);
+			if (inst.InstrumentDefinition.IsDrum)
+				m_customSequencer.SetProgram(9, inst.InstrumentDefinition.InstrumentInt);
 			else
-				m_customSequencer.SetProgram(i, inst.InstrumentDefintion.InstrumentInt);
+				m_customSequencer.SetProgram(i, inst.InstrumentDefinition.InstrumentInt);
 		}
 		m_customSequencer.Load(seqData);
 	}

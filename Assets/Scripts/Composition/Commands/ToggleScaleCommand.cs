@@ -17,7 +17,7 @@ namespace MusicVR.Composition
 
 		public override void Execute()
 		{
-			if (!m_instrument.InstrumentDefintion.IsDrum)
+			if (!m_instrument.InstrumentDefinition.IsDrum)
 			{
 				var scaleNames = System.Enum.GetNames(typeof(E_Scales));
 				int newScale = MathHelper.Mod((int)m_instrument.Scale + 1, scaleNames.Length);
@@ -27,7 +27,7 @@ namespace MusicVR.Composition
 
 		public override void Undo()
 		{
-			if (!m_instrument.InstrumentDefintion.IsDrum)
+			if (!m_instrument.InstrumentDefinition.IsDrum)
 			{
 				var scaleNames = System.Enum.GetNames(typeof(E_Scales));
 				int newScale = MathHelper.Mod(((int)m_instrument.Scale + -1), scaleNames.Length);

@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using CSharpSynth.Midi;
-using CSharpSynth.Sequencer;
 using MusicVR.Scales;
 
 namespace MusicVR.Composition
@@ -10,27 +8,28 @@ namespace MusicVR.Composition
 	[System.Serializable]
 	public class InstrumentData
 	{
-		public int NumRows = 100;
-		[SerializeField] E_ConverterType m_scale = E_ConverterType.Pentatonic;
-		[SerializeField] int InstrumentDefinitionIndex = 0;
-		private bool[] m_buttonData;
+		public int 							NumRows = 100;
+		[SerializeField] E_ConverterType 	m_scale = E_ConverterType.Pentatonic;
+		[SerializeField] int 				InstrumentDefinitionIndex = 0;
+
+		private bool[] 						m_buttonData;
 
 		public int StartRow { get; private set;}
 		public int IndexInComposition { get; private set;}
 
 		public E_ConverterType Scale { 
 			get {
-				if (InstrumentDefintion.IsDrum)
+				if (InstrumentDefinition.IsDrum)
 					return E_ConverterType.Drum;
 				return m_scale;
 			}
 			set {
-				if (!InstrumentDefintion.IsDrum)
+				if (!InstrumentDefinition.IsDrum)
 					m_scale = value;
 			}
 		}
 
-		public InstrumentDefinitions.Instrument InstrumentDefintion { 
+		public InstrumentDefinitions.Instrument InstrumentDefinition { 
 			get {
 				return InstrumentDefinitions.Instance.Get(InstrumentDefinitionIndex);
 			}

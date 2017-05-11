@@ -69,7 +69,7 @@ public class UIWallButton : WallButtonAbstract
 			Text.GetComponent<TextMesh>().text = m_instrumentData.Scale.ToString();
 			break;
 		case InstrumentUIData.E_InstrumentCommand.toggleInstrument:
-			Text.GetComponent<TextMesh>().text = m_instrumentData.InstrumentDefintion.Name.ToString();
+			Text.GetComponent<TextMesh>().text = m_instrumentData.InstrumentDefinition.Name.ToString();
 			break;
 		}
 
