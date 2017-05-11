@@ -4,10 +4,11 @@ using CSharpSynth.Midi;
 using CSharpSynth.Synthesis;
 using CSharpSynth.Banks;
 using UnityEngine;
+using CSharpSynth.CustomSeq;
 
 namespace CSharpSynth.Sequencer
 {
-    public class MidiSequencer
+	public class MidiSequencer : IProcessableSequencer
     {
         //--Variables
         private MidiFile _MidiFile;
@@ -72,7 +73,7 @@ namespace CSharpSynth.Sequencer
         {
             return currentPrograms[channel];
         }
-        public void setProgram(int channel, int program)
+        public void SetProgram(int channel, int program)
         {
             currentPrograms[channel] = program;
         }
@@ -214,7 +215,7 @@ namespace CSharpSynth.Sequencer
             for (int x = 0; x < synth.VolPositions.Length; x++)
                 synth.VolPositions[x] = 1.00f;
         }
-        public MidiSequencerEvent Process(int frame)
+		public ISequencerEventList Process(int frame)
         {
             seqEvt.Events.Clear();
             //stop or loop
@@ -250,7 +251,7 @@ namespace CSharpSynth.Sequencer
         {
             sampleTime = sampleTime + amount;
         }
-        public void ProcessMidiEvent(CustomSeq.ISequencerEvent midiEvent)
+        public void ProcessEvent(CustomSeq.ISequencerEvent midiEvent)
         {
             if (midiEvent.midiChannelEvent != MidiHelper.MidiChannelEvent.None)
             {
@@ -355,7 +356,7 @@ namespace CSharpSynth.Sequencer
             while (eventIndex < _MidiFile.Tracks[0].EventCount && _MidiFile.Tracks[0].MidiEvents[eventIndex].deltaTime < (sampleTime + amount))
             {
                 if (_MidiFile.Tracks[0].MidiEvents[eventIndex].midiChannelEvent != MidiHelper.MidiChannelEvent.Note_On)
-                    ProcessMidiEvent(_MidiFile.Tracks[0].MidiEvents[eventIndex]);               
+                    ProcessEvent(_MidiFile.Tracks[0].MidiEvents[eventIndex]);               
                 eventIndex++;
             }
             sampleTime = sampleTime + amount;

@@ -14,7 +14,7 @@ public class WallMusicPlayer : MonoBehaviour
 	private bool 				m_playing;
 	private List<int> 			m_currPlaying = new List<int>();
 	private bool 				m_refreshNotes = false;
-	private ISequencer 			m_customSequencer;
+	private ILoadableSequencer 	m_customSequencer;
 	private Synth 				m_synth;
 	private GameObject 			m_lineInstance;
 

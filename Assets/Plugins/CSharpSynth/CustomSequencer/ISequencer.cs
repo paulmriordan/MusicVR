@@ -31,18 +31,24 @@ namespace CSharpSynth.CustomSeq
 		int 				DeltaTiming {get; set;}
 	}
 
-	public interface ISequencer
+	public interface ILoadableSequencer
 	{
+
 		float Time {get; set;}
-		bool isPlaying {get; }
-		int SampleTime {get; }
 
 		void Play();
 		void Stop(bool immediate);
 		void SetProgram(int channel, int program);
 		bool Load(ISequencerData seqFile);
+	}
+
+	public interface IProcessableSequencer
+	{
+		bool isPlaying {get; }
+		int SampleTime {get; }
+
 		ISequencerEventList Process(int samplesPerBuffer);
-		void ProcessCustomEvent(ISequencerEvent customEvent);
+		void ProcessEvent(ISequencerEvent customEvent);
 		void IncrementSampleCounter(int samplesPerBuffer);
 	}
 }

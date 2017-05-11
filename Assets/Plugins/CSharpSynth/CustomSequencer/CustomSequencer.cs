@@ -4,7 +4,7 @@ using CSharpSynth.Midi;
 
 namespace CSharpSynth.CustomSeq
 {
-	public class CustomSequencer : ISequencer
+	public class CustomSequencer : ILoadableSequencer, IProcessableSequencer
 	{
 		public struct CustomSeqData : ISequencerData
 		{
@@ -155,7 +155,7 @@ namespace CSharpSynth.CustomSeq
 			sampleTime = sampleTime + amount;
 		}
 
-		public void ProcessCustomEvent(ISequencerEvent customEvent)
+		public void ProcessEvent(ISequencerEvent customEvent)
 		{
 			if (customEvent.midiChannelEvent != MidiHelper.MidiChannelEvent.None)
 			{
@@ -188,7 +188,7 @@ namespace CSharpSynth.CustomSeq
 			while (eventIndex < _MidiFile.EventCount && _MidiFile.Events[eventIndex].deltaTime < (sampleTime + amount))
 			{
 				if (_MidiFile.Events[eventIndex].midiChannelEvent != MidiHelper.MidiChannelEvent.Note_On)
-					ProcessCustomEvent(_MidiFile.Events[eventIndex]);               
+					ProcessEvent(_MidiFile.Events[eventIndex]);               
 				eventIndex++;
 			}
 			sampleTime = sampleTime + amount;
