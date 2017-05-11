@@ -20,7 +20,7 @@ public abstract class InputConsumerBase
 	/// Override this method, and return true if, given the current inputstate, whether
 	/// your objects consumes input
 	/// </summary>
-	public abstract bool TryConsumeInput(InputManager.InputState state);
+	public abstract bool TryConsumeInput(InputState state);
 	/// <summary>
 	/// When your object has finished consuming input, return true
 	/// </summary>
@@ -44,7 +44,7 @@ public abstract class InputConsumerBase
 		return CurrentInputConsumer == this;
 	}
 
-	public static void UpdateConsumers(InputManager.InputState state)
+	public static void UpdateConsumers(InputState state)
 	{
 		//Must check finished first, otherwise, mouse up event consuming will release immediately
 		if (CurrentInputConsumer != null && CurrentInputConsumer.IsFinished())
@@ -53,7 +53,7 @@ public abstract class InputConsumerBase
 			TryFindNewConsumer(state);
 	}
 
-	static void TryFindNewConsumer(InputManager.InputState state)
+	static void TryFindNewConsumer(InputState state)
 	{
 		foreach (var consumer in InputConsumerBase.s_registeredConsumers)
 		{

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using MusicVR.Scales;
 
 namespace CompositionCommands
 {	
@@ -18,9 +19,9 @@ namespace CompositionCommands
 		{
 			if (!m_instrument.InstrumentDefintion.IsDrum)
 			{
-				var scaleNames = System.Enum.GetNames(typeof(MusicScaleConverter.E_Scales));
+				var scaleNames = System.Enum.GetNames(typeof(E_Scales));
 				int newScale = MathHelper.Mod((int)m_instrument.Scale + 1, scaleNames.Length);
-				m_instrument.Scale = (MusicScaleConverter.E_ConverterType)newScale;
+				m_instrument.Scale = (E_ConverterType)newScale;
 			}
 		}
 
@@ -28,9 +29,9 @@ namespace CompositionCommands
 		{
 			if (!m_instrument.InstrumentDefintion.IsDrum)
 			{
-				var scaleNames = System.Enum.GetNames(typeof(MusicScaleConverter.E_Scales));
+				var scaleNames = System.Enum.GetNames(typeof(E_Scales));
 				int newScale = MathHelper.Mod(((int)m_instrument.Scale + -1), scaleNames.Length);
-				m_instrument.Scale = (MusicScaleConverter.E_ConverterType)newScale;
+				m_instrument.Scale = (E_ConverterType)newScale;
 			}
 		}
 	}

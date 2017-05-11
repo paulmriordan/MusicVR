@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Helper method to return edge pan strength wrt finger position on screen
+/// </summary>
 public class EdgePanningUtil : MonoBehaviour 
 {
 	public static bool DragTreshReached(float _deltaDragDist, float _dragThreshold)
@@ -21,6 +24,7 @@ public class EdgePanningUtil : MonoBehaviour
 		float miny = sh*EdgePanYBorderFrac;
 		float maxy = sh*(1.0f-EdgePanYBorderFrac);
 		float panAmount = 0;
+
 		if (EdgePanXBorderFrac != 0 && screenCoord.x < minx)
 			panAmount = MathHelper.MinDistToLineSegSqrd(new Vector2(minx,miny), new Vector2(minx,maxy), screenCoord);
 		else if (EdgePanXBorderFrac != 0 && screenCoord.x > maxx)										  
@@ -29,6 +33,7 @@ public class EdgePanningUtil : MonoBehaviour
 			panAmount = MathHelper.MinDistToLineSegSqrd(new Vector2(minx,miny), new Vector2(maxx,miny), screenCoord);
 		else if (EdgePanYBorderFrac != 0 && screenCoord.y > maxy)										  
 			panAmount = MathHelper.MinDistToLineSegSqrd(new Vector2(minx,maxy), new Vector2(maxx,maxy), screenCoord);
+		
 		panAmount = Mathf.Sqrt(panAmount);
 		var div = Mathf.Max(minx, miny);
 		panAmount /= div != 0 ? div : 1.0f; //always div by minx or miny, to avoid sudden pan velocity jump at corners

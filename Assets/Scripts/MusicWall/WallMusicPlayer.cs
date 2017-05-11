@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using CSharpSynth.Sequencer;
+using MusicVR.Scales;
 
 
 public class WallMusicPlayer : MonoBehaviour 
@@ -62,7 +63,7 @@ public class WallMusicPlayer : MonoBehaviour
 		{
 			var instr = m_data.CompositionData.GetInstrumentAtLocation(in_row, in_col);
 
-			int note = MusicScaleConverter.Get(instr.Scale).Convert(in_row - instr.StartRow);
+			int note = ScaleConverter.Convert(instr.Scale, in_row - instr.StartRow);
 
 			m_synth.NoteOn(instr.InstrumentDefintion.IsDrum ? 9 : instr.IndexInComposition, 
 				note + instr.InstrumentDefintion.InstrumentNoteOffset, 
@@ -176,7 +177,7 @@ public class WallMusicPlayer : MonoBehaviour
 				var button = m_wallButtonManager.GetSequencerButton(iRow + rowCum, currCol);
 				if (button.IsSelected)
 				{
-					int note = MusicScaleConverter.Get(instrument.Scale).Convert(iRow);
+					int note = ScaleConverter.Convert(instrument.Scale, iRow);
 					#if DIRECT_PLAY
 					m_synth.NoteOn(instrument.InstrumentDefintion.IsDrum ? 9 : 1, 
 						note + instrument.InstrumentDefintion.InstrumentNoteOffset, 

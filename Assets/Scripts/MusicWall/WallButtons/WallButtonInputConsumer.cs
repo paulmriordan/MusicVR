@@ -2,7 +2,7 @@
 
 public class WallButtonInputConsumer : InputConsumerBase
 {
-	public override bool TryConsumeInput(InputManager.InputState state) 
+	public override bool TryConsumeInput(InputState state) 
 	{
 		if (Input.GetMouseButtonUp(0))
 			return true; //always consume button up events

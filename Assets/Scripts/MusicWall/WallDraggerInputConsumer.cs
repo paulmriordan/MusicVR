@@ -5,7 +5,7 @@ public class WallDraggerInputConsumer : InputConsumerBase
 {
 	public Func<bool> IsFinishedFunc;
 
-	public override bool TryConsumeInput(InputManager.InputState state) 
+	public override bool TryConsumeInput(InputState state) 
 	{
 		if (!Input.GetMouseButton(0))
 			return false;

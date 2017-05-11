@@ -2,7 +2,51 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Scriptable object to store the color, velocity, and instrument sound type for each instrument
+/// </summary>
 public class InstrumentDefinitions : ScriptableObject {
+
+	public Material BaseSelectedMat;
+	public Material BaseUnselectedMat;
+	public List<Instrument> Instruments;
+
+	private static InstrumentDefinitions s_internalInstance;
+
+	public static InstrumentDefinitions Instance
+	{
+		get{
+			if (s_internalInstance == null)
+			{
+				s_internalInstance = Resources.Load<InstrumentDefinitions>("InstrumentDefinitionsDB");
+				if(s_internalInstance == null)
+				{
+					Debug.LogError("InstrumentDefinitionsDB could not be loaded");
+					return null;
+				}
+				s_internalInstance.Init();
+			}
+			return s_internalInstance;
+		}
+	}
+
+	public Instrument Get(int index)
+	{
+		if ((uint)index > Instruments.Count)
+		{
+			Debug.LogError("Index into instruments definition not valid " + index);
+			return null;
+		}
+		return Instruments[index];
+	}
+
+	public void Init()
+	{
+		for (int i = 0; i < Instruments.Count; i++)
+		{
+			Instruments[i].Init(BaseSelectedMat, BaseUnselectedMat);
+		}
+	}
 
 	[System.Serializable]
 	public class Instrument
@@ -39,46 +83,6 @@ public class InstrumentDefinitions : ScriptableObject {
 				GameObject.Destroy(cachedMat);
 			cachedMat = new Material(baseMat);
 			cachedMat.SetColor("_EmissionColor", emmisiveCol);
-		}
-	}
-
-	public Material BaseSelectedMat;
-	public Material BaseUnselectedMat;
-	public List<Instrument> Instruments;
-	private static InstrumentDefinitions s_internalInstance;
-
-	public static InstrumentDefinitions Instance
-	{
-		get{
-			if (s_internalInstance == null)
-			{
-				s_internalInstance = Resources.Load<InstrumentDefinitions>("InstrumentDefinitionsDB");
-				if(s_internalInstance == null)
-				{
-					Debug.LogError("InstrumentDefinitionsDB could not be loaded");
-					return null;
-				}
-				s_internalInstance.Init();
-			}
-			return s_internalInstance;
-		}
-	}
-
-	public Instrument Get(int index)
-	{
-		if ((uint)index > Instruments.Count)
-		{
-			Debug.LogError("Index into instruments definition not valid " + index);
-			return null;
-		}
-		return Instruments[index];
-	}
-
-	public void Init()
-	{
-		for (int i = 0; i < Instruments.Count; i++)
-		{
-			Instruments[i].Init(BaseSelectedMat, BaseUnselectedMat);
 		}
 	}
 }

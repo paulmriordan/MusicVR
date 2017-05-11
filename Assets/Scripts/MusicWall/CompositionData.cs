@@ -4,6 +4,7 @@ using UnityEngine;
 using CSharpSynth.Midi;
 using CSharpSynth.Sequencer;
 using CompositionCommands;
+using MusicVR.Scales;
 
 [System.Serializable]
 public class CompositionData
@@ -12,17 +13,17 @@ public class CompositionData
 	public class InstrumentData
 	{
 		public int NumRows = 100;
-		[SerializeField] MusicScaleConverter.E_ConverterType m_scale = MusicScaleConverter.E_ConverterType.Pentatonic;
+		[SerializeField] E_ConverterType m_scale = E_ConverterType.Pentatonic;
 		[SerializeField] int InstrumentDefinitionIndex = 0;
 		private bool[] m_buttonData;
 
 		public int StartRow { get; private set;}
 		public int IndexInComposition { get; private set;}
 
-		public MusicScaleConverter.E_ConverterType Scale { 
+		public E_ConverterType Scale { 
 			get {
 				if (InstrumentDefintion.IsDrum)
-					return MusicScaleConverter.E_ConverterType.Drum;
+					return E_ConverterType.Drum;
 				return m_scale;
 			}
 			set {
@@ -204,7 +205,7 @@ public class CompositionData
 				{
 					if (instrument.IsNoteActive(iRow, iCol))
 					{
-						int eventNote = MusicScaleConverter.Get(instrument.Scale).Convert(iRow);
+						int eventNote = ScaleConverter.Convert(instrument.Scale, iRow);
 						int eventChannel = instrument.InstrumentDefintion.IsDrum ? 9 : iInst;
 						eventNote = eventNote + instrument.InstrumentDefintion.InstrumentNoteOffset;
 						
