@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-using CompositionCommands;
+using MusicVR.Composition;
 
 public abstract class WallButtonAbstract : MonoBehaviour
 {
-	protected CompositionData.InstrumentData m_instrumentData;
+	protected InstrumentData m_instrumentData;
 	protected WallButtonTween m_buttonTweener;
 	protected WallButtonColorController m_buttonColorController;
 	protected ButtonInputHandler m_inputHander;

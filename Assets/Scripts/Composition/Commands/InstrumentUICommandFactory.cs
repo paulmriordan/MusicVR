@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace CompositionCommands
+namespace MusicVR.Composition
 {
 	/// <summary>
 	/// Links each instrument command type to its concrete command. 
@@ -9,7 +9,7 @@ namespace CompositionCommands
 	/// </summary>
 	public class InstrumentUICommandFactory
 	{
-		public static Command Create(InstrumentUIData.E_InstrumentCommand type, CompositionData.InstrumentData data)
+		public static Command Create(InstrumentUIData.E_InstrumentCommand type, InstrumentData data)
 		{
 			switch (type)
 			{

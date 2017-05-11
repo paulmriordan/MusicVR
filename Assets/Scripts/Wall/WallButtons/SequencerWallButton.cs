@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using CompositionCommands;
+using MusicVR.Composition;
 
 public class SequencerWallButton : WallButtonAbstract 
 {

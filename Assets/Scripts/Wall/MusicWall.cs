@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using MusicVR.Synth;
 
 public class MusicWall : MonoSingleton<MusicWall> 
 {

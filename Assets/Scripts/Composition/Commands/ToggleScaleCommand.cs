@@ -2,15 +2,15 @@
 using UnityEngine;
 using MusicVR.Scales;
 
-namespace CompositionCommands
+namespace MusicVR.Composition
 {	
 	/// <summary>
 	/// Command to change scale (major, minor, pentatonic) of instrument
 	/// </summary>
 	public class ToggleScaleCommand : UndoableCommand
 	{
-		private CompositionData.InstrumentData m_instrument;
-		public ToggleScaleCommand(CompositionData.InstrumentData instrument)
+		private InstrumentData m_instrument;
+		public ToggleScaleCommand(InstrumentData instrument)
 		{
 			m_instrument = instrument;
 		}

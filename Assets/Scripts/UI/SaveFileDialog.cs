@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using MusicVR.Composition;
 
 public class SaveFileDialog : MonoBehaviour {
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace CompositionCommands
+namespace MusicVR.Composition
 {
 	/// <summary>
 	/// Command to change active state of note on wall when clicked

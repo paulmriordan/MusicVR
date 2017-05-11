@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using CompositionCommands;
+using MusicVR.Composition;
 
 public class UIWallButton : WallButtonAbstract 
 {
@@ -23,7 +23,7 @@ public class UIWallButton : WallButtonAbstract
 
 	public void Init(InstrumentUIData.InstrumentUIButton buttonData,
 					CompositionData compositionData,
-					CompositionData.InstrumentData instrumentData)
+					InstrumentData instrumentData)
 	{
 		m_instrumentData = instrumentData;
 		m_UIButtonData = buttonData;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using CSharpSynth.Sequencer;
 using MusicVR.Scales;
-
+using MusicVR.Synth;
 
 public class WallMusicPlayer : MonoBehaviour 
 {
@@ -53,7 +53,6 @@ public class WallMusicPlayer : MonoBehaviour
 		m_customSequencer.Play ();
 		SetSequencerTime();
 		#endif
-
 	}
 
 	public void NoteStateChangedHandler(int in_row, int in_col, bool active)

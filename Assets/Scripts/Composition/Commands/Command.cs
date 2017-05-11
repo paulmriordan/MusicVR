@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace CompositionCommands
+namespace MusicVR.Composition
 {
 	public abstract class Command
 	{

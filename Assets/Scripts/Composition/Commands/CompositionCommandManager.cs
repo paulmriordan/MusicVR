@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace CompositionCommands
+namespace MusicVR.Composition
 {
 	/// <summary>
 	/// All edits to composition must be executed as a command via this manager.

@@ -1,15 +1,15 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace CompositionCommands
+namespace MusicVR.Composition
 {	
 	/// <summary>
 	/// Command to change chosen instrument type (eg, marimba, drums)
 	/// </summary>
 	public class ToggleInstrumentCommand : UndoableCommand
 	{
-		private CompositionData.InstrumentData m_instrument;
-		public ToggleInstrumentCommand(CompositionData.InstrumentData instrument)
+		private InstrumentData m_instrument;
+		public ToggleInstrumentCommand(InstrumentData instrument)
 		{
 			m_instrument = instrument;
 		}

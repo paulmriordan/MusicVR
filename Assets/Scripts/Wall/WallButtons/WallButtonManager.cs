@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using CompositionCommands;
+using MusicVR.Composition;
 
 public class WallButtonManager
 {
@@ -73,7 +73,7 @@ public class WallButtonManager
 		button.RefreshVisualState();
 	}
 
-	private void RefreshButtonVisualState(SequencerWallButton btn, CompositionData.InstrumentData instrumentData)
+	private void RefreshButtonVisualState(SequencerWallButton btn, InstrumentData instrumentData)
 	{
 		btn.RefreshVisualState();
 		btn.ColorController.SetMaterials(
