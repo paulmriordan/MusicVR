@@ -7,11 +7,11 @@ namespace MusicVR.Composition
 {
 	public class SequencerDataExtractor
 	{
-		CompositionData m_data;
-		uint m_cumDeltaTime = 0;
-		bool m_firstNoteAddedForColumn = false;
-		List<MidiEvent> m_events = new List<MidiEvent>();
-		List<MidiEvent> m_lastColumnsEvents = new List<MidiEvent>();
+		CompositionData 		m_data;
+		uint 					m_cumDeltaTime = 0;
+		bool 					m_firstNoteAddedForColumn = false;
+		List<MidiEvent> 		m_events = new List<MidiEvent>();
+		List<MidiEvent> 		m_lastColumnsEvents = new List<MidiEvent>();
 
 		public SequencerDataExtractor(CompositionData inData)
 		{
