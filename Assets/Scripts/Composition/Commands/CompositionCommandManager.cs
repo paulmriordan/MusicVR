@@ -9,10 +9,28 @@ namespace MusicVR.Composition
 	/// </summary>
 	public class CompositionCommandManager
 	{
+		private static CompositionCommandManager instance = null;
+
 		private CompositionData m_compositionData;
 		private Stack commandStack = new Stack();
 
-		public CompositionCommandManager(CompositionData compositionData)
+		private CompositionCommandManager()
+		{
+		}
+
+		public static CompositionCommandManager Instance
+		{
+			get
+			{
+				if (instance == null)
+				{
+					instance = new CompositionCommandManager();
+				}
+				return instance;
+			}
+		}
+
+		public void Init(CompositionData compositionData)
 		{
 			m_compositionData = compositionData;
 		}

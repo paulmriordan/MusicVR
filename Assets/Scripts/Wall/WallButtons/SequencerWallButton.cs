@@ -26,7 +26,7 @@ namespace MusicVR.Wall
 		public override void Clicked()
 		{
 			var compositionData = MusicWall.Instance.WallProperties.CompositionData;
-			compositionData.CommandManager.ExecuteCommand(new ToggleSequencerNoteCommand(compositionData, m_row, m_col));
+			CompositionCommandManager.Instance.ExecuteCommand(new ToggleSequencerNoteCommand(compositionData, m_row, m_col));
 
 			RefreshVisualState();
 		}

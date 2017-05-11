@@ -10,6 +10,7 @@ namespace MusicVR.Composition
 	{
 		[field: System.NonSerialized]
 		public event System.Action 					OnCompositionChanged = () => {};
+		[field: System.NonSerialized]
 		public event System.Action<int, int, bool> 	OnNoteStateChanged = (r,c,s) => {};
 
 		public List<InstrumentData> 				InstrumentDataList;
@@ -17,8 +18,6 @@ namespace MusicVR.Composition
 		public int 									Tempo = 120;
 		public int 									DeltaTiming = 500;
 		public int 									DeltaTimeSpacing = 500;
-
-		public CompositionCommandManager CommandManager {get; private set;}
 
 		public int NumRows { get; private set;}
 
@@ -28,7 +27,7 @@ namespace MusicVR.Composition
 
 		public void Init()
 		{
-			CommandManager = new CompositionCommandManager(this);
+			CompositionCommandManager.Instance.Init(this);
 
 			NumRows = 0;
 			for (int i = 0; i < InstrumentDataList.Count; i++)

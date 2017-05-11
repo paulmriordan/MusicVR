@@ -44,8 +44,7 @@ namespace MusicVR.Wall
 
 		public override void Clicked ()
 		{
-			var commandManager = MusicWall.Instance.WallProperties.CompositionData.CommandManager;
-			commandManager.ExecuteCommand(InstrumentUICommandFactory.Create(m_UIButtonData.CommandType, m_instrumentData));
+			CompositionCommandManager.Instance.ExecuteCommand(InstrumentUICommandFactory.Create(m_UIButtonData.CommandType, m_instrumentData));
 		}
 
 		public void CustomUpdate()

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using MusicVR.Wall;
 using MusicVR.GUI;
+using MusicVR.Composition;
 
 namespace MusicVR.WallInput
 {
@@ -73,7 +74,7 @@ namespace MusicVR.WallInput
 		{
 			if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Z))
 			{
-				MusicWall.Instance.WallProperties.CompositionData.CommandManager.Undo();
+				CompositionCommandManager.Instance.Undo();
 			}
 		}
 
