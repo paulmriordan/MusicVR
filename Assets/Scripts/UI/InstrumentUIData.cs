@@ -6,13 +6,19 @@ using CompositionCommands;
 
 public class InstrumentUIData : ScriptableObject {
 
+	public enum E_InstrumentCommand 
+	{
+		toggleScale, 
+		toggleInstrument
+	};
+
 	public List<InstrumentUIButton> Buttons;
 
 	[System.Serializable]
 	public class InstrumentUIButton
 	{
 		public int Width;
-		public E_CommandType CommandType;
+		public E_InstrumentCommand CommandType;
 	}
 	
 	private static InstrumentUIData s_internalInstance;

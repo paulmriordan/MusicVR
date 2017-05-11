@@ -42,18 +42,8 @@ public class UIWallButton : WallButtonAbstract
 
 	public override void Clicked ()
 	{
-		switch ( m_UIButtonData.CommandType)
-		{
-		case E_CommandType.toggleScale:
-			MusicWall.Instance.WallProperties.CompositionData.CommandManager.ExecuteCommand(new ToggleScaleCommand(m_instrumentData));
-			break;
-		case E_CommandType.toggleInstrument:
-			MusicWall.Instance.WallProperties.CompositionData.CommandManager.ExecuteCommand(new ToggleInstrumentCommand(m_instrumentData));
-			break;
-		default:
-			Debug.LogError("Unhandled command type:" + m_UIButtonData.CommandType.ToString());
-			break;
-		}
+		var commandManager = MusicWall.Instance.WallProperties.CompositionData.CommandManager;
+		commandManager.ExecuteCommand(InstrumentUICommandFactory.Create(m_UIButtonData.CommandType, m_instrumentData));
 	}
 
 	public void CustomUpdate()
@@ -75,10 +65,10 @@ public class UIWallButton : WallButtonAbstract
 	{
 		switch ( m_UIButtonData.CommandType)
 		{
-		case E_CommandType.toggleScale: 
+		case InstrumentUIData.E_InstrumentCommand.toggleScale: 
 			Text.GetComponent<TextMesh>().text = m_instrumentData.Scale.ToString();
 			break;
-		case E_CommandType.toggleInstrument:
+		case InstrumentUIData.E_InstrumentCommand.toggleInstrument:
 			Text.GetComponent<TextMesh>().text = m_instrumentData.InstrumentDefintion.Name.ToString();
 			break;
 		}

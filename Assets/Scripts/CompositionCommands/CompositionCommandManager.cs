@@ -2,6 +2,11 @@
 
 namespace CompositionCommands
 {
+	/// <summary>
+	/// All edits to composition must be executed as a command via this manager.
+	/// Facilitates undo-ing of any edit to the composition by storing all commands on stack
+	/// Based on command design pattern. 
+	/// </summary>
 	public class CompositionCommandManager
 	{
 		private CompositionData m_compositionData;
