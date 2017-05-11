@@ -1,21 +1,24 @@
 ﻿using UnityEngine;
 
-public class SequencerButtonDrag
+namespace MusicVR.Wall
 {
-	public enum E_SelectState {selecting, unselecting}
-
-	public E_SelectState 				InputSelectType {get; private set;}
-	public SequencerWallButton 			LastHitButton {get;set;}
-
-	public SequencerButtonDrag(E_SelectState selectType)
+	public class SequencerButtonDrag
 	{
-		InputSelectType = selectType;
-	}
+		public enum E_SelectState {selecting, unselecting}
 
-	~SequencerButtonDrag()
-	{
-		if (LastHitButton)
-			LastHitButton.InputHandler.MouseDown = false;
+		public E_SelectState 				InputSelectType {get; private set;}
+		public SequencerWallButton 			LastHitButton {get;set;}
+
+		public SequencerButtonDrag(E_SelectState selectType)
+		{
+			InputSelectType = selectType;
+		}
+
+		~SequencerButtonDrag()
+		{
+			if (LastHitButton)
+				LastHitButton.InputHandler.MouseDown = false;
+		}
 	}
 }
 

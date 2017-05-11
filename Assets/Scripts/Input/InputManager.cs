@@ -2,88 +2,93 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using MusicVR.Wall;
+using MusicVR.GUI;
 
-public class InputManager : MonoSingleton<InputManager> 
+namespace MusicVR.WallInput
 {
-	public InputState m_inputState = new InputState();
-	public SmoothMouseLook m_mouseLook;
-	public WallDragger m_wallDragger;
-
-	void Start () 
+	public class InputManager : MonoSingleton<InputManager> 
 	{
-		MusicWall.Instance.OnWallDataUpdated += UpdateProperties;
-	}
+		public InputState m_inputState = new InputState();
+		public SmoothMouseLook m_mouseLook;
+		public WallDragger m_wallDragger;
 
-	public void UpdateProperties(MusicWallData wallData)
-	{
-		m_wallDragger.Reset(0, -wallData.GetTotalHeight(), wallData.CompositionData.NumCols);
-	}
-
-	public bool InputBlockedByUI()
-	{
-		return EventSystem.current.IsPointerOverGameObject() || MusicWallUI.Instance.IsBlockingGameInput();
-	}
-
-	void Update()
-	{
-		UpdateGestures();
-		UpdateKeyCommands();
-		UpdatingObject.Check();
-		UpdateDragPanning();
-	}
-
-	void UpdateGestures()
-	{
-		if (Input.GetMouseButtonDown(0))
-		{	
-			SequencerButtonInputHander.s_sequencerButtonDrag = null;
-			m_inputState.InputDownTime = Time.time;
-			m_inputState.InputDownPos = Input.mousePosition;
+		void Start () 
+		{
+			MusicWall.Instance.OnWallDataUpdated += UpdateProperties;
 		}
 
-		if (Input.GetMouseButtonUp(0))
+		public void UpdateProperties(MusicWallData wallData)
 		{
-			m_inputState.InputDownTime = float.MaxValue;
+			m_wallDragger.Reset(0, -wallData.GetTotalHeight(), wallData.CompositionData.NumCols);
 		}
 
-		InputConsumerBase.UpdateConsumers(m_inputState);
-	}
-
-	void UpdateDragPanning()
-	{
-		bool isButtonDragActive = SequencerButtonInputHander.s_sequencerButtonDrag != null;
-		var inputDelta = Input.mousePosition - m_inputState.InputDownPos;
-
-		if (isButtonDragActive 
-			&& EdgePanningUtil.DragTreshReached((inputDelta).magnitude, m_inputState.ThresholdStartEdgePan))
+		public bool InputBlockedByUI()
 		{
-			var pan = EdgePanningUtil.EdgeDragPanAmount(Input.mousePosition, 
-				m_inputState.EdgeDistPan.x,
-				m_inputState.EdgeDistPan.y);	
-			if (pan.sqrMagnitude > 0)
-				m_wallDragger.PerformPan(pan);
+			return EventSystem.current.IsPointerOverGameObject() || MusicWallUI.Instance.IsBlockingGameInput();
 		}
-	}
 
-	void UpdateKeyCommands()
-	{
-		if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Z))
+		void Update()
 		{
-			MusicWall.Instance.WallProperties.CompositionData.CommandManager.Undo();
+			UpdateGestures();
+			UpdateKeyCommands();
+			UpdatingObject.Check();
+			UpdateDragPanning();
 		}
-	}
 
-	void LateUpdate()
-	{
-		LateUpdateGestures();
-	}
-
-	void LateUpdateGestures()
-	{
-		if (Input.GetMouseButtonUp(0))
+		void UpdateGestures()
 		{
-			// end drag, even if released not over a button
-			SequencerButtonInputHander.s_sequencerButtonDrag = null;
+			if (Input.GetMouseButtonDown(0))
+			{	
+				SequencerButtonInputHander.s_sequencerButtonDrag = null;
+				m_inputState.InputDownTime = Time.time;
+				m_inputState.InputDownPos = Input.mousePosition;
+			}
+
+			if (Input.GetMouseButtonUp(0))
+			{
+				m_inputState.InputDownTime = float.MaxValue;
+			}
+
+			InputConsumerBase.UpdateConsumers(m_inputState);
+		}
+
+		void UpdateDragPanning()
+		{
+			bool isButtonDragActive = SequencerButtonInputHander.s_sequencerButtonDrag != null;
+			var inputDelta = Input.mousePosition - m_inputState.InputDownPos;
+
+			if (isButtonDragActive 
+				&& EdgePanningUtil.DragTreshReached((inputDelta).magnitude, m_inputState.ThresholdStartEdgePan))
+			{
+				var pan = EdgePanningUtil.EdgeDragPanAmount(Input.mousePosition, 
+					m_inputState.EdgeDistPan.x,
+					m_inputState.EdgeDistPan.y);	
+				if (pan.sqrMagnitude > 0)
+					m_wallDragger.PerformPan(pan);
+			}
+		}
+
+		void UpdateKeyCommands()
+		{
+			if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Z))
+			{
+				MusicWall.Instance.WallProperties.CompositionData.CommandManager.Undo();
+			}
+		}
+
+		void LateUpdate()
+		{
+			LateUpdateGestures();
+		}
+
+		void LateUpdateGestures()
+		{
+			if (Input.GetMouseButtonUp(0))
+			{
+				// end drag, even if released not over a button
+				SequencerButtonInputHander.s_sequencerButtonDrag = null;
+			}
 		}
 	}
 }
