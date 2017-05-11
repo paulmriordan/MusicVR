@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using CSharpSynth.Midi;
+using CSharpSynth.CustomSeq;
 
-namespace CSharpSynth.Sequencer
+namespace CSharpSynth.Sequencer 
 {
-    public class MidiSequencerEvent
+	public class MidiSequencerEvent : ISequencerEventList
     {
         //--Variables
-        public List<MidiEvent> Events; //List of Events
+		public List<ISequencerEvent> Events {get;set;} //List of Events
         //--Public Methods
         public MidiSequencerEvent()
         {
-            Events = new List<MidiEvent>();
+			Events = new List<ISequencerEvent>();
         }
     }
 }

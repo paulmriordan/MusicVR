@@ -14,7 +14,7 @@ public class WallMusicPlayer : MonoBehaviour
 	private bool 				m_playing;
 	private List<int> 			m_currPlaying = new List<int>();
 	private bool 				m_refreshNotes = false;
-	private CustomSequencer 	m_customSequencer;
+	private ISequencer 			m_customSequencer;
 	private Synth 				m_synth;
 	private GameObject 			m_lineInstance;
 
@@ -93,9 +93,9 @@ public class WallMusicPlayer : MonoBehaviour
 		{
 			var inst = instruments[i];
 			if (inst.InstrumentDefintion.IsDrum)
-				m_customSequencer.setProgram(9, inst.InstrumentDefintion.InstrumentInt);
+				m_customSequencer.SetProgram(9, inst.InstrumentDefintion.InstrumentInt);
 			else
-				m_customSequencer.setProgram(i, inst.InstrumentDefintion.InstrumentInt);
+				m_customSequencer.SetProgram(i, inst.InstrumentDefintion.InstrumentInt);
 		}
 		m_customSequencer.Load(seqData);
 	}

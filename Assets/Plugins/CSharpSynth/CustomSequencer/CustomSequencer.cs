@@ -1,33 +1,27 @@
 ﻿using System;
 using CSharpSynth.Synthesis;
+using CSharpSynth.Midi;
 
 namespace CSharpSynth.CustomSeq
 {
-	public class CustomSequencer
+	public class CustomSequencer : ISequencer
 	{
-		public struct CustomSeqData
+		public struct CustomSeqData : ISequencerData
 		{
-			public ulong TotalTime;
-			public uint BeatsPerMinute;
-			public int EventCount;
-			public CustomEvent[] Events;
-			public int DeltaTiming;
+			public ulong 				TotalTime {get;set;}
+			public uint 				BeatsPerMinute {get;set;}
+			public int 					EventCount {get;set;}
+			public ISequencerEvent[] 	Events {get;set;}
+			public int 					DeltaTiming {get;set;}
 		}
-		private CustomSeqData _MidiFile;
+		private ISequencerData _MidiFile;
 		private StreamSynthesizer synth;
 		private int[] currentPrograms; //current instruments
-		//			private List<byte> blockList;
-		//			private double PitchWheelSemitoneRange = 2.0;
 		private bool playing = false;
 		private bool looping = true;
-		private CustomSequencerEvent seqEvt;
+		private CustomSequencerEvents seqEvt;
 		private int sampleTime;
 		private int eventIndex;
-		//			//--Events
-		//			public delegate void NoteOnEventHandler(int channel, int note, int velocity);
-		//			public event NoteOnEventHandler NoteOnEvent;
-		//			public delegate void NoteOffEventHandler(int channel, int note);
-		//			public event NoteOffEventHandler NoteOffEvent;
 
 		//--Public Properties
 		public bool isPlaying
@@ -48,17 +42,11 @@ namespace CSharpSynth.CustomSeq
 			currentPrograms = new int[16]; //16 channels
 			this.synth = synth;
 			this.synth.setSequencer(this);
-			//				blockList = new List<byte>();
-			seqEvt = new CustomSequencerEvent();
+			seqEvt = new CustomSequencerEvents();
 		}
-		public bool Load(CustomSeqData seqFile)
+		public bool Load(ISequencerData seqFile)
 		{
-//			if (playing == true)
-//				return false;
-//
 			_MidiFile = seqFile;
-
-//				if (_MidiFile.SequencerReady == false)
 			{
 				try
 				{
@@ -70,8 +58,6 @@ namespace CSharpSynth.CustomSeq
 						_MidiFile.Events[x].deltaTime = lastSample + (uint)DeltaTimetoSamples(_MidiFile.Events[x].deltaTime);
 						lastSample = _MidiFile.Events[x].deltaTime;
 					}
-					//mark midi as ready for sequencing
-					//						_MidiFile.SequencerReady = true;
 				}
 				catch (Exception ex)
 				{
@@ -80,26 +66,10 @@ namespace CSharpSynth.CustomSeq
 					return false;
 				}
 			}
-			//				blockList.Clear();
-			//				if (UnloadUnusedInstruments == true)
-			//				{
-			//					if (synth.SoundBank == null)
-			//					{//If there is no bank warn the developer =)
-			//						Debug.Log("No Soundbank loaded !");
-			//					}
-			//					else
-			//					{
-			//						string bankStr = synth.SoundBank.BankPath;
-			//						//Remove old bank being used by synth
-			//						synth.UnloadBank();
-			//						//Add the bank and switch to it with the synth
-			//						BankManager.addBank(new InstrumentBank(synth.SampleRate, bankStr, _MidiFile.Programs, _MidiFile.DrumPrograms));
-			//						synth.SwitchBank(BankManager.Count - 1);
-			//					}
-			//				}
+
 			return true;
 		}
-		public void setProgram(int channel, int program)
+		public void SetProgram(int channel, int program)
 		{
 			currentPrograms[channel] = program;
 		}
@@ -133,7 +103,7 @@ namespace CSharpSynth.CustomSeq
 			return SynthHelper.getSampleFromTime(synth.SampleRate, ((float)DeltaTime * (60.0f / (float)(((int)_MidiFile.BeatsPerMinute) * _MidiFile.DeltaTiming))));
 		}
 
-		public CustomSequencerEvent Process(int frame)
+		public ISequencerEventList Process(int frame)
 		{
 			seqEvt.Events.Clear();
 			//stop or loop
@@ -144,10 +114,13 @@ namespace CSharpSynth.CustomSeq
 				{
 					//DONT Clear the current programs for the channels. (only set once in Wall Music Player)
 //					Array.Clear(currentPrograms, 0, currentPrograms.Length);
+
 					//Clear vol, pan, and tune
 					ResetControllers();
+
 //					//set bpm
 //					_MidiFile.BeatsPerMinute = 120;
+
 					//Let the synth know that the sequencer is ready.
 					eventIndex = 0;
 				}
@@ -182,20 +155,20 @@ namespace CSharpSynth.CustomSeq
 			sampleTime = sampleTime + amount;
 		}
 
-		public void ProcessCustomEvent(CustomEvent customEvent)
+		public void ProcessCustomEvent(ISequencerEvent customEvent)
 		{
-			if (customEvent.midiChannelEvent != CustomEvent.CustomEventType.None)
+			if (customEvent.midiChannelEvent != MidiHelper.MidiChannelEvent.None)
 			{
 				switch (customEvent.midiChannelEvent)
 				{
-				case CustomEvent.CustomEventType.Note_On:
+				case MidiHelper.MidiChannelEvent.Note_On:
 					synth.NoteOn(customEvent.channel, 
-						customEvent.note,
-						customEvent.velocity,
+						customEvent.parameter1,
+						customEvent.parameter2,
 						currentPrograms[customEvent.channel]);
 					break;
-				case CustomEvent.CustomEventType.Note_Off:
-					synth.NoteOff(customEvent.channel, customEvent.note);
+				case MidiHelper.MidiChannelEvent.Note_Off:
+					synth.NoteOff(customEvent.channel, customEvent.parameter1);
 					break;
 				default:
 					break;
@@ -205,26 +178,16 @@ namespace CSharpSynth.CustomSeq
 		private void SetTime(float timeSecs)
 		{
 			int _stime = SynthHelper.getSampleFromTime(synth.SampleRate, timeSecs);
-//			if (_stime > sampleTime)
+			if (_stime > sampleTime)
 			{
 				SilentProcess(_stime - sampleTime);
 			}
-//			else if (_stime < sampleTime)
-//			{//we have to restart the midi to make sure we get the right temp, instrument, etc
-//				synth.Stop();
-//				sampleTime = 0;
-//				Array.Clear(currentPrograms, 0, currentPrograms.Length);
-//				ResetControllers();
-//				_MidiFile.BeatsPerMinute = 120;
-//				eventIndex = 0;
-//				SilentProcess(_stime);
-//			}
 		}
 		private void SilentProcess(int amount)
 		{
 			while (eventIndex < _MidiFile.EventCount && _MidiFile.Events[eventIndex].deltaTime < (sampleTime + amount))
 			{
-				if (_MidiFile.Events[eventIndex].midiChannelEvent != CustomEvent.CustomEventType.Note_On)
+				if (_MidiFile.Events[eventIndex].midiChannelEvent != MidiHelper.MidiChannelEvent.Note_On)
 					ProcessCustomEvent(_MidiFile.Events[eventIndex]);               
 				eventIndex++;
 			}

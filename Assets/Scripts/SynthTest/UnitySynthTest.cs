@@ -52,28 +52,28 @@ public class UnitySynthTest : MonoBehaviour
 		var eve = new CustomEvent()
 		{
 			deltaTime = 500,
-			midiChannelEvent = CustomEvent.CustomEventType.Note_On,
+			midiChannelEvent = MidiHelper.MidiChannelEvent.Note_On,
 			//				public object[] Parameters;
-			note = 80,
-			velocity = 100,
+			parameter1 = 80,
+			parameter2 = 100,
 			channel = 1
 		};
 		var eve1 = new CustomEvent()
 		{
 			deltaTime = 500,
-			midiChannelEvent = CustomEvent.CustomEventType.Note_On,
+			midiChannelEvent = MidiHelper.MidiChannelEvent.Note_On,
 			//				public object[] Parameters;
-			note = 82,
-			velocity = 100,
+			parameter1 = 82,
+			parameter2 = 100,
 			channel = 1
 		};
 		var eve2 = new CustomEvent()
 		{
 			deltaTime = 500,
-			midiChannelEvent = CustomEvent.CustomEventType.Note_On,
+			midiChannelEvent = MidiHelper.MidiChannelEvent.Note_On,
 			//				public object[] Parameters;
-			note = 84,
-			velocity = 100,
+			parameter1 = 84,
+			parameter2 = 100,
 			channel = 1
 		};
 		customFile.Events = new CustomEvent[3]{

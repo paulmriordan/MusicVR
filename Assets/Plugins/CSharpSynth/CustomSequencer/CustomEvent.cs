@@ -1,24 +1,22 @@
 ﻿using System;
+using CSharpSynth.Midi;
 
 namespace CSharpSynth.CustomSeq
 {
-	public class CustomEvent
+	public class CustomEvent : ISequencerEvent
 	{    
-		public enum CustomEventType
-		{
-			None,
-			Note_On,
-			Note_Off,
-			Unknown
-		}
+		public uint 						deltaTime {get;set;}
+		public MidiHelper.MidiChannelEvent 	midiChannelEvent {get;set;}
+		public MidiHelper.MidiMetaEvent 	midiMetaEvent {get;set;}
+		public object[] 					Parameters {get;set;}
+		public byte 						parameter1 {get;set;}
+		public byte 						parameter2{get;set;}
+		public byte 						channel {get;set;}
 
-		public uint deltaTime;
-		//			public MidiHelper.MidiMetaEvent midiMetaEvent; //copy right, etc
-		public CustomEventType midiChannelEvent; //note on, note off, etc
-		public object[] Parameters;
-		public byte note;
-		public byte velocity;
-		public byte channel;
+		public MidiHelper.ControllerType GetControllerType() 
+		{
+			return MidiHelper.ControllerType.None;
+		}
 	}
 }
 

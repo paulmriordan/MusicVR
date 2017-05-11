@@ -250,7 +250,7 @@ namespace CSharpSynth.Sequencer
         {
             sampleTime = sampleTime + amount;
         }
-        public void ProcessMidiEvent(MidiEvent midiEvent)
+        public void ProcessMidiEvent(CustomSeq.ISequencerEvent midiEvent)
         {
             if (midiEvent.midiChannelEvent != MidiHelper.MidiChannelEvent.None)
             {

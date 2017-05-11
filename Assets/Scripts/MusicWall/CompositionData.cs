@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using CSharpSynth.CustomSeq;
+using CSharpSynth.Midi;
 using CompositionCommands;
 
 [System.Serializable]
@@ -162,9 +163,9 @@ public class CompositionData
 		return null;
 	}
 
-	public CustomSequencer.CustomSeqData GetSequncerData()
+	public ISequencerData GetSequncerData()
 	{
-		var seqData = new CustomSequencer.CustomSeqData();
+		ISequencerData seqData = new CustomSequencer.CustomSeqData();
 		seqData.DeltaTiming = DeltaTiming;
 		seqData.BeatsPerMinute = (uint)Tempo;
 		seqData.TotalTime = (ulong)(DeltaTimeSpacing*(float)NumCols);
@@ -184,10 +185,10 @@ public class CompositionData
 				var customEvent = new CustomEvent()
 				{
 					deltaTime = first ? cumDeltaTime : 0,
-					midiChannelEvent = CustomEvent.CustomEventType.Note_Off,
+					midiChannelEvent = MidiHelper.MidiChannelEvent.Note_Off,
 					//				public object[] Parameters;
-					note = lastEvent.note,
-					velocity = lastEvent.velocity,
+					parameter1 = lastEvent.parameter1,
+					parameter2 = lastEvent.parameter2,
 					channel = lastEvent.channel
 				};
 				events.Add(customEvent);
@@ -210,10 +211,10 @@ public class CompositionData
 						var customEvent = new CustomEvent()
 						{
 							deltaTime = first ? cumDeltaTime : 0,
-							midiChannelEvent = CustomEvent.CustomEventType.Note_On,
+							midiChannelEvent = MidiHelper.MidiChannelEvent.Note_On,
 							//				public object[] Parameters;
-							note = (byte)eventNote,
-							velocity = (byte)instrument.InstrumentDefintion.NoteVelocity,
+							parameter1 = (byte)eventNote,
+							parameter2 = (byte)instrument.InstrumentDefintion.NoteVelocity,
 							channel = (byte)eventChannel
 						};
 

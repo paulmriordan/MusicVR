@@ -1,5 +1,4 @@
-﻿//#define SEQ_PROFILING
-using System;
+﻿using System;
 using System.Collections.Generic;
 using CSharpSynth.Banks;
 using CSharpSynth.Sequencer;
@@ -22,7 +21,7 @@ namespace CSharpSynth.Synthesis
         private float[] panPositions_;
         private float[] volPositions_;
         private double[] tunePositions_;
-		private CustomSequencer customSequencer;
+		private ISequencer customSequencer;
         private MidiSequencer seq;
         private List<BasicAudioEffect> effects;
         //Set "once parameters"
@@ -392,13 +391,7 @@ namespace CSharpSynth.Synthesis
             LinkedListNode<Voice> delnode;
 			if (customSequencer != null && customSequencer.isPlaying)
 			{
-				#if SEQ_PROFILING
-				var sw = new System.Diagnostics.Stopwatch();
-				long ms = 0;
-				sw.Start();
-				#endif
-
-				CustomSequencerEvent seqEvent = customSequencer.Process(samplesperBuffer);
+				ISequencerEventList seqEvent = customSequencer.Process(samplesperBuffer);
 				if (seqEvent == null)
 					return;
 				int oldtime = 0;
@@ -432,14 +425,6 @@ namespace CSharpSynth.Synthesis
 					customSequencer.ProcessCustomEvent(seqEvent.Events[x]);
 				}
 
-				#if SEQ_PROFILING
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom 1 : MSeconds Elapsed: " + ( ms));
-				sw.Reset();
-				sw.Start();
-				#endif
-
 				//make sure to finish the processing to the end of the buffer
 				int count = 0;
 				if (oldtime < samplesperBuffer)
@@ -463,33 +448,12 @@ namespace CSharpSynth.Synthesis
 					}
 				}
 
-				#if SEQ_PROFILING
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom 2 : MSeconds Elapsed: " + ( ms) + "count: " + count);
-				sw.Reset();
-				sw.Start();
-				#endif
 				//increment our sample count
 				customSequencer.IncrementSampleCounter(samplesperBuffer);
-
-				#if SEQ_PROFILING
-				//Insert Code To Time
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom End: Total MSeconds Elapsed: " + ( ms));
-				#endif
-
 			}
             else if (seq != null && seq.isPlaying)//Use sequencer
             {
-				#if SEQ_PROFILING
-				var sw = new System.Diagnostics.Stopwatch();
-				long ms = 0;
-				sw.Start();
-				#endif
-
-                MidiSequencerEvent seqEvent = seq.Process(samplesperBuffer);
+                ISequencerEventList seqEvent = seq.Process(samplesperBuffer);
                 if (seqEvent == null)
                     return;
                 int oldtime = 0;
@@ -523,11 +487,6 @@ namespace CSharpSynth.Synthesis
                     seq.ProcessMidiEvent(seqEvent.Events[x]);
                 }
 
-				#if SEQ_PROFILING
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom 1 : MSeconds Elapsed: " + ( ms));
-				#endif
-
                 //make sure to finish the processing to the end of the buffer
 				int count = 0;
                 if (oldtime < samplesperBuffer)
@@ -551,23 +510,8 @@ namespace CSharpSynth.Synthesis
                     }
                 }
 
-				#if SEQ_PROFILING
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom 2 : MSeconds Elapsed: " + ( ms) + "count: " + count);
-				sw.Reset();
-				sw.Start();
-				#endif
-
                 //increment our sample count
                 seq.IncrementSampleCounter(samplesperBuffer);
-
-				#if SEQ_PROFILING
-				//Insert Code To Time
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom End: Total MSeconds Elapsed: " + ( ms));
-				#endif
             }
             else //Manual mode
             {
