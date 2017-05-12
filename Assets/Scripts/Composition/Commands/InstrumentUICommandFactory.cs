@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using MusicVR.Wall;
 
 namespace MusicVR.Composition
 {

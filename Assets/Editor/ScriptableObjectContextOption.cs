@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using MusicVR.Instruments;
 
 static class ScriptableObjectContextOption {
 
