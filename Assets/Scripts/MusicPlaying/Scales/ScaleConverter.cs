@@ -12,6 +12,9 @@ namespace MusicVR.Scales
 		Drum
 	}
 
+	/// <summary>
+	/// Scale options that can be used for a musical instrument (ie, not drums)
+	/// </summary>
 	public enum E_Scales 
 	{
 		Chromatic, 

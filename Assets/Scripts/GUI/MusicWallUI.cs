@@ -7,6 +7,9 @@ using MusicVR.Wall;
 
 namespace MusicVR.GUI
 {
+	/// <summary>
+	/// Routing UI button events to their behaviour
+	/// </summary>
 	public class MusicWallUI : MonoSingleton<MusicWallUI> 
 	{
 		public SaveFileDialog SaveFileDialog;
@@ -19,8 +22,6 @@ namespace MusicVR.GUI
 
 		public void Save()
 		{
-	//		Debug.Log(tinyfd.StraightFromDllTestDivide(4.0f,2.0f));
-	//		tinyfd.tinyfd_openFileDialog("", "", 0, new string[] {}, "", 0);
 			SaveFileDialog.Show(SaveFileDialog.E_DialogState.save);
 		}
 

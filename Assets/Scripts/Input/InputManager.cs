@@ -33,7 +33,7 @@ namespace MusicVR.WallInput
 		{
 			UpdateGestures();
 			UpdateKeyCommands();
-			UpdatingObject.Check();
+			AutoUpdatingObject.UpdateAll();
 			UpdateDragPanning();
 		}
 

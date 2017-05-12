@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 namespace MusicVR.GUI
 {
+	/// <summary>
+	/// Generic button in save file grid.
+	/// </summary>
 	public class SaveFileButton : MonoBehaviour {
 
 		public SaveFileDialog SaveFileDialog {get;set;}

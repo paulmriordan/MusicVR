@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace MusicVR.WallInput
 {
 	/// <summary>
-	/// Allows objects to consume input, preventing other input handling from occuring. 
+	/// Allows objects to consume input, after which, other input consumers are blocked.
 	/// 
 	/// For example, dragging/panning the wall consumes input once the drag has
 	/// moved over a threshold distance. Selecting wall buttons themselves cannot occur until

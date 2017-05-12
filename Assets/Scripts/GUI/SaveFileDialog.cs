@@ -9,15 +9,19 @@ using MusicVR.Composition;
 
 namespace MusicVR.GUI
 {
+	/// <summary>
+	/// Dialog with grid of buttons, each with a save slot.
+	/// Save files are saved as save_X, where x is in the index of button pressed.
+	/// </summary>
 	public class SaveFileDialog : MonoBehaviour {
 
 		public enum E_DialogState {save, load};
 		
-		public int NumSlots = 0;
-		public GameObject SaveFileButtonPrefab;
-		public GridLayoutGroup Grid;
+		public int 				NumSlots = 0;
+		public GameObject 		SaveFileButtonPrefab;
+		public GridLayoutGroup 	Grid;
 
-		private E_DialogState m_activeState;
+		private E_DialogState 	m_activeState;
 
 		void Awake() 
 		{
@@ -71,45 +75,51 @@ namespace MusicVR.GUI
 			m_activeState = state;
 			gameObject.SetActive(true);
 
-			var info = new DirectoryInfo(Application.persistentDataPath);
-			var fileInfo = info.GetFiles();
+			SetAllButtonsAsEmpty();
 
-			//set all buttons as empty
-			{
-				for (int i = 0; i < Grid.transform.childCount; i++) 
-				{	
-					var button = Grid.transform.GetChild(i);
-					if (button != null)
-					{
-						var saveFileButton = button.GetComponent<SaveFileButton>();
-						saveFileButton.Setup(Localization.Get("L_SAVE_EMPTY"), true);
-					}
-				}
-			}
-
-			//Check files and set buttons as occupied
-			{
-				for (int i = 0; i < fileInfo.Length; i++) 
-				{
-					var file = fileInfo [i];
-					var split = file.Name.Split('_');
-					int number;
-					if (split.Length > 2 && int.TryParse(split[split.Length - 2], out number))
-					{
-						var button = Grid.transform.GetChild(number);
-						if (button != null)
-						{
-							var saveFileButton = button.GetComponent<SaveFileButton>();
-							saveFileButton.Setup(file.LastWriteTime.ToString(), false);
-						}
-					}
-				}
-			}
+			LoadFileInfoIntoOccupiedSaveSlots();
 		}
 
 		public void Hide()
 		{
 			gameObject.SetActive(false);
+		}
+
+		private void SetAllButtonsAsEmpty()
+		{
+			for (int i = 0; i < Grid.transform.childCount; i++) 
+			{	
+				var button = Grid.transform.GetChild(i);
+				if (button != null)
+				{
+					var saveFileButton = button.GetComponent<SaveFileButton>();
+					saveFileButton.Setup(Localization.Get("L_SAVE_EMPTY"), true);
+				}
+			}
+		}
+
+		private void LoadFileInfoIntoOccupiedSaveSlots()
+		{
+			//Check all files in save directory
+			var info = new DirectoryInfo(Application.persistentDataPath);
+			var fileInfo = info.GetFiles();
+
+			for (int i = 0; i < fileInfo.Length; i++) 
+			{
+				var file = fileInfo [i];
+				var split = file.Name.Split('_');
+				int number;
+				// file only valid if it matches name_2 format
+				if (split.Length > 2 && int.TryParse(split[split.Length - 2], out number))
+				{
+					var button = Grid.transform.GetChild(number);
+					if (button != null)
+					{
+						var saveFileButton = button.GetComponent<SaveFileButton>();
+						saveFileButton.Setup(file.LastWriteTime.ToString(), false);
+					}
+				}
+			}
 		}
 
 		int GetButtonIndexInGrid(SaveFileButton button)
@@ -132,7 +142,6 @@ namespace MusicVR.GUI
 			{
 				bf.Serialize(file, MusicWall.Instance.WallProperties.CompositionData);
 			}
-			// file.Close();
 			Hide();
 		}
 

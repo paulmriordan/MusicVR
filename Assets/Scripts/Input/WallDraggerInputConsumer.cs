@@ -3,6 +3,9 @@ using System;
 
 namespace MusicVR.WallInput
 {
+	/// <summary>
+	/// Consumes input if dragged over threshold distance
+	/// </summary>
 	public class WallDraggerInputConsumer : InputConsumerBase
 	{
 		public Func<bool> IsFinishedFunc;
