@@ -138,6 +138,12 @@ namespace CSharpSynth.Sequencer
             }
             return true;
         }
+		public void Lock()
+		{
+		}
+		public void Unlock()
+		{
+		}
         public bool LoadMidi(string file, bool UnloadUnusedInstruments)
         {
             if (playing == true)

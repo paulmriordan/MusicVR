@@ -7,6 +7,8 @@ namespace CSharpSynth.Sequencer
 	{
 		float Time {get; set;}
 
+		void Lock();
+		void Unlock();
 		void Play();
 		void Stop(bool immediate);
 		void SetProgram(int channel, int program);

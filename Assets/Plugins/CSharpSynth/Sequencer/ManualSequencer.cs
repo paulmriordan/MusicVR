@@ -1,6 +1,7 @@
 ﻿using System;
 using CSharpSynth.Synthesis;
 using CSharpSynth.Midi;
+using System.Threading;
 
 namespace CSharpSynth.Sequencer
 {
@@ -17,6 +18,7 @@ namespace CSharpSynth.Sequencer
 		private SequencerEventList seqEvt;
 		private int sampleTime;
 		private int eventIndex;
+		private object _lock = new object();
 
 		//--Public Properties
 		public bool isPlaying
@@ -30,7 +32,13 @@ namespace CSharpSynth.Sequencer
 		public float Time
 		{
 			get { return (int)SynthHelper.getTimeFromSample(synth.SampleRate, sampleTime); }
-			set { SetTime(value); }
+			set 
+			{ 
+				lock (_lock)
+				{
+					SetTime(value); 
+				}
+			}
 		}
 		public ManualSequencer(StreamSynthesizer synth)
 		{
@@ -39,26 +47,38 @@ namespace CSharpSynth.Sequencer
 			this.synth.setSequencer(this);
 			seqEvt = new SequencerEventList();
 		}
+		public void Lock()
+		{
+			Monitor.Enter(_lock);
+		}
+		public void Unlock()
+		{
+			Monitor.Exit(_lock);
+		}
 		public bool Load(ISequencerData seqFile)
 		{
-			m_sequencerData = seqFile;
+			lock (_lock)
 			{
-				try
+				m_sequencerData = seqFile;
 				{
-					//Convert delta time to sample time
-					eventIndex = 0;
-					uint lastSample = 0;
-					for (int x = 0; x < m_sequencerData.Events.Length; x++)
+					try
 					{
-						m_sequencerData.Events[x].deltaTime = lastSample + (uint)DeltaTimetoSamples(m_sequencerData.Events[x].deltaTime);
-						lastSample = m_sequencerData.Events[x].deltaTime;
+						//Convert delta time to sample time
+						eventIndex = 0;
+						sampleTime = 0;
+						uint lastSample = 0;
+						for (int x = 0; x < m_sequencerData.Events.Length; x++)
+						{
+							m_sequencerData.Events[x].deltaTime = lastSample + (uint)DeltaTimetoSamples(m_sequencerData.Events[x].deltaTime);
+							lastSample = m_sequencerData.Events[x].deltaTime;
+						}
 					}
-				}
-				catch (Exception ex)
-				{
-					//UnitySynth
-					UnityEngine.Debug.Log("Error Loading Custom Seq:\n" + ex.Message);
-					return false;
+					catch (Exception ex)
+					{
+						//UnitySynth
+						UnityEngine.Debug.Log("Error Loading Custom Seq:\n" + ex.Message);
+						return false;
+					}
 				}
 			}
 
@@ -66,28 +86,37 @@ namespace CSharpSynth.Sequencer
 		}
 		public void SetProgram(int channel, int program)
 		{
-			currentPrograms[channel] = program;
+			lock (_lock)
+			{
+				currentPrograms[channel] = program;
+			}
 		}
 		public void Play()
 		{
-			if (playing == true)
-				return;
-			//Clear the current programs for the channels.
-			Array.Clear(currentPrograms, 0, currentPrograms.Length);
-			//Clear vol, pan, and tune
-			ResetControllers();
-			//Let the synth know that the sequencer is ready.
-			eventIndex = 0;
-			playing = true;
+			lock (_lock)
+			{
+				if (playing == true)
+					return;
+				//Clear the current programs for the channels.
+				Array.Clear(currentPrograms, 0, currentPrograms.Length);
+				//Clear vol, pan, and tune
+				ResetControllers();
+				//Let the synth know that the sequencer is ready.
+				eventIndex = 0;
+				playing = true;
+			}
 		}
 		public void Stop(bool immediate)
 		{
-			playing = false;
-			sampleTime = 0;
-			if (immediate)
-				synth.NoteOffAll(true);
-			else
-				synth.NoteOffAll(false);
+			lock (_lock)
+			{
+				playing = false;
+				sampleTime = 0;
+				if (immediate)
+					synth.NoteOffAll(true);
+				else
+					synth.NoteOffAll(false);
+			}
 		}
 		public static int TimetoSampleTime(uint DeltaTime, int sampleRate, uint BBM, uint fileDeltaTiming)
 		{
@@ -100,73 +129,85 @@ namespace CSharpSynth.Sequencer
 
 		public SequencerEventList Process(int frame)
 		{
-			seqEvt.Events.Clear();
-			//stop or loop
-			if (sampleTime >= (int)m_sequencerData.TotalTime)
+			lock (_lock)
 			{
-				sampleTime = 0;
-				if (looping == true)
+				seqEvt.Events.Clear();
+				//stop or loop
+				if (sampleTime >= (int)m_sequencerData.TotalTime)
 				{
-					//DONT Clear the current programs for the channels. (only set once in Wall Music Player)
-//					Array.Clear(currentPrograms, 0, currentPrograms.Length);
+					sampleTime = 0;
+					if (looping == true)
+					{
+						//DONT Clear the current programs for the channels. (only set once in Wall Music Player)
+	//					Array.Clear(currentPrograms, 0, currentPrograms.Length);
 
-					//Clear vol, pan, and tune
-					ResetControllers();
+						//Clear vol, pan, and tune
+						ResetControllers();
 
-//					//set bpm
-//					_MidiFile.BeatsPerMinute = 120;
+	//					//set bpm
+	//					_MidiFile.BeatsPerMinute = 120;
 
-					//Let the synth know that the sequencer is ready.
-					eventIndex = 0;
+						//Let the synth know that the sequencer is ready.
+						eventIndex = 0;
+					}
+					else
+					{
+						playing = false;
+						synth.NoteOffAll(true);
+						return null;
+					}
 				}
-				else
+				while (eventIndex < m_sequencerData.EventCount && m_sequencerData.Events[eventIndex].deltaTime < (sampleTime + frame))
 				{
-					playing = false;
-					synth.NoteOffAll(true);
-					return null;
+					seqEvt.Events.Add(m_sequencerData.Events[eventIndex]);
+					eventIndex++;
 				}
-			}
-			while (eventIndex < m_sequencerData.EventCount && m_sequencerData.Events[eventIndex].deltaTime < (sampleTime + frame))
-			{
-				seqEvt.Events.Add(m_sequencerData.Events[eventIndex]);
-				eventIndex++;
 			}
 			return seqEvt;
 		}
 
 		public void ResetControllers()
 		{
-			//Reset Pan Positions back to 0.0f
-			Array.Clear(synth.PanPositions, 0, synth.PanPositions.Length);
-			//Set Tuning Positions back to 0.0f
-			Array.Clear(synth.TunePositions, 0, synth.TunePositions.Length);
-			//Reset Vol Positions back to 1.00f
-			for (int x = 0; x < synth.VolPositions.Length; x++)
-				synth.VolPositions[x] = 1.00f;
+			lock (_lock)
+			{
+				//Reset Pan Positions back to 0.0f
+				Array.Clear(synth.PanPositions, 0, synth.PanPositions.Length);
+				//Set Tuning Positions back to 0.0f
+				Array.Clear(synth.TunePositions, 0, synth.TunePositions.Length);
+				//Reset Vol Positions back to 1.00f
+				for (int x = 0; x < synth.VolPositions.Length; x++)
+					synth.VolPositions[x] = 1.00f;
+			}
 		}
 
 		public void IncrementSampleCounter(int amount)
 		{
-			sampleTime = sampleTime + amount;
+			lock (_lock)
+			{
+				sampleTime = sampleTime + amount;
+			}
 		}
 
 		public void ProcessEvent(MidiEvent customEvent)
 		{
-			if (customEvent.midiChannelEvent != MidiHelper.MidiChannelEvent.None)
+			lock (_lock)
 			{
-				switch (customEvent.midiChannelEvent)
+				if (customEvent.midiChannelEvent != MidiHelper.MidiChannelEvent.None)
 				{
-				case MidiHelper.MidiChannelEvent.Note_On:
-					synth.NoteOn(customEvent.channel, 
-						customEvent.parameter1,
-						customEvent.parameter2,
-						currentPrograms[customEvent.channel]);
-					break;
-				case MidiHelper.MidiChannelEvent.Note_Off:
-					synth.NoteOff(customEvent.channel, customEvent.parameter1);
-					break;
-				default:
-					break;
+					switch (customEvent.midiChannelEvent)
+					{
+					case MidiHelper.MidiChannelEvent.Note_On:
+						synth.NoteOn(customEvent.channel, 
+							customEvent.parameter1,
+							customEvent.parameter2,
+							currentPrograms[customEvent.channel]);
+						break;
+					case MidiHelper.MidiChannelEvent.Note_Off:
+						synth.NoteOff(customEvent.channel, customEvent.parameter1);
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}
@@ -186,6 +227,7 @@ namespace CSharpSynth.Sequencer
 					ProcessEvent(m_sequencerData.Events[eventIndex]);               
 				eventIndex++;
 			}
+
 			sampleTime = sampleTime + amount;
 		}
 	}

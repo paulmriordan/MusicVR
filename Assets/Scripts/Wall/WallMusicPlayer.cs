@@ -85,13 +85,15 @@ namespace MusicVR.Wall
 		{
 			var seqDataExtractor = new SequencerDataExtractor(m_data.CompositionData);
 			var seqData = seqDataExtractor.GetSequencerData();
-			//adjust total time into sample time
+
+			// adjust total time into sample time
 			seqData.TotalTime = (ulong)ManualSequencer.TimetoSampleTime(
 				(uint)seqData.TotalTime, 
 				(int)Synth.Synth.Instance.midiStreamSynthesizer.SampleRate,
 				seqData.BeatsPerMinute,
 				(uint)seqData.DeltaTiming);
-			
+
+			// set instrument sound types
 			var instruments = m_data.CompositionData.InstrumentDataList;
 			for (int i = 0; i < instruments.Count; i++)
 			{
@@ -101,6 +103,7 @@ namespace MusicVR.Wall
 				else
 					m_customSequencer.SetProgram(i, inst.InstrumentDefinition.InstrumentInt);
 			}
+
 			m_customSequencer.Load(seqData);
 		}
 
@@ -197,9 +200,11 @@ namespace MusicVR.Wall
 		{
 			if (m_refreshNotes)
 			{
+				m_customSequencer.Lock();
 				LoadSequencerData();
 				SetSequencerTime();
 				m_refreshNotes = false;
+				m_customSequencer.Unlock();
 			}
 		}
 

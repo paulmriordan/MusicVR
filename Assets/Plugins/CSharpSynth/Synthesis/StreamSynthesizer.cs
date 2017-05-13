@@ -89,7 +89,6 @@ namespace CSharpSynth.Synthesis
             this.polyphony = maxpoly;
             setupSynth();
         }
-
         public bool LoadBank(string filename)
         {
             //UnitySynth
@@ -445,9 +444,13 @@ namespace CSharpSynth.Synthesis
         }
 		private void FillWorkingBufferFromSequencer(IProcessableSequencer seq, LinkedListNode<Voice> node, LinkedListNode<Voice> delnode)
 		{ 
+			// Get all events scheduled for this frame
 			SequencerEventList seqEvent = seq.Process(samplesperBuffer);
 			if (seqEvent == null)
 				return;
+
+			seq.Lock();
+
 			int oldtime = 0;
 			int waitTime = 0;
 			for (int x = 0; x < seqEvent.Events.Count; x++)
@@ -455,12 +458,15 @@ namespace CSharpSynth.Synthesis
 				waitTime = ((int)seqEvent.Events[x].deltaTime - seq.SampleTime) - oldtime;
 				if (waitTime != 0)
 				{
+					//Process every active voice until this event's time
 					node = activeVoices.First;
 					while (node != null)
 					{
 						if (oldtime < 0 || waitTime < 0)
-							throw new Exception("TODO: Look into this exception, caused by reset play position after editing and reloading sequencer data");
+							throw new Exception("Negative processing time. Possible thread lock issue.");
+
 						node.Value.Process(sampleBuffer, oldtime, oldtime + waitTime);
+
 						if (node.Value.isInUse == false)
 						{
 							delnode = node;
@@ -504,6 +510,8 @@ namespace CSharpSynth.Synthesis
 
 			//increment our sample count
 			seq.IncrementSampleCounter(samplesperBuffer);
+
+			seq.Unlock();
 		}
 
         private void ClearWorkingBuffer()
