@@ -6,6 +6,8 @@ Inspired by TiltBrush, I wanted to make a VR music experience where you can see 
 
 For music synthesis, I have utilised and extended [Unity CSharpSynth ](https://forum.unity3d.com/threads/unitysynth-full-xplatform-midi-synth.130104/)
 
+https://vimeo.com/223441066  pw: vr360demo
+
 ## Development Progress
 
 ### Completed
