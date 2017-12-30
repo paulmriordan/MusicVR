@@ -8,9 +8,8 @@ public class WallMesh : MonoBehaviour
 	protected Mesh 					m_mesh;
 	protected Vector3[] 			m_vertices;
 	protected Vector2[] 			m_uvs;
-	protected Color[] 				m_colours;
-	private WallButtons				m_wallButtons;
-	private MusicWallData			m_data;
+    protected Color[]               m_colours;
+    private MusicWallData			m_data;
 
 	public bool		 				m_NeedMeshUpdate {get; set;}
 

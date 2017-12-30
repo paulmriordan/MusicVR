@@ -561,6 +561,8 @@ namespace VRTK
             pointerOriginTransformFollow.followsScale = false;
         }
 
+        public bool fixBeamLengthOnTipGrabInteraction = true;
+
         protected virtual float OverrideBeamLength(float currentLength)
         {
             if (controllerGrabScript == null || !controllerGrabScript.GetGrabbedObject())
@@ -568,7 +570,7 @@ namespace VRTK
                 savedBeamLength = 0f;
             }
 
-            if (controllingPointer != null && controllingPointer.interactWithObjects && controllingPointer.grabToPointerTip && attachedToInteractorAttachPoint && controllerGrabScript != null && controllerGrabScript.GetGrabbedObject())
+            if (fixBeamLengthOnTipGrabInteraction && controllingPointer != null && controllingPointer.interactWithObjects && controllingPointer.grabToPointerTip && attachedToInteractorAttachPoint && controllerGrabScript != null && controllerGrabScript.GetGrabbedObject())
             {
                 savedBeamLength = (savedBeamLength == 0f ? currentLength : savedBeamLength);
                 return savedBeamLength;

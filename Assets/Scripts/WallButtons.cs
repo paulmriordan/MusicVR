@@ -7,7 +7,8 @@ public class WallButtons
 {
 	private WallButton[] m_wallButtons = new WallButton[0];
 	private WallUIButton[] m_wallUIButtons = new WallUIButton[0];
-	private const int UIbuttonsPerRow = 3;
+    private GameObject[] m_wallDragColliders = new GameObject[0];
+    private const int UIbuttonsPerRow = 3;
 
 	private MusicWallData m_data;
 
@@ -17,7 +18,9 @@ public class WallButtons
 		m_data = data;
 		m_wallButtons = new WallButton[data.CompositionData.NumRows * data.CompositionData.NumCols];
 		m_wallUIButtons = new WallUIButton[data.CompositionData.InstrumentDataList.Count * UIbuttonsPerRow];
-		InstantiateButtons();
+        m_wallDragColliders = new GameObject[data.CompositionData.NumCols];
+
+        InstantiateButtons();
 		LoadMusicData(data.CompositionData);
 	}
 
@@ -142,7 +145,25 @@ public class WallButtons
 				startCol += buttonCols;
 			}
 		}
-	}
+
+
+        float colAngle = (2 * Mathf.PI) / (float)m_data.CompositionData.NumCols;
+        //float buttonWidth = m_data.GetButtonWidth();
+        for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++)
+        {
+            const float RADIUS_FAC = 0.95f;
+            const float WIDTH_FAC = 1.5f;
+            float x0 = Mathf.Sin(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
+            float z0 = Mathf.Cos(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
+            float x1 = Mathf.Sin((iCol + 1) * colAngle) * m_data.Radius * RADIUS_FAC;
+            float z1 = Mathf.Cos((iCol + 1) * colAngle) * m_data.Radius * RADIUS_FAC;
+            float x = (x0 + x1) * 0.5f;
+            float z = (z0 + z1) * 0.5f;
+            var pos = new Vector3(x, 0, z);
+            m_wallDragColliders[iCol] = CreateWallDragCollider(pos, buttonWidth * WIDTH_FAC);
+        }
+
+    }
 
 	private GameObject CreateButton(GameObject prefab, Vector3 pos, float buttonWidth)
 	{
@@ -153,4 +174,16 @@ public class WallButtons
 		return inst;
 	}
 
+    private GameObject CreateWallDragCollider(Vector3 pos, float buttonWidth)
+    {
+        var posRot = new Vector3(pos.x, 0, pos.z);
+        var inst = new GameObject();
+        inst.transform.position = pos;
+        inst.transform.rotation = Quaternion.LookRotation(-posRot);
+        inst.transform.SetParent(m_data.Parent, false);
+        const float HEIGHT = 99999.0f;
+        inst.transform.localScale = new Vector3(buttonWidth, HEIGHT, buttonWidth);
+        inst.AddComponent<BoxCollider>();
+        return inst;
+    }
 }

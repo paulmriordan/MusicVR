@@ -186,6 +186,8 @@ namespace VRTK
             wheelHinge.spring = snapSpring;
         }
 
+        public bool precisionGrab = true;
+
         protected virtual void SetupInteractableObject()
         {
             VRTK_InteractableObject wheelInteractableObject = GetComponent<VRTK_InteractableObject>();
@@ -211,7 +213,7 @@ namespace VRTK
                 attachMechanic = gameObject.AddComponent<VRTK_RotatorTrackGrabAttach>();
             }
 
-            attachMechanic.precisionGrab = true;
+            attachMechanic.precisionGrab = precisionGrab;
             attachMechanic.detachDistance = detatchDistance;
 
             wheelInteractableObject.grabAttachMechanicScript = attachMechanic;
