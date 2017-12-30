@@ -9,6 +9,7 @@ public class MusicWallData
 	[UnityEngine.Serialization.FormerlySerializedAs("Prefab")]
 	public GameObject ButtonPrefab;
 	public GameObject UIButtonPrefab;
+    public GameObject GrabbableWallCollider;
 	public float Radius = 0.1f;
 	public float ButtonPaddingFrac = 0.5f;
 	public float ButtonWidthFac = 0.75f;

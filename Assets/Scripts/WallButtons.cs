@@ -176,13 +176,13 @@ public class WallButtons
 
     private GameObject CreateWallDragCollider(Vector3 pos, float buttonWidth)
     {
+        var h = m_data.GetTotalHeight();
         var posRot = new Vector3(pos.x, 0, pos.z);
-        var inst = new GameObject();
-        inst.transform.position = pos;
-        inst.transform.rotation = Quaternion.LookRotation(-posRot);
+        pos.y += h * 0.5f;
+        var inst = GameObject.Instantiate(m_data.GrabbableWallCollider, pos, Quaternion.LookRotation(-posRot));
         inst.transform.SetParent(m_data.Parent, false);
         const float HEIGHT = 99999.0f;
-        inst.transform.localScale = new Vector3(buttonWidth, HEIGHT, buttonWidth);
+        inst.transform.localScale = new Vector3(buttonWidth, h, buttonWidth);
         inst.AddComponent<BoxCollider>();
         return inst;
     }
