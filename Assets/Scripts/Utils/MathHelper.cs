@@ -35,4 +35,34 @@ public class MathHelper : MonoBehaviour {
 		plane.Raycast(ray, out d);
 		return ray.GetPoint(d);
 	}
+
+    public static float ClampAngle(float value, float start, float end)
+    {
+        float width = end - start;
+        float offsetValue = value - start;
+
+        return (offsetValue - (Mathf.Floor(offsetValue / width) * width)) + start;
+    }
+
+    public static float DistBetweenAngles(float targetA, float sourceA)
+    {
+        var a = targetA - sourceA;
+        a = ModNoNeg((a + 180.0f), 360.0f) - 180.0f;
+        return a;
+    }
+
+    public static float ModNoNeg(float a, float n)
+    {
+        return a - Mathf.Floor(a / n) * n;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <returns>Angle in degrees between the vectors</returns>
+    public static float AngleBetweenVectors(Vector2 a, Vector2 b)
+    {
+        var angleA = Mathf.Atan2(a.y, a.x) * Mathf.Rad2Deg;
+        var angleB = Mathf.Atan2(b.y, b.x) * Mathf.Rad2Deg;
+        return MathHelper.DistBetweenAngles(angleA, angleB);
+    }
 }
