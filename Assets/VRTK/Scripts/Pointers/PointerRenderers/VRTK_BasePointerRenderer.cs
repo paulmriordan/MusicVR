@@ -74,7 +74,10 @@ namespace VRTK
         public VisibilityStates tracerVisibility = VisibilityStates.OnWhenActive;
         [Tooltip("Determines when the cursor/tip of the pointer renderer will be visible.")]
         public VisibilityStates cursorVisibility = VisibilityStates.OnWhenActive;
-
+        
+        [Tooltip("Determines whether the beam length is fixed once you start dragging something.")]
+        public bool fixBeamLengthOnTipGrabInteraction = true;
+        
         protected const float BEAM_ADJUST_OFFSET = 0.0001f;
 
         protected VRTK_Pointer controllingPointer;
@@ -560,8 +563,6 @@ namespace VRTK
             pointerOriginTransformFollow.enabled = false;
             pointerOriginTransformFollow.followsScale = false;
         }
-
-        public bool fixBeamLengthOnTipGrabInteraction = true;
 
         protected virtual float OverrideBeamLength(float currentLength)
         {
