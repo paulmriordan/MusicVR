@@ -181,7 +181,6 @@ public class WallButtons
         pos.y += h * 0.5f;
         var inst = GameObject.Instantiate(m_data.GrabbableWallCollider, pos, Quaternion.LookRotation(-posRot));
         inst.transform.SetParent(m_data.Parent, false);
-        const float HEIGHT = 99999.0f;
         inst.transform.localScale = new Vector3(buttonWidth, h, buttonWidth);
         inst.AddComponent<BoxCollider>();
         return inst;

@@ -28,8 +28,7 @@ public class WallDragger : MonoBehaviour
 	public BoundedDrag HorizontalDrag;
 	public Vector2 ScreeenPanScale = new Vector2(0.1f,0.1f);
 	public float QuantizeVelocity = 1.0f;
-
-	private Vector3 m_dragStart;
+    
 	private float m_numCols;
 
 	public WallDraggerInputConsumer InputConsumer {get; private set;}
