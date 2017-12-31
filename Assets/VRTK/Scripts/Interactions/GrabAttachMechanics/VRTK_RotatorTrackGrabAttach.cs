@@ -15,12 +15,6 @@ namespace VRTK.GrabAttachMechanics
     [AddComponentMenu("VRTK/Scripts/Interactions/Grab Attach Mechanics/VRTK_RotatorTrackGrabAttach")]
     public class VRTK_RotatorTrackGrabAttach : VRTK_TrackObjectGrabAttach
     {
-        public float Speed = 5.0f;
-        public float RotateSpeed = 5.0f;
-
-        private Vector3 m_linearVel = Vector3.zero;
-        private float m_angularVel = 0;
-
         /// <summary>
         /// The StopGrab method ends the grab of the current object and cleans up the state.
         /// </summary>
@@ -28,17 +22,7 @@ namespace VRTK.GrabAttachMechanics
         public override void StopGrab(bool applyGrabbingObjectVelocity)
         {
             isReleasable = false;
-            grabbedObjectRigidBody.velocity = m_linearVel;
-            grabbedObjectRigidBody.angularVelocity = new Vector3(0, m_angularVel * Mathf.Deg2Rad, 0);
             base.StopGrab(applyGrabbingObjectVelocity);
-        }
-
-        public override bool StartGrab(GameObject grabbingObject, GameObject givenGrabbedObject, Rigidbody givenControllerAttachPoint)
-        {
-            var returnVal = base.StartGrab(grabbingObject, givenGrabbedObject, givenControllerAttachPoint);
-            m_linearVel = grabbedObjectRigidBody.velocity;
-            m_angularVel = grabbedObjectRigidBody.angularVelocity.y * Mathf.Rad2Deg;
-            return returnVal;
         }
 
         /// <summary>
@@ -46,45 +30,14 @@ namespace VRTK.GrabAttachMechanics
         /// </summary>
         public override void ProcessFixedUpdate()
         {
-            ProcessFixedUpdateLinearMovement();
-            ProcessFixedUpdatedAngularMovement();
+            var rotateForce = trackPoint.position - initialAttachPoint.position;
+            grabbedObjectRigidBody.AddForceAtPosition(rotateForce, initialAttachPoint.position, ForceMode.VelocityChange);
         }
 
         protected override void SetTrackPointOrientation(ref Transform trackPoint, Transform currentGrabbedObject, Transform controllerPoint)
         {
             trackPoint.position = controllerPoint.position;
             trackPoint.rotation = controllerPoint.rotation;
-        }
-
-        private void ProcessFixedUpdateLinearMovement()
-        {
-            var dist = trackPoint.position - initialAttachPoint.position;
-            var targetThisUpdate = Vector3.SmoothDamp(transform.position, transform.position + dist, ref m_linearVel, Speed * Time.fixedDeltaTime);
-            grabbedObjectRigidBody.MovePosition(targetThisUpdate);
-        }
-
-        private void ProcessFixedUpdatedAngularMovement()
-        {
-            // get new y rotation for this update
-            float newYRotation = 0;
-            {
-                // get diff between initial attach point and track point
-                float angleDiffInitialAndTrack = 0;
-                {
-                    var centreToInitalAttachPoint = initialAttachPoint.position - transform.position;
-                    var centreToTrackPoint = trackPoint.position - transform.position;
-                    angleDiffInitialAndTrack = MathHelper.AngleBetweenVectors(
-                        new Vector2(centreToInitalAttachPoint.x, centreToInitalAttachPoint.z),
-                        new Vector2(centreToTrackPoint.x, centreToTrackPoint.z));
-                }
-
-                var currentYRotation = grabbedObjectRigidBody.rotation.eulerAngles.y;
-                var targetYRotation = currentYRotation + angleDiffInitialAndTrack;
-                newYRotation = MovementHelpers.SmoothDampAngle(currentYRotation, targetYRotation, ref m_angularVel, RotateSpeed * Time.fixedDeltaTime);
-            }
-
-            grabbedObjectRigidBody.MoveRotation(Quaternion.Euler(0, newYRotation, 0));
-
         }
     }
 }
