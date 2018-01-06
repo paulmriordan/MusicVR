@@ -65,4 +65,43 @@ public class MathHelper : MonoBehaviour {
         var angleB = Mathf.Atan2(b.y, b.x) * Mathf.Rad2Deg;
         return MathHelper.DistBetweenAngles(angleA, angleB);
     }
+
+    public static bool rayCircleNearestPositveIntersection(
+        Vector2 rayOrigin,
+        Vector2 rayNormal,
+        Vector2 circleCentre,
+        float circleRadius,
+        ref float out_rayHitDist)
+    {
+        Vector2 n = rayNormal;
+        Vector2 p = rayOrigin - circleCentre;
+        float r = -circleRadius;
+
+        float b = (2 * n.x * p.x + 2 * n.y * p.y);
+        float a = (n.y * n.y + n.x * n.x);
+        float c = (p.x * p.x + p.y * p.y + r);
+        
+        if (a == 0)
+            return false;
+
+        float b2_4ac = b*b - 4 * a * c;
+
+        if (b2_4ac < 0)
+            return false;
+
+        float sqrt_b2_4ac = Mathf.Sqrt(b2_4ac);
+        float u0 = (-b + sqrt_b2_4ac) / (2 * a);
+        float u1 = (-b - sqrt_b2_4ac) / (2 * a);
+
+        if (u0 < 0 && u1 < 0) {
+            return false;
+        } else if (u0 < 0) {
+            out_rayHitDist = u1;
+        } else if (u1 < 0) {
+            out_rayHitDist = u0;
+        } else {
+            Mathf.Min(u0, u1);
+        }
+        return true;
+    }
 }

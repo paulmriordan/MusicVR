@@ -75,8 +75,9 @@ public class WallButtons
 		float buttonPadding = m_data.ButtonPaddingFrac * buttonWidth;
 
 		InstantiateUIButtons();
+        InstantiateWallDragColliders();
 
-		for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++) 
+        for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++) 
 		{
 			float x0 = Mathf.Sin(iCol * colAngle) * m_data.Radius;
 			float z0 = Mathf.Cos(iCol * colAngle) * m_data.Radius;
@@ -145,13 +146,17 @@ public class WallButtons
 				startCol += buttonCols;
 			}
 		}
+    }
 
+    private void InstantiateWallDragColliders()
+    {
+        float buttonWidth = m_data.GetButtonWidth();
 
         float colAngle = (2 * Mathf.PI) / (float)m_data.CompositionData.NumCols;
         //float buttonWidth = m_data.GetButtonWidth();
         for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++)
         {
-            const float RADIUS_FAC = 0.95f;
+            const float RADIUS_FAC = 1.2f;
             const float WIDTH_FAC = 1.5f;
             float x0 = Mathf.Sin(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
             float z0 = Mathf.Cos(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
@@ -162,10 +167,11 @@ public class WallButtons
             var pos = new Vector3(x, 0, z);
             m_wallDragColliders[iCol] = CreateWallDragCollider(pos, buttonWidth * WIDTH_FAC);
         }
-
+    
     }
 
-	private GameObject CreateButton(GameObject prefab, Vector3 pos, float buttonWidth)
+
+    private GameObject CreateButton(GameObject prefab, Vector3 pos, float buttonWidth)
 	{
 		var posRot = new Vector3(pos.x, 0, pos.z);
 		var inst = GameObject.Instantiate(prefab, pos, Quaternion.LookRotation(-posRot));
@@ -181,7 +187,8 @@ public class WallButtons
         pos.y += h * 0.5f;
         var inst = GameObject.Instantiate(m_data.GrabbableWallCollider, pos, Quaternion.LookRotation(-posRot));
         inst.transform.SetParent(m_data.Parent, false);
-        inst.transform.localScale = new Vector3(buttonWidth, h, buttonWidth);
+        const float Z_THICKNESS = 0.1f;
+        inst.transform.localScale = new Vector3(buttonWidth, h, Z_THICKNESS);
         inst.AddComponent<BoxCollider>();
         return inst;
     }

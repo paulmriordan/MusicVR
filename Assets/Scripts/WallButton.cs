@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿//#def MOUSE_INPUT
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -140,7 +141,7 @@ public class WallButton : MonoBehaviour
 #region Input Events
 	public void OnTouchStay()
 	{
-		if (!Input.GetMouseButton(0))
+        if (!Input.GetMouseButton(0))
 			return;
 
 		TryStartSelection();
@@ -169,9 +170,76 @@ public class WallButton : MonoBehaviour
 			s_wallButtonInputState.LastHitButton.MouseDown = false;
 		s_wallButtonInputState.Clear();
 	}
-#endregion
+    #endregion
 
-	void TryStartSelection()
+    #region VR Input Events
+    public void OnPointerSelectedButtonPressed()
+    {
+        TryStartVRSelection();
+        TrySubsequentSelection();
+    }
+
+    //public void OnTouchExit()
+    //{
+    //    MouseDown = false;
+    //}
+
+    public void OnPointerSelectedButtonReleased()
+    {
+        // Click button if no camera drag occurred & no button selecting occurred
+        if (!s_wallButtonInputState.WallInputActive())
+        {
+            s_wallButtonInputState.InputSelectType = m_selected
+                ? WallButtonInputState.E_SelectState.unselecting
+                : WallButtonInputState.E_SelectState.selecting;
+
+            SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
+        }
+
+        MouseDown = false;
+        if (s_wallButtonInputState.LastHitButton)
+            s_wallButtonInputState.LastHitButton.MouseDown = false;
+        s_wallButtonInputState.Clear();
+    }
+
+    void TryStartVRSelection()
+    {
+        if (s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.none)
+        {
+            //bool allowStart = s_wallButtonInputState.IsSelectionEnabled;
+            //allowStart &= !EventSystem.current.IsPointerOverGameObject();
+            //if (allowStart)
+            {
+                MouseDown = true;
+                s_wallButtonInputState.InputSelectType = m_selected
+                    ? WallButtonInputState.E_SelectState.unselecting
+                    : WallButtonInputState.E_SelectState.selecting;
+                SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
+            }
+        }
+    }
+
+
+    void TrySubsequenVRtSelection()
+    {
+        if (s_wallButtonInputState.InputSelectType != WallButtonInputState.E_SelectState.none)
+        {
+            bool allowSubsequent = this != s_wallButtonInputState.LastHitButton;
+            //allowSubsequent &= s_wallButtonInputState.IsSelectionEnabled && !EventSystem.current.IsPointerOverGameObject();
+            if (allowSubsequent)
+            {
+                MouseDown = true;
+                SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
+                s_wallButtonInputState.LastHitButton = this;
+            }
+        }
+    }
+
+    #endregion
+
+
+
+    void TryStartSelection()
 	{
 		if (s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.none)
 		{
