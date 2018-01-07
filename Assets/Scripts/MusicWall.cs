@@ -3,21 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class MusicWall : MonoSingleton<MusicWall> 
+public class MusicWall : MonoSingleton<MusicWall>, ICylinder
 {
 	public event Action<MusicWallData> OnWallDataUpdated = (p) => {};
 
-	public MusicWallData 			WallProperties;
-	public bool 					HasWall = true;
-	public float					ProbInitSelected = 0.2f;
-	public Synth					Synth;
+	public MusicWallData WallProperties;
+	public bool HasWall = true;
+	public float ProbInitSelected = 0.2f;
+	public Synth Synth;
 
-	private WallButtons 			m_wallButtons = new WallButtons();
-	private WallMesh 				m_wallMesh;
-	private WallMusicPlayer			m_musicPlayer;
+	private WallButtons	m_wallButtons = new WallButtons();
+	private WallMesh m_wallMesh;
+	private WallMusicPlayer	m_musicPlayer;
+    private Transform m_transform;
 
-	public bool		 				NeedsUpdate {get; set;}
-	public bool 					IsPlaying {get { return m_musicPlayer.IsPlaying;}}
+	public bool	NeedsUpdate {get; set;}
+	public bool IsPlaying {get { return m_musicPlayer.IsPlaying;}}
+
+
+    void Start()
+    {
+        m_transform = GetComponent<Transform>();
+    }
 
 	public void ClearWall()
 	{
@@ -25,11 +32,13 @@ public class MusicWall : MonoSingleton<MusicWall>
 		NeedsUpdate = true;
 	}
 
+
 	public void GenerateRandom()
 	{
 		WallProperties.CompositionData.CreateDummyButtonData(ProbInitSelected);
 		NeedsUpdate = true;
 	}
+
 
 	public void TogglePlayPause()
 	{
@@ -39,8 +48,21 @@ public class MusicWall : MonoSingleton<MusicWall>
 			m_musicPlayer.Play();
 	}
 
-	//______________________________________________________________________________________
-	protected override void _Awake()
+    #region ICylinderProperties
+
+    public float GetCylinderRadius()
+    {
+        return WallProperties.Radius;
+    }
+
+    public Vector3 GetCylinderOrigin()
+    {
+        return m_transform.position;
+    }
+
+    #endregion
+
+    protected override void _Awake()
 	{
 		if (HasWall)
 			m_wallMesh = gameObject.AddComponent<WallMesh>();
@@ -50,13 +72,13 @@ public class MusicWall : MonoSingleton<MusicWall>
 		NeedsUpdate = true;
 	}
 
-	//______________________________________________________________________________________
-	void OnValidate()
+
+    void OnValidate()
 	{
 		NeedsUpdate = true;
 	}
 	
-	//______________________________________________________________________________________
+
 	void Update()
 	{
 		if (NeedsUpdate)

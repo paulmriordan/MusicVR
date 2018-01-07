@@ -2,10 +2,22 @@
 using System.Collections;
 using VRTK;
 
+public interface ICylinder
+{
+    float GetCylinderRadius();
+    Vector3 GetCylinderOrigin();
+}
+
 public class VRTK_InnerCylinderPointerRenderer : VRTK_StraightPointerRenderer
 {
-    public Transform Cylinder; //@pr todo: better way to reference this
-    public float CylinderRadius = 0.5f; //@pr todo: need to sync with properties
+    public Transform CylinderRef;
+
+    private ICylinder m_cylinder;
+
+    private void Awake()
+    {
+        m_cylinder = CylinderRef.GetComponent<ICylinder>();
+    }
 
     public Ray GetCurrentRay()
     {
@@ -42,8 +54,8 @@ public class VRTK_InnerCylinderPointerRenderer : VRTK_StraightPointerRenderer
         var ray2d = GetRay2D();
         return MathHelper.rayCircleNearestPositveIntersection(
             ray2d,
-            Cylinder.transform.position.ToVector2XZ(),
-            CylinderRadius,
+            m_cylinder.GetCylinderOrigin().ToVector2XZ(),
+            m_cylinder.GetCylinderRadius(),
             ref beamLength);
     }
 
