@@ -29,7 +29,7 @@ public class TouchInput : MonoBehaviour {
 			Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out hit, MaxDistance, touchInputMask);
 			if (hit.collider != null)
 			{
-				GameObject recipent = hit.transform.gameObject;
+				GameObject recipent = hit.collider.gameObject;
 				touchList.Add(recipent);
 
 				if (Input.GetMouseButtonDown(0))
