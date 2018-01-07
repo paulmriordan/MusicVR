@@ -74,11 +74,11 @@ public class MathHelper : MonoBehaviour {
     {
         Vector2 n = ray.direction;
         Vector2 p = ray.origin - circleCentre;
-        float r = -circleRadius;
+        float r = circleRadius;
 
         float b = (2 * n.x * p.x + 2 * n.y * p.y);
         float a = (n.y * n.y + n.x * n.x);
-        float c = (p.x * p.x + p.y * p.y + r);
+        float c = (p.x * p.x + p.y * p.y + r*r);
         
         if (a == 0)
             return false;
