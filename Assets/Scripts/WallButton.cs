@@ -144,8 +144,12 @@ public class WallButton : MonoBehaviour
         if (!Input.GetMouseButton(0))
 			return;
 
-		TryStartSelection();
-		TrySubsequentSelection();
+        // preform input if input enabled (ie, not consumed by other input, eg, wall drag) and not blocked by UI
+        if (s_wallButtonInputState.IsSelectionEnabled && !EventSystem.current.IsPointerOverGameObject())
+        {
+            TryStartSelection();
+            TrySubsequentSelection();
+        }
 	}
 
 	public void OnTouchExit()
@@ -173,10 +177,11 @@ public class WallButton : MonoBehaviour
     #endregion
 
     #region VR Input Events
+
     public void OnPointerStay()
     {
-        TryStartVRSelection();
-        TrySubsequenVRtSelection();
+        TryStartSelection();
+        TrySubsequentSelection();
     }
 
     public void OnPointerExit()
@@ -186,46 +191,31 @@ public class WallButton : MonoBehaviour
 
     public void OnPointerUp()
     {
-        // Click button if no camera drag occurred & no button selecting occurred
-        if (!s_wallButtonInputState.WallInputActive())
-        {
-            s_wallButtonInputState.InputSelectType = m_selected
-                ? WallButtonInputState.E_SelectState.unselecting
-                : WallButtonInputState.E_SelectState.selecting;
-
-            SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
-        }
-
         MouseDown = false;
         if (s_wallButtonInputState.LastHitButton)
             s_wallButtonInputState.LastHitButton.MouseDown = false;
         s_wallButtonInputState.Clear();
     }
+    
+    #endregion
 
-    void TryStartVRSelection()
+    void TryStartSelection()
     {
         if (s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.none)
         {
-            //bool allowStart = s_wallButtonInputState.IsSelectionEnabled;
-            //allowStart &= !EventSystem.current.IsPointerOverGameObject();
-            //if (allowStart)
-            {
-                MouseDown = true;
-                s_wallButtonInputState.InputSelectType = m_selected
-                    ? WallButtonInputState.E_SelectState.unselecting
-                    : WallButtonInputState.E_SelectState.selecting;
-                SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
-            }
+            MouseDown = true;
+            s_wallButtonInputState.InputSelectType = m_selected
+                ? WallButtonInputState.E_SelectState.unselecting
+                : WallButtonInputState.E_SelectState.selecting;
+            SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
         }
     }
-
-
-    void TrySubsequenVRtSelection()
+    
+    void TrySubsequentSelection()
     {
         if (s_wallButtonInputState.InputSelectType != WallButtonInputState.E_SelectState.none)
         {
             bool allowSubsequent = this != s_wallButtonInputState.LastHitButton;
-            //allowSubsequent &= s_wallButtonInputState.IsSelectionEnabled && !EventSystem.current.IsPointerOverGameObject();
             if (allowSubsequent)
             {
                 MouseDown = true;
@@ -234,42 +224,6 @@ public class WallButton : MonoBehaviour
             }
         }
     }
-
-    #endregion
-
-
-
-    void TryStartSelection()
-	{
-		if (s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.none)
-		{
-			bool allowStart = s_wallButtonInputState.IsSelectionEnabled;
-			allowStart &= !EventSystem.current.IsPointerOverGameObject();
-			if (allowStart)
-			{
-				MouseDown = true;
-				s_wallButtonInputState.InputSelectType = m_selected 
-					? WallButtonInputState.E_SelectState.unselecting 
-					: WallButtonInputState.E_SelectState.selecting;
-				SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
-			}
-		}
-	}
-
-	void TrySubsequentSelection()
-	{
-		if (s_wallButtonInputState.InputSelectType != WallButtonInputState.E_SelectState.none)
-		{
-			bool allowSubsequent = this != s_wallButtonInputState.LastHitButton;
-			allowSubsequent &= s_wallButtonInputState.IsSelectionEnabled && !EventSystem.current.IsPointerOverGameObject();
-			if (allowSubsequent)
-			{
-				MouseDown = true;
-				SetSelected(s_wallButtonInputState.InputSelectType == WallButtonInputState.E_SelectState.selecting);
-				s_wallButtonInputState.LastHitButton = this;
-			}
-		}
-	}
 
 	public void CustomUpdate()
 	{
