@@ -173,18 +173,18 @@ public class WallButton : MonoBehaviour
     #endregion
 
     #region VR Input Events
-    public void OnPointerSelectedButtonPressed()
+    public void OnPointerStay()
     {
         TryStartVRSelection();
         TrySubsequenVRtSelection();
     }
 
-    //public void OnTouchExit()
-    //{
-    //    MouseDown = false;
-    //}
+    public void OnPointerExit()
+    {
+       MouseDown = false;
+    }
 
-    public void OnPointerSelectedButtonReleased()
+    public void OnPointerUp()
     {
         // Click button if no camera drag occurred & no button selecting occurred
         if (!s_wallButtonInputState.WallInputActive())
