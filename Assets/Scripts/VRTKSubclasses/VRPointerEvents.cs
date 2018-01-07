@@ -8,6 +8,8 @@ public class VRPointerEvents : MonoBehaviour
 {
     VRTK_InnerCylinderPointerRenderer m_pointerRenderer = null;
 
+    bool m_selectPressed = false;
+
     private void Start()
     {
         m_pointerRenderer = GetComponent<VRTK_InnerCylinderPointerRenderer>();
@@ -29,17 +31,8 @@ public class VRPointerEvents : MonoBehaviour
 
     public void SelectionButtonPressed(object o, ControllerInteractionEventArgs e)
     {
-        var ray = m_pointerRenderer.GetCurrentRay();
-        RaycastHit pointerCollidedWith;
-        bool success = VRTK_CustomRaycast.Raycast(customRaycast, ray, out pointerCollidedWith, layersToIgnore, maximumLength);
-
-        //var hit = m_pointerRenderer.GetDestinationHit();
-        //var objInt = m_pointerRenderer.GetObjectInteractor();
-        if (pointerCollidedWith.collider)
-        {
-            Debug.Log("pressed object " + pointerCollidedWith.collider + " e " + e);
-            pointerCollidedWith.collider.SendMessage("OnPointerSelectedButtonPressed", pointerCollidedWith.point, SendMessageOptions.DontRequireReceiver);
-        }
+        TryIssuePointerSelectedDownEvent();
+        m_selectPressed = true;
     }
 
     public void SelectionButtonReleased(object o, ControllerInteractionEventArgs e)
@@ -55,6 +48,7 @@ public class VRPointerEvents : MonoBehaviour
             Debug.Log("released object " + pointerCollidedWith.collider + " e " + e);
             pointerCollidedWith.collider.SendMessage("OnPointerSelectedButtonReleased", pointerCollidedWith.point, SendMessageOptions.DontRequireReceiver);
         }
+        m_selectPressed = false;
     }
 
     public void PointerStateValid(object o, DestinationMarkerEventArgs e)
@@ -65,5 +59,28 @@ public class VRPointerEvents : MonoBehaviour
     public void PointerStateInvalid(object o, DestinationMarkerEventArgs e)
     {
         //OnPointerStateInvalid.Invoke(o, e);
+    }
+
+    private void Update()
+    {
+        if (m_selectPressed)
+        {
+            TryIssuePointerSelectedDownEvent();
+        }
+    }
+
+    void TryIssuePointerSelectedDownEvent()
+    {
+        var ray = m_pointerRenderer.GetCurrentRay();
+        RaycastHit pointerCollidedWith;
+        bool success = VRTK_CustomRaycast.Raycast(customRaycast, ray, out pointerCollidedWith, layersToIgnore, maximumLength);
+
+        //var hit = m_pointerRenderer.GetDestinationHit();
+        //var objInt = m_pointerRenderer.GetObjectInteractor();
+        if (pointerCollidedWith.collider)
+        {
+            Debug.Log("pressed object " + pointerCollidedWith.collider);
+            pointerCollidedWith.collider.SendMessage("OnPointerSelectedButtonPressed", pointerCollidedWith.point, SendMessageOptions.DontRequireReceiver);
+        }
     }
 }

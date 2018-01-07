@@ -176,7 +176,7 @@ public class WallButton : MonoBehaviour
     public void OnPointerSelectedButtonPressed()
     {
         TryStartVRSelection();
-        TrySubsequentSelection();
+        TrySubsequenVRtSelection();
     }
 
     //public void OnTouchExit()
