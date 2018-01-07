@@ -4,8 +4,8 @@ using VRTK;
 
 public class VRTK_InnerCylinderPointerRenderer : VRTK_StraightPointerRenderer
 {
-    public Transform Cylinder; //@todo better way to reference this
-    public float CylinderRadius = 0.5f; //@todo need to sync with properties
+    public Transform Cylinder; //@pr todo: better way to reference this
+    public float CylinderRadius = 0.5f; //@pr todo: need to sync with properties
 
     public Ray GetCurrentRay()
     {
@@ -20,44 +20,65 @@ public class VRTK_InnerCylinderPointerRenderer : VRTK_StraightPointerRenderer
     /// <returns></returns>
     protected override float OverrideBeamLength(float currentLength)
     {
-        var circlePos2d = new Vector2(Cylinder.transform.position.x, Cylinder.transform.position.z);
+        float lengthToCylinderWall = 0;
+        if (GetBeamLengthToCylinderWall(ref lengthToCylinderWall))
+        {
+            return lengthToCylinderWall;
+        }
+        return base.OverrideBeamLength(currentLength);
+    }
 
-        Transform origin = GetOrigin();
-        var rayPos2d = new Vector2(origin.position.x, origin.position.z);
-        var rayFwd2d = new Vector2(origin.forward.x, origin.forward.z);
-        rayFwd2d.Normalize();
-        float hit = 0;
+    private bool GetBeamLengthToCylinderWall(ref float beamLength)
+    {
+        if (GetBeamLengthToCylinderWall2D(ref beamLength))
+        {
+            return Project2DDistOnto3DNormal(ref beamLength);
+        }
+        return false;
+    }
 
-        if (MathHelper.rayCircleNearestPositveIntersection(
-            rayPos2d,
-            rayFwd2d,
-            circlePos2d,
+    private bool GetBeamLengthToCylinderWall2D(ref float beamLength)
+    {
+        var ray2d = GetRay2D();
+        return MathHelper.rayCircleNearestPositveIntersection(
+            ray2d,
+            Cylinder.transform.position.ToVector2XZ(),
             CylinderRadius,
-            ref hit))
+            ref beamLength);
+    }
+
+    /// <summary>
+    /// Gets the current pointer ray in the 2d x-z plane
+    /// </summary>
+    private Ray2D GetRay2D()
+    {
+        Transform origin = GetOrigin();
+        var origin2d = origin.position.ToVector2XZ();
+        var forward2d = origin.forward.ToVector2XZ();
+        forward2d.Normalize();
+        return new Ray2D(origin2d, forward2d);
+    }
+
+    private bool Project2DDistOnto3DNormal(ref float beamLength)
+    {
+        float xzPlaneProjFac = PointerNormalProjXZFac();
+        if (xzPlaneProjFac != 0) // @pr todo: handle ray directly up (ie, dotNormals = 0)
         {
-
-            Vector3 ny0 = new Vector3(rayFwd2d.x, 0, rayFwd2d.y);
-            Vector3 hitY0 = origin.position +  ny0 * hit;
-            Vector3 hitY0_origin_vec = hitY0 - origin.position;
-
-            float uTop = Vector3.Dot(hitY0, ny0) + Vector3.Dot(hitY0, origin.position);
-            float uDiv = Vector3.Dot(ny0, origin.forward);
-            if (uDiv != 0) // @todo handle ray directly up (ie, uDiv = 0)
-            {
-                return hit / uDiv;
-            }
+            beamLength = beamLength / xzPlaneProjFac;
+            return true;
         }
+        return false;
+    }
 
-        if (controllerGrabScript == null || !controllerGrabScript.GetGrabbedObject())
-        {
-            savedBeamLength = 0f;
-        }
-
-        if (fixBeamLengthOnTipGrabInteraction && controllingPointer != null && controllingPointer.interactWithObjects && controllingPointer.grabToPointerTip && attachedToInteractorAttachPoint && controllerGrabScript != null && controllerGrabScript.GetGrabbedObject())
-        {
-            savedBeamLength = (savedBeamLength == 0f ? currentLength : savedBeamLength);
-            return savedBeamLength;
-        }
-        return currentLength;
+    /// <summary>
+    /// Projection factor for projecting vector onto 2D x-z plane
+    /// </summary
+    private float PointerNormalProjXZFac()
+    {
+        Transform origin = GetOrigin();
+        Vector3 forwardY0 = origin.forward;
+        forwardY0.y = 0;
+        forwardY0.Normalize();
+        return Vector3.Dot(forwardY0, origin.forward);
     }
 }

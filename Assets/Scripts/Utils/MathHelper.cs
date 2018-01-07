@@ -67,14 +67,13 @@ public class MathHelper : MonoBehaviour {
     }
 
     public static bool rayCircleNearestPositveIntersection(
-        Vector2 rayOrigin,
-        Vector2 rayNormal,
+        Ray2D ray,
         Vector2 circleCentre,
         float circleRadius,
         ref float out_rayHitDist)
     {
-        Vector2 n = rayNormal;
-        Vector2 p = rayOrigin - circleCentre;
+        Vector2 n = ray.direction;
+        Vector2 p = ray.origin - circleCentre;
         float r = -circleRadius;
 
         float b = (2 * n.x * p.x + 2 * n.y * p.y);
