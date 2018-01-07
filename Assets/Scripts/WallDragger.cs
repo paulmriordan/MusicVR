@@ -23,6 +23,7 @@ public class WallDragger : MonoBehaviour
 		}
 	}
 
+    public Transform WallTransform;
 	public KeyCode WallDraggerKey = KeyCode.LeftShift;
 	public BoundedDrag BoundedDrag;
 	public BoundedDrag HorizontalDrag;
@@ -56,9 +57,9 @@ public class WallDragger : MonoBehaviour
 
 	void Update()
 	{
-		transform.position = new Vector3(0, BoundedDrag.GetCurrentPos(), 0);
+		WallTransform.position = new Vector3(0, BoundedDrag.GetCurrentPos(), 0);
 
-		var euler = transform.localRotation.eulerAngles;
+		var euler = WallTransform.localRotation.eulerAngles;
 		var newY = HorizontalDrag.GetCurrentPos();
 		//quantize
 		if (Mathf.Abs(HorizontalDrag.Velocity) > QuantizeVelocity)
@@ -66,6 +67,6 @@ public class WallDragger : MonoBehaviour
 			var oneColRotation = 360.0f / m_numCols;
 			newY = Mathf.Round(newY/oneColRotation)*oneColRotation;
 		}
-		transform.localRotation = Quaternion.Euler(euler.x, newY, euler.z);
+        WallTransform.localRotation = Quaternion.Euler(euler.x, newY, euler.z);
 	}
 }
