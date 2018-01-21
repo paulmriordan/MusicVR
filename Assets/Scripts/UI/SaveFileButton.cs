@@ -6,19 +6,15 @@ using UnityEngine.UI;
 public class SaveFileButton : MonoBehaviour {
 
 	public SaveFileDialog SaveFileDialog {get;set;}
-	public Text TextUsed;
-	public Text TextEmpty;
-	public Image EmptyImage;
-	public Image UsedImage;
+	public Text Text;
+	public Image Image;
+    public Color EmptyColor;
+    public Color UsedColor;
 
-	public void Setup(string text, bool empty)
+    public void Setup(string text, bool empty)
 	{
-		TextUsed.text = text;
-		TextEmpty.text = text;
-		TextEmpty.gameObject.SetActive(empty);
-		TextUsed.gameObject.SetActive(!empty);
-		EmptyImage.gameObject.SetActive(empty);
-		UsedImage.gameObject.SetActive(!empty);
+		Text.text = text;
+        Image.color = empty ? EmptyColor : UsedColor;
 	}
 
 	public void Clicked()

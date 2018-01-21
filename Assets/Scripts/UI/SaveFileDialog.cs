@@ -21,6 +21,8 @@ public class SaveFileDialog : MonoBehaviour {
 		{
 			var newObj = (GameObject.Instantiate(SaveFileButtonPrefab) as GameObject).GetComponent<SaveFileButton>();
 			newObj.transform.SetParent(Grid.transform);
+            newObj.transform.localRotation = Quaternion.identity;
+            newObj.transform.localScale = Vector3.one;
 			newObj.SaveFileDialog = this;
 		}
 		Hide();
@@ -38,25 +40,32 @@ public class SaveFileDialog : MonoBehaviour {
 		switch (m_activeState)
 		{
 		case E_DialogState.save:
-			if(SaveFileExists(index))
-			{
-				GenericPopup.Instance.Show2ButtonPopup(
-					Localization.Get("L_OVERWRITE_POPUP"), 
-					Localization.Get("L_YES"),
-					Localization.Get("L_NO"),
-					() => {SaveToFile(index);});
-			}
-			else 
-				SaveToFile(index);
+            if (SaveFileExists(index))
+            {
+                Hide();
+                GenericPopup.Instance.Show2ButtonPopup(
+                    Localization.Get("L_OVERWRITE_POPUP"),
+                    Localization.Get("L_YES"),
+                    Localization.Get("L_NO"),
+                    () => { SaveToFile(index); },
+                    () => { Show(E_DialogState.save); });
+            }
+            else
+            {
+                SaveToFile(index);
+                Show(E_DialogState.save);
+            }
 			break;
 		case E_DialogState.load:
 			if(SaveFileExists(index))
 			{
-				GenericPopup.Instance.Show2ButtonPopup(
+                Hide();
+                GenericPopup.Instance.Show2ButtonPopup(
 					Localization.Get("L_LOAD_POPUP"),
 					Localization.Get("L_YES"),
 					Localization.Get("L_NO"),
-					() => {LoadFromFile(index);});
+					() => {LoadFromFile(index);},
+                    () => { Show(E_DialogState.load); });
 			}
 			break;
 		}
