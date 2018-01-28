@@ -2,7 +2,7 @@
 
 Prototyping VR music sequencer; create and watch music in VR.
 
-![demo](https://github.com/paulmriordan/RightmoveScraper/raw/master/musicvrdemo.gif "demo")
+![demo](https://github.com/paulmriordan/MusicVR/raw/master/musicvrdemo.gif "demo")
 
 [Demo video](https://vimeo.com/223441066)
 
