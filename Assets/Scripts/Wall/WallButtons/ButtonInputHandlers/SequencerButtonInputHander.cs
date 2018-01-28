@@ -66,8 +66,9 @@ namespace MusicVR.Wall
         public void OnPointerUp()
         {
             MouseDown = false;
-            //if (s_sequencerButtonDrag != null && s_sequencerButtonDrag.LastHitButton)
-            //    s_sequencerButtonDrag.LastHitButton.MouseDown = false;
+            // Click button if no button dragging occurred
+            if (s_sequencerButtonDrag == null)
+                m_parent.Clicked();
             s_sequencerButtonDrag = null;
         }
 
@@ -77,13 +78,10 @@ namespace MusicVR.Wall
 		{
 			if (s_sequencerButtonDrag == null)
 			{
-				if (s_inputConsumer.IsActive() && !InputManager.Instance.InputBlockedByUI())
-				{
-					MouseDown = true;
-					s_sequencerButtonDrag = new SequencerButtonDrag(m_parent.IsSelected 
-						? SequencerButtonDrag.E_SelectState.unselecting 
-						: SequencerButtonDrag.E_SelectState.selecting);
-				}
+				MouseDown = true;
+				s_sequencerButtonDrag = new SequencerButtonDrag(m_parent.IsSelected 
+					? SequencerButtonDrag.E_SelectState.unselecting 
+					: SequencerButtonDrag.E_SelectState.selecting);
 			}
 		}
 
@@ -92,30 +90,19 @@ namespace MusicVR.Wall
 			if (s_sequencerButtonDrag != null)
 			{
 				bool trySelect = this.m_parent != s_sequencerButtonDrag.LastHitButton;
-				trySelect &= s_inputConsumer.IsActive();
-				trySelect &= !InputManager.Instance.InputBlockedByUI();
 
 				if (trySelect)
 				{
 					MouseDown = true;
 
-					TrySelectFromDrag();
-					
-					s_sequencerButtonDrag.LastHitButton = this.m_parent;
+                    //Don't toggle if already at desired state
+                    var selected = s_sequencerButtonDrag.InputSelectType == SequencerButtonDrag.E_SelectState.selecting;
+                    if (m_parent.IsSelected != selected)
+                        m_parent.Clicked();
+
+                    s_sequencerButtonDrag.LastHitButton = this.m_parent;
 				}
 			}
-		}
-
-		private void StartDrag()
-		{
-		}
-
-		private void TrySelectFromDrag()
-		{
-			//Don't toggle if already at desired state
-			var selected = s_sequencerButtonDrag.InputSelectType == SequencerButtonDrag.E_SelectState.selecting;
-			if (m_parent.IsSelected != selected)
-				m_parent.Clicked();
 		}
 	}
 }

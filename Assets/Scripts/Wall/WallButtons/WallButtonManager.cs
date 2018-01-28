@@ -10,8 +10,9 @@ namespace MusicVR.Wall
 	{
 		private SequencerWallButton[] 	m_wallButtons = new SequencerWallButton[0];
 		private UIWallButton[] 	m_wallUIButtons = new UIWallButton[0];
+        private GameObject[] m_wallDragColliders = new GameObject[0];
 
-		private MusicWallData 	m_data;
+        private MusicWallData 	m_data;
 
 		public void Create(MusicWallData data)
 		{
@@ -20,11 +21,13 @@ namespace MusicVR.Wall
 			m_data = data;
 			m_wallButtons = new SequencerWallButton[data.CompositionData.NumRows * data.CompositionData.NumCols];
 			m_wallUIButtons = new UIWallButton[data.CompositionData.InstrumentDataList.Count * InstrumentUIData.Instance.Buttons.Count];
+            m_wallDragColliders = new GameObject[data.CompositionData.NumCols];
 
-			CreateUIButtons();
+            CreateUIButtons();
 			CreateSequencerButtons();
+            InstantiateWallDragColliders();
 
-			LoadMusicData(data.CompositionData);
+            LoadMusicData(data.CompositionData);
 
 			m_data.CompositionData.OnNoteStateChanged += NodeStateChangedHandler;
 		}
@@ -173,7 +176,8 @@ namespace MusicVR.Wall
 
 		private float GetButtonYPos(int sequencerRowIndex, int instrumentIndex, float buttonWidth, float buttonPadding)
 		{
-			return (sequencerRowIndex + instrumentIndex) * (buttonPadding + buttonWidth) + buttonWidth * 0.5f + buttonPadding;
+            var totalHeight = m_data.GetTotalHeight();
+			return (sequencerRowIndex + instrumentIndex) * (buttonPadding + buttonWidth) + buttonWidth * 0.5f + buttonPadding - totalHeight * 0.5f;
 		}
 
 		private GameObject CreateButtonInstance(GameObject prefab, Vector3 pos, float sclae)
@@ -191,6 +195,42 @@ namespace MusicVR.Wall
 			wallButton.SetCoord(row, col, m_data.CompositionData);
 			m_wallButtons[row + col * m_data.CompositionData.NumRows] = wallButton;
 		}
-	}
+
+
+        private void InstantiateWallDragColliders()
+        {
+            float buttonWidth = m_data.GetButtonWidth();
+
+            float colAngle = (2 * Mathf.PI) / (float)m_data.CompositionData.NumCols;
+            //float buttonWidth = m_data.GetButtonWidth();
+            for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++)
+            {
+                const float RADIUS_FAC = 1.2f;
+                const float WIDTH_FAC = 1.5f;
+                float x0 = Mathf.Sin(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
+                float z0 = Mathf.Cos(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
+                float x1 = Mathf.Sin((iCol + 1) * colAngle) * m_data.Radius * RADIUS_FAC;
+                float z1 = Mathf.Cos((iCol + 1) * colAngle) * m_data.Radius * RADIUS_FAC;
+                float x = (x0 + x1) * 0.5f;
+                float z = (z0 + z1) * 0.5f;
+                var pos = new Vector3(x, 0, z);
+                m_wallDragColliders[iCol] = CreateWallDragCollider(pos, buttonWidth * WIDTH_FAC);
+            }
+
+        }
+
+        private GameObject CreateWallDragCollider(Vector3 pos, float buttonWidth)
+        {
+            var h = m_data.GetTotalHeight();
+            var posRot = new Vector3(pos.x, 0, pos.z);
+            pos.y += h * 0.5f;
+            var inst = GameObject.Instantiate(m_data.GrabbableWallCollider, pos, Quaternion.LookRotation(-posRot));
+            inst.transform.SetParent(m_data.Parent, false);
+            const float Z_THICKNESS = 0.1f;
+            inst.transform.localScale = new Vector3(buttonWidth, h, Z_THICKNESS);
+            inst.AddComponent<BoxCollider>();
+            return inst;
+        }
+    }
 
 }
