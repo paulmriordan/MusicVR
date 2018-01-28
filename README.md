@@ -8,20 +8,20 @@ For music synthesis, I have utilised and extended [Unity CSharpSynth ](https://f
 
 https://vimeo.com/223441066  pw: vr360demo
 
-## Development Progress
+## Things to do
 
-### Completed
-- Proof of concept (currently works in desktop and mobile) with multiple instrument sections, and abilty to navigate and edit composition
-- Configurable instrument scales (pentatonic, major, minor, chromatic)
-- Drum instrument types
-- Saving/loading compositions
-- Basic visualisaions; HDR button effects, lighting from play position marker, skybox
-
-### In Progress
-- VR friendly UI
+### Bugs 
+- HDR effect not working on Oculus
+- Instrument GUI buttons (scale, instrument select) should be pushed back
+- Pointer raycast should visually hit left hand UI buttons
+- Wall drag colliders must be EXACTLY at cylinder radius to work, this should be made more robust
+- Drag extents must change dynamically; configurable joint limits must be set when height changes
+- Icons for saving/loading are not clear
 
 ### Future goals
-- Build project for VR and handle VR input
+- Review UX
+	- instrument selection, scale selection, tempo, num rows/cols should, saving, loading
+- Art pass (UI, skybox, sequencer buttons... everything)
 - Configurable rythm swing level 
 - Improve visualization; better buttons assets, skybox, add other visual effects 
 - Loading custom SFZ instruments
