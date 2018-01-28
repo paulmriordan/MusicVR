@@ -138,9 +138,9 @@ namespace MusicVR.Wall
 				Vector3 pos;
 				pos = m_data.GetPositionAtAngle(frac * 2.0f * Mathf.PI);
 				var h = m_data.GetTotalHeight();
-				pos.y = h * 0.5f - m_data.GetButtonWidth()*0.5f;
+                pos.y = m_data.GetButtonWidth();
 				m_lineInstance.transform.localPosition = pos;
-				m_lineInstance.transform.localScale = new Vector3(m_lineInstance.transform.localScale.x, h - 2.0f * m_data.GetButtonWidth(), 0.01f);
+				m_lineInstance.transform.localScale = new Vector3(m_lineInstance.transform.localScale.x, h, 0.01f);
 
 				Vector3 forward;
 				forward = m_data.GetPositionAtAngle(frac * 2.0f * Mathf.PI + transform.localRotation.eulerAngles.y * Mathf.Deg2Rad);
