@@ -14,7 +14,8 @@ namespace MusicVR.Wall
 			m_parent = parent;
 		}
 
-		public void OnTouchDown()
+        #region Mobile input events
+        public void OnTouchDown()
 		{
 			if (!Input.GetMouseButton(0))
 				return;
@@ -44,5 +45,32 @@ namespace MusicVR.Wall
 
 			MouseDown = false;
 		}
-	}
+
+        #endregion
+
+        #region VR Input Events
+
+        public void OnPointerStay()
+        {
+            MouseDown = true;
+        }
+
+        public void OnPointerExit()
+        {
+            MouseDown = false;
+        }
+
+        public void OnPointerUp()
+        {
+            if (MouseDown)
+            {
+                Debug.Log("UI button clicked");
+                m_parent.Clicked();
+            }
+
+            MouseDown = false;
+        }
+
+        #endregion
+    }
 }
