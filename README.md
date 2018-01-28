@@ -30,7 +30,7 @@ Prototyping VR music sequencer; create and watch music in VR.
 - Review UX
 	- instrument selection, scale selection, tempo, num rows/cols should, saving, loading
 - Art pass (UI, skybox, sequencer buttons... everything)
-- Configurable rythm swing level 
+- Configurable rhythm swing level 
 - Improve visualization; better buttons assets, skybox, add other visual effects 
 - Loading custom SFZ instruments
 - Importing/exporting midi projects; allow users to edit composition externally, then experience them in VR
