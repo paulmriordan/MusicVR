@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#if false
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -70,3 +71,5 @@ public class WallDragger : MonoBehaviour
         WallTransform.localRotation = Quaternion.Euler(euler.x, newY, euler.z);
 	}
 }
+
+#endif

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#if false
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -193,3 +194,5 @@ public class WallButtons
         return inst;
     }
 }
+
+#endif

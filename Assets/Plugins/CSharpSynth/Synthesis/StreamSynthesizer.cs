@@ -1,10 +1,8 @@
-﻿//#define SEQ_PROFILING
-using System;
+﻿using System;
 using System.Collections.Generic;
 using CSharpSynth.Banks;
 using CSharpSynth.Sequencer;
 using CSharpSynth.Effects;
-using CSharpSynth.CustomSeq;
 using UnityEngine;
 
 namespace CSharpSynth.Synthesis
@@ -22,7 +20,7 @@ namespace CSharpSynth.Synthesis
         private float[] panPositions_;
         private float[] volPositions_;
         private double[] tunePositions_;
-		private CustomSequencer customSequencer;
+		private IProcessableSequencer customSequencer;
         private MidiSequencer seq;
         private List<BasicAudioEffect> effects;
         //Set "once parameters"
@@ -91,7 +89,6 @@ namespace CSharpSynth.Synthesis
             this.polyphony = maxpoly;
             setupSynth();
         }
-
         public bool LoadBank(string filename)
         {
             //UnitySynth
@@ -152,7 +149,7 @@ namespace CSharpSynth.Synthesis
                 tunePositions_[channel] = semitones;
             }
         }
-		public void setSequencer(CustomSequencer sequencer)
+		public void setSequencer(ManualSequencer sequencer)
 		{
 			this.customSequencer = sequencer;
 		}
@@ -388,186 +385,15 @@ namespace CSharpSynth.Synthesis
 		private void FillWorkingBuffer()
         {
             // Call Process on all active voices
-            LinkedListNode<Voice> node;
-            LinkedListNode<Voice> delnode;
+            LinkedListNode<Voice> node = null;
+            LinkedListNode<Voice> delnode = null;
 			if (customSequencer != null && customSequencer.isPlaying)
 			{
-				#if SEQ_PROFILING
-				var sw = new System.Diagnostics.Stopwatch();
-				long ms = 0;
-				sw.Start();
-				#endif
-
-				CustomSequencerEvent seqEvent = customSequencer.Process(samplesperBuffer);
-				if (seqEvent == null)
-					return;
-				int oldtime = 0;
-				int waitTime = 0;
-				for (int x = 0; x < seqEvent.Events.Count; x++)
-				{
-					waitTime = ((int)seqEvent.Events[x].deltaTime - customSequencer.SampleTime) - oldtime;
-					if (waitTime != 0)
-					{
-						node = activeVoices.First;
-						while (node != null)
-						{
-							if (oldtime < 0 || waitTime < 0)
-								throw new Exception("dd");
-							node.Value.Process(sampleBuffer, oldtime, oldtime + waitTime);
-							if (node.Value.isInUse == false)
-							{
-								delnode = node;
-								node = node.Next;
-								freeVoices.Push(delnode.Value);
-								activeVoices.Remove(delnode);
-							}
-							else
-							{
-								node = node.Next;
-							}
-						}
-					}
-					oldtime = oldtime + waitTime;
-					//Now process the event
-					customSequencer.ProcessCustomEvent(seqEvent.Events[x]);
-				}
-
-				#if SEQ_PROFILING
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom 1 : MSeconds Elapsed: " + ( ms));
-				sw.Reset();
-				sw.Start();
-				#endif
-
-				//make sure to finish the processing to the end of the buffer
-				int count = 0;
-				if (oldtime < samplesperBuffer)
-				{
-					node = activeVoices.First;
-					while (node != null)
-					{
-						node.Value.Process(sampleBuffer, oldtime, samplesperBuffer);
-						if (node.Value.isInUse == false)
-						{
-							delnode = node;
-							node = node.Next;
-							freeVoices.Push(delnode.Value);
-							activeVoices.Remove(delnode);
-						}
-						else
-						{
-							node = node.Next;
-						}
-						count++;
-					}
-				}
-
-				#if SEQ_PROFILING
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom 2 : MSeconds Elapsed: " + ( ms) + "count: " + count);
-				sw.Reset();
-				sw.Start();
-				#endif
-				//increment our sample count
-				customSequencer.IncrementSampleCounter(samplesperBuffer);
-
-				#if SEQ_PROFILING
-				//Insert Code To Time
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom End: Total MSeconds Elapsed: " + ( ms));
-				#endif
-
+				FillWorkingBufferFromSequencer(customSequencer, node, delnode);
 			}
             else if (seq != null && seq.isPlaying)//Use sequencer
             {
-				#if SEQ_PROFILING
-				var sw = new System.Diagnostics.Stopwatch();
-				long ms = 0;
-				sw.Start();
-				#endif
-
-                MidiSequencerEvent seqEvent = seq.Process(samplesperBuffer);
-                if (seqEvent == null)
-                    return;
-                int oldtime = 0;
-                int waitTime = 0;
-                for (int x = 0; x < seqEvent.Events.Count; x++)
-                {
-                    waitTime = ((int)seqEvent.Events[x].deltaTime - seq.SampleTime) - oldtime;
-                    if (waitTime != 0)
-                    {
-                        node = activeVoices.First;
-                        while (node != null)
-                        {
-                            if (oldtime < 0 || waitTime < 0)
-                                throw new Exception("dd");
-                            node.Value.Process(sampleBuffer, oldtime, oldtime + waitTime);
-                            if (node.Value.isInUse == false)
-                            {
-                                delnode = node;
-                                node = node.Next;
-                                freeVoices.Push(delnode.Value);
-                                activeVoices.Remove(delnode);
-                            }
-                            else
-                            {
-                                node = node.Next;
-                            }
-                        }
-                    }
-                    oldtime = oldtime + waitTime;
-                    //Now process the event
-                    seq.ProcessMidiEvent(seqEvent.Events[x]);
-                }
-
-				#if SEQ_PROFILING
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom 1 : MSeconds Elapsed: " + ( ms));
-				#endif
-
-                //make sure to finish the processing to the end of the buffer
-				int count = 0;
-                if (oldtime < samplesperBuffer)
-                {
-                    node = activeVoices.First;
-                    while (node != null)
-                    {
-                        node.Value.Process(sampleBuffer, oldtime, samplesperBuffer);
-                        if (node.Value.isInUse == false)
-                        {
-                            delnode = node;
-                            node = node.Next;
-                            freeVoices.Push(delnode.Value);
-                            activeVoices.Remove(delnode);
-                        }
-                        else
-                        {
-                            node = node.Next;
-                        }
-						count++;
-                    }
-                }
-
-				#if SEQ_PROFILING
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom 2 : MSeconds Elapsed: " + ( ms) + "count: " + count);
-				sw.Reset();
-				sw.Start();
-				#endif
-
-                //increment our sample count
-                seq.IncrementSampleCounter(samplesperBuffer);
-
-				#if SEQ_PROFILING
-				//Insert Code To Time
-				sw.Stop();
-				ms = sw.ElapsedMilliseconds;
-				Debug.Log("Custom End: Total MSeconds Elapsed: " + ( ms));
-				#endif
+				FillWorkingBufferFromSequencer(seq, node, delnode);
             }
             else //Manual mode
             {
@@ -616,6 +442,78 @@ namespace CSharpSynth.Synthesis
                 }
             }
         }
+		private void FillWorkingBufferFromSequencer(IProcessableSequencer seq, LinkedListNode<Voice> node, LinkedListNode<Voice> delnode)
+		{ 
+			// Get all events scheduled for this frame
+			SequencerEventList seqEvent = seq.Process(samplesperBuffer);
+			if (seqEvent == null)
+				return;
+
+			seq.Lock();
+
+			int oldtime = 0;
+			int waitTime = 0;
+			for (int x = 0; x < seqEvent.Events.Count; x++)
+			{
+				waitTime = ((int)seqEvent.Events[x].deltaTime - seq.SampleTime) - oldtime;
+				if (waitTime != 0)
+				{
+					//Process every active voice until this event's time
+					node = activeVoices.First;
+					while (node != null)
+					{
+						if (oldtime < 0 || waitTime < 0)
+							throw new Exception("Negative processing time. Possible thread lock issue.");
+
+						node.Value.Process(sampleBuffer, oldtime, oldtime + waitTime);
+
+						if (node.Value.isInUse == false)
+						{
+							delnode = node;
+							node = node.Next;
+							freeVoices.Push(delnode.Value);
+							activeVoices.Remove(delnode);
+						}
+						else
+						{
+							node = node.Next;
+						}
+					}
+				}
+				oldtime = oldtime + waitTime;
+				//Now process the event
+				seq.ProcessEvent(seqEvent.Events[x]);
+			}
+
+			//make sure to finish the processing to the end of the buffer
+			int count = 0;
+			if (oldtime < samplesperBuffer)
+			{
+				node = activeVoices.First;
+				while (node != null)
+				{
+					node.Value.Process(sampleBuffer, oldtime, samplesperBuffer);
+					if (node.Value.isInUse == false)
+					{
+						delnode = node;
+						node = node.Next;
+						freeVoices.Push(delnode.Value);
+						activeVoices.Remove(delnode);
+					}
+					else
+					{
+						node = node.Next;
+					}
+					count++;
+				}
+			}
+
+			//increment our sample count
+			seq.IncrementSampleCounter(samplesperBuffer);
+
+			seq.Unlock();
+		}
+
         private void ClearWorkingBuffer()
         {
             Array.Clear(sampleBuffer, 0, audioChannels * samplesperBuffer);

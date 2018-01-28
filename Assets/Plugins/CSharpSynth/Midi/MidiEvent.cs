@@ -3,13 +3,13 @@
     public class MidiEvent
     {
         //--Variables
-        public uint deltaTime;
-        public MidiHelper.MidiMetaEvent midiMetaEvent;
-        public MidiHelper.MidiChannelEvent midiChannelEvent;
-        public object[] Parameters;
-        public byte parameter1;
-        public byte parameter2;
-        public byte channel;
+		public uint deltaTime {get;set;}
+		public MidiHelper.MidiMetaEvent midiMetaEvent {get;set;}
+		public MidiHelper.MidiChannelEvent midiChannelEvent {get;set;}
+		public object[] Parameters {get;set;}
+		public byte parameter1 {get;set;}
+		public byte parameter2 {get;set;}
+		public byte channel {get;set;}
         //--Public Methods
         public MidiEvent()
         {

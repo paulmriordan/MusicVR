@@ -35,7 +35,7 @@ public class MathHelper : MonoBehaviour {
 		plane.Raycast(ray, out d);
 		return ray.GetPoint(d);
 	}
-
+    
     public static float ClampAngle(float value, float start, float end)
     {
         float width = end - start;
@@ -103,4 +103,8 @@ public class MathHelper : MonoBehaviour {
         }
         return true;
     }
+
+	public static int Mod(int x, int m) {
+		return (x%m + m)%m;
+	}
 }

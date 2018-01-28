@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace CSharpSynth.Sequencer
 {
-    public class MidiSequencer
+	public class MidiSequencer : IProcessableSequencer
     {
         //--Variables
         private MidiFile _MidiFile;
@@ -17,7 +17,7 @@ namespace CSharpSynth.Sequencer
         private double PitchWheelSemitoneRange = 2.0;
         private bool playing = false;
         private bool looping = false;
-        private MidiSequencerEvent seqEvt;
+        private SequencerEventList seqEvt;
         private int sampleTime;
         private int eventIndex;
         //--Events
@@ -59,7 +59,7 @@ namespace CSharpSynth.Sequencer
             this.synth = synth;
             this.synth.setSequencer(this);
             blockList = new List<byte>();
-            seqEvt = new MidiSequencerEvent();
+            seqEvt = new SequencerEventList();
         }
         public string getProgramName(int channel)
         {
@@ -72,7 +72,7 @@ namespace CSharpSynth.Sequencer
         {
             return currentPrograms[channel];
         }
-        public void setProgram(int channel, int program)
+        public void SetProgram(int channel, int program)
         {
             currentPrograms[channel] = program;
         }
@@ -138,6 +138,12 @@ namespace CSharpSynth.Sequencer
             }
             return true;
         }
+		public void Lock()
+		{
+		}
+		public void Unlock()
+		{
+		}
         public bool LoadMidi(string file, bool UnloadUnusedInstruments)
         {
             if (playing == true)
@@ -214,7 +220,7 @@ namespace CSharpSynth.Sequencer
             for (int x = 0; x < synth.VolPositions.Length; x++)
                 synth.VolPositions[x] = 1.00f;
         }
-        public MidiSequencerEvent Process(int frame)
+		public SequencerEventList Process(int frame)
         {
             seqEvt.Events.Clear();
             //stop or loop
@@ -250,7 +256,7 @@ namespace CSharpSynth.Sequencer
         {
             sampleTime = sampleTime + amount;
         }
-        public void ProcessMidiEvent(MidiEvent midiEvent)
+        public void ProcessEvent(MidiEvent midiEvent)
         {
             if (midiEvent.midiChannelEvent != MidiHelper.MidiChannelEvent.None)
             {
@@ -355,7 +361,7 @@ namespace CSharpSynth.Sequencer
             while (eventIndex < _MidiFile.Tracks[0].EventCount && _MidiFile.Tracks[0].MidiEvents[eventIndex].deltaTime < (sampleTime + amount))
             {
                 if (_MidiFile.Tracks[0].MidiEvents[eventIndex].midiChannelEvent != MidiHelper.MidiChannelEvent.Note_On)
-                    ProcessMidiEvent(_MidiFile.Tracks[0].MidiEvents[eventIndex]);               
+                    ProcessEvent(_MidiFile.Tracks[0].MidiEvents[eventIndex]);               
                 eventIndex++;
             }
             sampleTime = sampleTime + amount;
