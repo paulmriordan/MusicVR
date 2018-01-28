@@ -6,6 +6,10 @@ using VRTK;
 [RequireComponent(typeof(VRTK_BasePointerRenderer))]
 public class VRPointerEvents : MonoBehaviour
 {
+    public VRTK_CustomRaycast customRaycast;
+    public LayerMask layersToIgnore = Physics.IgnoreRaycastLayer;
+    public float maximumLength = 1000.0f;
+
     VRTK_InnerCylinderPointerRenderer m_pointerRenderer = null;
     Collider m_lastHit = null;
 
@@ -25,10 +29,6 @@ public class VRPointerEvents : MonoBehaviour
     {
         //OnActivationButtonReleased.Invoke(o, e);
     }
-
-    public VRTK_CustomRaycast customRaycast;
-    public LayerMask layersToIgnore = Physics.IgnoreRaycastLayer;
-    public float maximumLength = 1000.0f;
 
     public void SelectionButtonPressed(object o, ControllerInteractionEventArgs e)
     {
