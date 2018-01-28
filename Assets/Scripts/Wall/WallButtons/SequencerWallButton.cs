@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using MusicVR.Composition;
-using MusicVR.WallInput;
 
 namespace MusicVR.Wall
 {

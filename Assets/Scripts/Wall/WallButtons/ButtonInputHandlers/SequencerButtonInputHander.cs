@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using MusicVR.WallInput;
 
 namespace MusicVR.Wall
 {
 	public class SequencerButtonInputHander : ButtonInputHandler
 	{
 		public static SequencerButtonDrag s_sequencerButtonDrag = null;
-		private static WallButtonInputConsumer s_inputConsumer = new WallButtonInputConsumer();
 
 		private SequencerWallButton m_parent;
 
@@ -19,37 +17,7 @@ namespace MusicVR.Wall
 		{
 			m_parent = parent;
 		}
-
-		#region Input Events
-		public void OnTouchStay()
-		{
-			if (!Input.GetMouseButton(0))
-				return;
-
-			TryStartDrag();
-			TrySelectViaDrag();
-		}
-
-		public void OnTouchExit()
-		{
-			MouseDown = false;
-		}
-
-		public void OnTouchUp()
-		{
-			// Click button if no camera drag occurred & no button dragging occurred
-			if (s_inputConsumer.IsActive() 
-				&& s_sequencerButtonDrag == null
-				&& !InputManager.Instance.InputBlockedByUI())
-			{
-				m_parent.Clicked();
-			}
-
-			MouseDown = false;
-			s_sequencerButtonDrag = null;
-		}
-        #endregion
-
+        
         #region VR Input Events
 
         public void OnPointerStay()
