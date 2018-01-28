@@ -195,28 +195,18 @@ namespace MusicVR.Wall
 			wallButton.SetCoord(row, col, m_data.CompositionData);
 			m_wallButtons[row + col * m_data.CompositionData.NumRows] = wallButton;
 		}
-
-
+        
         private void InstantiateWallDragColliders()
         {
             float buttonWidth = m_data.GetButtonWidth();
 
             float colAngle = (2 * Mathf.PI) / (float)m_data.CompositionData.NumCols;
-            //float buttonWidth = m_data.GetButtonWidth();
             for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++)
             {
-                const float RADIUS_FAC = 1.0f;
-                const float WIDTH_FAC = 1.5f;
-                float x0 = Mathf.Sin(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
-                float z0 = Mathf.Cos(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
-                float x1 = Mathf.Sin((iCol + 1) * colAngle) * m_data.Radius * RADIUS_FAC;
-                float z1 = Mathf.Cos((iCol + 1) * colAngle) * m_data.Radius * RADIUS_FAC;
-                float x = (x0 + x1) * 0.5f;
-                float z = (z0 + z1) * 0.5f;
-                var pos = new Vector3(x, 0, z);
+                var pos = GetXZPosition(iCol, iCol + 1, colAngle, m_data.Radius);
+                const float WIDTH_FAC = 1.5f; //@pr todo: more robust way to ensure drag colliders are wide enough
                 m_wallDragColliders[iCol] = CreateWallDragCollider(pos, buttonWidth * WIDTH_FAC);
             }
-
         }
 
         private GameObject CreateWallDragCollider(Vector3 pos, float buttonWidth)
