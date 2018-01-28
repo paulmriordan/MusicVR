@@ -78,7 +78,7 @@ public class MathHelper : MonoBehaviour {
 
         float b = (2 * n.x * p.x + 2 * n.y * p.y);
         float a = (n.y * n.y + n.x * n.x);
-        float c = (p.x * p.x + p.y * p.y + r*r);
+        float c = (p.x * p.x + p.y * p.y - r*r);
         
         if (a == 0)
             return false;
