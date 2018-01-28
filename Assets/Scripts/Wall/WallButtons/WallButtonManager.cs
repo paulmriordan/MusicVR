@@ -205,7 +205,7 @@ namespace MusicVR.Wall
             //float buttonWidth = m_data.GetButtonWidth();
             for (int iCol = 0; iCol < m_data.CompositionData.NumCols; iCol++)
             {
-                const float RADIUS_FAC = 1.2f;
+                const float RADIUS_FAC = 1.0f;
                 const float WIDTH_FAC = 1.5f;
                 float x0 = Mathf.Sin(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
                 float z0 = Mathf.Cos(iCol * colAngle) * m_data.Radius * RADIUS_FAC;
@@ -223,7 +223,6 @@ namespace MusicVR.Wall
         {
             var h = m_data.GetTotalHeight();
             var posRot = new Vector3(pos.x, 0, pos.z);
-            pos.y += h * 0.5f;
             var inst = GameObject.Instantiate(m_data.GrabbableWallCollider, pos, Quaternion.LookRotation(-posRot));
             inst.transform.SetParent(m_data.Parent, false);
             const float Z_THICKNESS = 0.1f;
