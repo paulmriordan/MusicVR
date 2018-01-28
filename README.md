@@ -1,16 +1,24 @@
 # MusicVR
 
-Prototyping an idea for a 360 music sequencer, for VR headsets
+Prototyping VR music sequencer; create and watch music in VR.
 
-Inspired by TiltBrush, I wanted to make a VR music experience where you can see and edit music around you.
+![demo](https://github.com/paulmriordan/RightmoveScraper/raw/master/musicvrdemo.gif "demo")
 
-For music synthesis, I have utilised and extended [Unity CSharpSynth ](https://forum.unity3d.com/threads/unitysynth-full-xplatform-midi-synth.130104/)
+[Demo video](https://vimeo.com/223441066)
 
-https://vimeo.com/223441066  pw: vr360demo
+## Requirements
+- Oculus Rift
+- Unity 2017.1.3f 
+
+## Libraries used
+
+- For music synthesis, I have used and modified [Unity CSharpSynth ](https://forum.unity3d.com/threads/unitysynth-full-xplatform-midi-synth.130104/)
+- For VR interaction,  I have used and extended [VRTK](https://assetstore.unity.com/packages/tools/vrtk-virtual-reality-toolkit-vr-toolkit-64131/)
 
 ## Things to do
 
 ### Bugs 
+- Reloading can cause zombie button to be left in scene
 - HDR effect not working on Oculus
 - Instrument GUI buttons (scale, instrument select) should be pushed back
 - Pointer raycast should visually hit left hand UI buttons
@@ -27,4 +35,4 @@ https://vimeo.com/223441066  pw: vr360demo
 - Loading custom SFZ instruments
 - Importing/exporting midi projects; allow users to edit composition externally, then experience them in VR
 - Sharing of compositions between users
-- Allow portamento synth instruments; allow user to draw a continuous line around themselves
+- Allow portamento synth instruments; allow user to draw a continuous line
