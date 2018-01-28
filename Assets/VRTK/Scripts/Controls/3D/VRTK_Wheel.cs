@@ -51,8 +51,8 @@ namespace VRTK
         protected float springDamperValue = 5f;
         protected Quaternion initialLocalRotation;
         protected Rigidbody wheelRigidbody;
-        //protected HingeJoint wheelHinge;
-        //protected bool wheelHingeCreated = false;
+        protected HingeJoint wheelHinge;
+        protected bool wheelHingeCreated = false;
         protected bool initialValueCalculated = false;
         protected float springAngle;
 
@@ -64,16 +64,16 @@ namespace VRTK
 
         protected override bool DetectSetup()
         {
-            //if (wheelHingeCreated)
-            //{
-            //    wheelHinge.anchor = Vector3.up;
-            //    wheelHinge.axis = Vector3.up;
+            if (wheelHingeCreated)
+            {
+                wheelHinge.anchor = Vector3.up;
+                wheelHinge.axis = Vector3.up;
 
-            //    if (connectedTo)
-            //    {
-            //        wheelHinge.connectedBody = connectedTo.GetComponent<Rigidbody>();
-            //    }
-            //}
+                if (connectedTo)
+                {
+                    wheelHinge.connectedBody = connectedTo.GetComponent<Rigidbody>();
+                }
+            }
 
             return true;
         }
@@ -129,12 +129,12 @@ namespace VRTK
 
         protected virtual void SetupHinge()
         {
-            //wheelHinge = GetComponent<HingeJoint>();
-            //if (wheelHinge == null)
-            //{
-            //    wheelHinge = gameObject.AddComponent<HingeJoint>();
-            //    wheelHingeCreated = true;
-            //}
+            wheelHinge = GetComponent<HingeJoint>();
+            if (wheelHinge == null)
+            {
+                wheelHinge = gameObject.AddComponent<HingeJoint>();
+                wheelHingeCreated = true;
+            }
 
             SetupHingeRestrictions();
         }
@@ -153,40 +153,38 @@ namespace VRTK
 
             if (lockAtLimits)
             {
-                //wheelHinge.useLimits = true;
-                //JointLimits wheelLimits = new JointLimits();
-                //wheelLimits.min = minJointLimit;
-                //wheelLimits.max = maxJointLimit;
-                //wheelHinge.limits = wheelLimits;
-                //Vector3 adjustedLimitsAngle = transform.localEulerAngles;
+                wheelHinge.useLimits = true;
+                JointLimits wheelLimits = new JointLimits();
+                wheelLimits.min = minJointLimit;
+                wheelLimits.max = maxJointLimit;
+                wheelHinge.limits = wheelLimits;
+                Vector3 adjustedLimitsAngle = transform.localEulerAngles;
 
-                //switch (Mathf.RoundToInt(initialLocalRotation.eulerAngles.z))
-                //{
-                //    case 0:
-                //        adjustedLimitsAngle = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y - minJointLimit, transform.localEulerAngles.z);
-                //        break;
-                //    case 90:
-                //        adjustedLimitsAngle = new Vector3(transform.localEulerAngles.x + minJointLimit, transform.localEulerAngles.y, transform.localEulerAngles.z);
-                //        break;
-                //    case 180:
-                //        adjustedLimitsAngle = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y + minJointLimit, transform.localEulerAngles.z);
-                //        break;
-                //}
-                //transform.localEulerAngles = adjustedLimitsAngle;
+                switch (Mathf.RoundToInt(initialLocalRotation.eulerAngles.z))
+                {
+                    case 0:
+                        adjustedLimitsAngle = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y - minJointLimit, transform.localEulerAngles.z);
+                        break;
+                    case 90:
+                        adjustedLimitsAngle = new Vector3(transform.localEulerAngles.x + minJointLimit, transform.localEulerAngles.y, transform.localEulerAngles.z);
+                        break;
+                    case 180:
+                        adjustedLimitsAngle = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y + minJointLimit, transform.localEulerAngles.z);
+                        break;
+                }
+                transform.localEulerAngles = adjustedLimitsAngle;
                 initialValueCalculated = false;
             }
         }
 
         protected virtual void ConfigureHingeSpring()
         {
-            //JointSpring snapSpring = new JointSpring();
-            //snapSpring.spring = springStrengthValue;
-            //snapSpring.damper = springDamperValue;
-            //snapSpring.targetPosition = springAngle + wheelHinge.limits.min;
-            //wheelHinge.spring = snapSpring;
+            JointSpring snapSpring = new JointSpring();
+            snapSpring.spring = springStrengthValue;
+            snapSpring.damper = springDamperValue;
+            snapSpring.targetPosition = springAngle + wheelHinge.limits.min;
+            wheelHinge.spring = snapSpring;
         }
-
-        public bool precisionGrab = true;
 
         protected virtual void SetupInteractableObject()
         {
@@ -213,7 +211,7 @@ namespace VRTK
                 attachMechanic = gameObject.AddComponent<VRTK_RotatorTrackGrabAttach>();
             }
 
-            attachMechanic.precisionGrab = precisionGrab;
+            attachMechanic.precisionGrab = true;
             attachMechanic.detachDistance = detatchDistance;
 
             wheelInteractableObject.grabAttachMechanicScript = attachMechanic;
@@ -228,7 +226,7 @@ namespace VRTK
         protected virtual void WheelInteractableObjectGrabbed(object sender, InteractableObjectEventArgs e)
         {
             wheelRigidbody.angularDrag = grabbedFriction;
-            //wheelHinge.useSpring = false;
+            wheelHinge.useSpring = false;
         }
 
         protected virtual void WheelInteractableObjectUngrabbed(object sender, InteractableObjectEventArgs e)
@@ -236,7 +234,7 @@ namespace VRTK
             wheelRigidbody.angularDrag = releasedFriction;
             if (snapToStep)
             {
-                //wheelHinge.useSpring = true;
+                wheelHinge.useSpring = true;
                 ConfigureHingeSpring();
             }
         }
